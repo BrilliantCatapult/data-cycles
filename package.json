@@ -1,0 +1,23 @@
+{
+  "name": "brilliant_catapult",
+  "version": "1.0.0",
+  "description": "Bike Share Visualization",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahiafayez/Brilliant-Catapult.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bahiafayez/Brilliant-Catapult/issues"
+  },
+  "homepage": "https://github.com/bahiafayez/Brilliant-Catapult#readme",
+  "dependencies": {
+    "elasticsearch": "^5.0.0",
+    "express": "^4.13.1"
+  }
+}
