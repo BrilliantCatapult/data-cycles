@@ -1,13 +1,22 @@
-var elasticsearch = require('elasticsearch');
+var bodyParser  = require('body-parser');
+var helpers = require('./helpers.js');
 
 module.exports = function (app, express) {
-  app.use(express.static('client'));
+
+  var bikeRouter = express.Router();
+
+  app.use(express.static(__dirname +'../../client'));
 
   // configure elastic search
-  var client = new elasticsearch.Client({
-    host: 'localhost:9200',
-    log: 'trace'
-  });
+  // bodyParser to get data from POST requests
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(bodyParser.json());
+
+  app.use('/api/bikes', bikeRouter);
+  app.use(helpers.errorLogger);
+  app.use(helpers.errorHandler);
+
+  require('../routes/bikeRoute.js')(bikeRouter);
 
   // client.ping({
   //   // ping usually has a 3000ms timeout 
@@ -22,5 +31,6 @@ module.exports = function (app, express) {
   //     console.log('All is well');
   //   }
   // });
+  
 
 };

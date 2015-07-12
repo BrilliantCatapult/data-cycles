@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/bahiafayez/Brilliant-Catapult#readme",
   "dependencies": {
+    "body-parser": "^1.13.2",
     "elasticsearch": "^5.0.0",
     "express": "^4.13.1"
   }
