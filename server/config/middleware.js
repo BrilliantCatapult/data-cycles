@@ -5,7 +5,7 @@ module.exports = function (app, express) {
 
   var bikeRouter = express.Router();
 
-  app.use(express.static(__dirname +'../../client'));
+  app.use(express.static('client/'));
 
   // configure elastic search
   // bodyParser to get data from POST requests
