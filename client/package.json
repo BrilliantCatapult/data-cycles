@@ -1,5 +1,5 @@
 {
-  "name": "test-d3",
+  "name": "BrillCat",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,6 @@
   },
   "author": "",
   "license": "ISC",
-<<<<<<< HEAD
   "dependencies": {
     "gulp": "^3.9.0"
   },
@@ -16,4 +15,3 @@
     "gulp-serve": "^1.0.0"
   }
 }
->>>>>>> Adds leaflet w/openstreetmap, beginning route (but w/hardcoded data), and gulpfile to run client server
