@@ -10,8 +10,7 @@ var jshint = require('gulp-jshint');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var jsdoc = require("gulp-jsdoc");
- 
+var shell = require('gulp-shell'); 
 
 
 // Lint Task
@@ -27,10 +26,6 @@ gulp.task('lint', function() {
 //         .pipe(sass())
 //         .pipe(gulp.dest('css'));
 // });
-gulp.task('document', function() {
-    gulp.src("./server/**/*.js")
-      .pipe(jsdoc('./documentation-output'));
-});
 
 // Concatenate & Minify JS
 gulp.task('scripts', function() {
@@ -41,6 +36,18 @@ gulp.task('scripts', function() {
         .pipe(uglify())
         .pipe(gulp.dest('dist'));
 });
+
+
+gulp.task('docs', shell.task([ 
+ 'node_modules/jsdoc/jsdoc.js '+ 
+   //'-c docs/templates/jaguar/conf.json '+   // config file
+   //'-t docs/templates/jaguar '+    // template file
+   '-c docs/templates/minami/conf.json '+   // config file
+   '-t docs/templates/minami '+    // template file
+   '-d docs/dist '+                             // output directory
+   './README.md ' +                              // to include README.md as index contents
+   '-r ./server ./client'                              // source code directory
+]));
 
 // Watch Files For Changes
 gulp.task('watch', function() {
