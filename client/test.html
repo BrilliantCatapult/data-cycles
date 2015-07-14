@@ -1,90 +1,89 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title></title>
-<meta charset="utf-8">
-<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-
-
+  <meta charset="utf-8">
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 </head>
+
 <body>
+  <script type="text/javascript">
+  $(document).ready(function() {
 
-<script type="text/javascript">
-  $(document).ready(function () {
-  
-  var width = Math.max(960, window.innerWidth),
-    height = Math.max(500, window.innerHeight);
+    var width = Math.max(960, window.innerWidth),
+      height = Math.max(500, window.innerHeight);
 
-  var projection = d3.geo.mercator()
-    .scale((1 << 21) / 2 / Math.PI)
-    .translate([-width / 2, -height / 2]);
-  
-  var path = d3.geo.path()
-    .projection(projection);
+    var projection = d3.geo.mercator()
+      .scale((1 << 21) / 2 / Math.PI)
+      .translate([-width / 2, -height / 2]);
 
-  var zoom = d3.behavior.zoom()
-    .scale(projection.scale() * 2 * Math.PI)
-    .scaleExtent([1 << 20, 1 << 23])
-    .translate(projection([-122.4, 37.7782]).map(function(x) {
-      console.log('zoom', x);
-      return -x;
-    }));
+    var path = d3.geo.path()
+      .projection(projection);
 
-  var map = d3.select("body").append("div")
-    .attr("class", "map")
-    .style("width", width + "px")
-    .style("height", height + "px")
-    .call(zoom);
-  
-  var svgPoints = map.append("svg:svg")
-    .attr("class", 'points')
-    .style("width", width + "px")
-    .style("height", height + "px")
-    .call(zoom);
+    var zoom = d3.behavior.zoom()
+      .scale(projection.scale() * 2 * Math.PI)
+      .scaleExtent([1 << 20, 1 << 23])
+      .translate(projection([-122.4, 37.7782]).map(function(x) {
+        console.log('zoom', x);
+        return -x;
+      }));
 
-  projection
+    var map = d3.select("body").append("div")
+      .attr("class", "map")
+      .style("width", width + "px")
+      .style("height", height + "px")
+      .call(zoom);
+
+    var svgPoints = map.append("svg:svg")
+      .attr("class", 'points')
+      .style("width", width + "px")
+      .style("height", height + "px")
+      .call(zoom);
+
+    projection
       .scale(zoom.scale() / 2 / Math.PI)
       .translate(zoom.translate());
-  
-  d3.json("path.json", function (error, json) {
-    if (error) {
-      console.log("error", error);
-    }
 
-    console.log("json", json);
-    
-    var pathNode = svgPoints.append("svg:g")
-      .attr("class", "route")
-      .selectAll("path")
-      .data(json.features)
-      .enter()
-      .append("svg:path")
-      .attr("d", path)
-      .attr("fill-opacity", 0.5)
-      .attr("fill", "#fff")
-      .attr("stroke", "#333")
-      .node();
+    d3.json("path.json", function(error, json) {
+      if (error) {
+        console.log("error", error);
+      }
 
-    console.log("pathNode", pathNode);
-      
-    var circle = svgPoints.append("svg:g").append("circle")
-      .attr("r", 10)
-      .attr("fill", '#f33')
-      .transition()
-      .duration(10000)
-      .ease("linear")
-      .attrTween("transform", function (d, i) {
-        return function (t) {
-          var p = pathNode.getPointAtLength(pathNode.getTotalLength() * t);
-          return "translate(" + [p.x, p.y] + ")";
-        }
-      });
+      console.log("json", json);
+
+      // var myJson = buildGeojson (routesjson, tripsjson);
+
+      var pathNode = svgPoints.append("svg:g")
+        .selectAll("path")
+        .data(json.features)
+        .enter()
+        .append("svg:g")
+        .attr("class", "route")
+        .append("svg:path")
+        .attr("d", path)
+        .attr("fill-opacity", 0)
+        .attr("stroke", "#333");
+
+      var circle = svgPoints.selectAll(".route")
+        .append("circle")
+        .attr("r", 10)
+        .attr("fill", '#f33')
+        .transition()
+        .duration(10000)
+        .ease("linear")
+        .attrTween("transform", function(d, i) {
+          var thePath = d3.select(this.parentNode).select("path").node();
+          console.log(thePath);
+          return function(t) {
+            var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
+            return "translate(" + [p.x, p.y] + ")";
+          }
+        });
+    });
   });
-});
-
-
-</script>
-
+  </script>
 </body>
+
 </html>

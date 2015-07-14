@@ -2,6 +2,10 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
+    "properties": {
+      "duration":10000, 
+      "bikeID": 123
+      },
     "geometry": {
       "type": "LineString",
       "coordinates": [
@@ -28,7 +32,10 @@
   }, 
   {
     "type": "Feature",
-    "properties": {},
+    "properties": {
+      "duration":10000, 
+      "bikeID": 123
+      },
     "geometry": {
       "type": "LineString",
       "coordinates": [
