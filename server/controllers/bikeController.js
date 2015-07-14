@@ -49,6 +49,7 @@ module.exports = {
       console.log(resp);
       res.json(resp);
     }, function (err) {
+      res.json({"message": "oh no"})
       console.trace(err.message);
     });
   },
