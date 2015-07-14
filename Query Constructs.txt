@@ -1,0 +1,129 @@
+// in URL gives a fast result for total number of hits for a search
+_search?search_type=count
+
+
+
+// this query returns all trips for a specifc bike id
+{
+  "sort": {
+    "start_date": "asc"
+  },  
+  "filter": {
+          "bool": {
+              "must": {
+                   "term": {
+                      "bike_id": "546"
+                  }       
+              }
+          }
+  },
+  "size": 1000
+}
+
+
+// this query returns all trips in SF for a given date range
+// commented out must_not increases search time by 5
+{
+    "sort": {
+      "start_date": "asc"  
+    },
+    "filter": {
+        "bool": {
+            "must": {
+                "and": [
+                    {
+                      "range" : {
+                          "start_date": {
+                              "gte": "12/18/2013 00:00",
+                              "lte": "12/19/2013 00:00"
+                          }
+                      }
+                  },
+                    {
+                        "range": {
+                            "start_terminal": {
+                                "gte": "41",
+                                "lte": "82"
+                            }
+                        }
+                    }
+                ]
+            },
+            // "must_not": {
+            //     "term": {
+            //         "start_terminal": "80"
+            //     }
+            // }
+        }
+    },
+    "size": 1000
+}
+
+
+//finds top 10 most popular bikes, not sure how to build out further....yet
+{
+    "aggs": {
+        "rides_per_bike": {
+            "terms": {
+                "field": "bike_id"
+            }
+        }
+    }
+}
+
+
+// finds total number of unique bikes in the db
+{
+    "aggs": {
+        "rides_per_bike": {
+            "cardinality": {
+                "field": "bike_id"
+            }
+        }
+    }
+}
+
+
+// sorts all bikes from lowest to highest (swap asc to desc for highest to lowest)
+{
+    "aggs": {
+        "rides_per_bike": {
+            "terms": {
+                "field": "bike_id",
+                "size": 700,
+                "order": {
+                    "_count": "asc"
+                }
+            }
+        }
+    }
+    
+}
+
+
+// all data for a station on a particular day, sorted chronologically, very time intensive operation
+{
+    "sort": {
+        "time": "asc"
+    },
+    "filter": {
+        "bool": {
+            "must": {
+                "and": [
+                    {
+                      "range" : {
+                          "time": {
+                              "gte": "2013/12/19 00:00:00",
+                              "lte": "2013/12/20 00:00:00"
+                          }
+                      }
+                  },
+                  {
+                      "term": {
+                          "station_id": "2"
+                      }
+                  }
+                ]
+            }
+        }
+    },
