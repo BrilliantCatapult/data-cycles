@@ -5,6 +5,8 @@
   <title></title>
   <meta charset="utf-8">
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="dockRoutes/dockRoutesObj.js"></script>
+  <script src="buildgeojson.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 </head>
 
@@ -46,13 +48,11 @@
       .scale(zoom.scale() / 2 / Math.PI)
       .translate(zoom.translate());
 
-    d3.json("path.json", function(error, json) {
+    d3.json("exampledbresponse.json", function(error, json) {
       if (error) {
         console.log("error", error);
       }
-
-      console.log("json", json);
-
+      json = parseDBJson(json);
       // var myJson = buildGeojson (routesjson, tripsjson);
 
       var pathNode = svgPoints.append("svg:g")
@@ -75,7 +75,7 @@
         .ease("linear")
         .attrTween("transform", function(d, i) {
           var thePath = d3.select(this.parentNode).select("path").node();
-          console.log(thePath);
+          // console.log(thePath);
           return function(t) {
             var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
             return "translate(" + [p.x, p.y] + ")";

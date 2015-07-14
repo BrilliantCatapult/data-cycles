@@ -1,4 +1,4 @@
-{
+var dockRoutes = {
   "41-42": {
     "type": "route",
     "properties": {
@@ -30151,4 +30151,4 @@
       ]
     }
   }
-}
+};
