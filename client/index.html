@@ -115,36 +115,34 @@ body {
     if (error) {
       console.log("error", error);
     }
-
-    console.log("json", json);
     
     var pathNode = svgPaths.append("svg:g")
-      .attr("class", "route")
-      .selectAll("path")
-      .data(json.features)
-      .enter()
-      .append("svg:path")
-      .attr("d", path)
-      .attr("fill-opacity", 0.5)
-      .attr("fill", "#fff")
-      .attr("stroke", "#333")
-      .node();
+        .selectAll("path")
+        .data(json.features)
+        .enter()
+        .append("svg:g")
+        .attr("class", "route")
+        .append("svg:path")
+        .attr("d", path)
+        .attr("fill-opacity", 0)
+        .attr("stroke", "#333");
 
-    circle = svgPaths.append("svg:g").append("circle")
-      .attr("r", 10)
-      .attr("fill", '#f33')
-      .transition()
-      .duration(10000)
-      .ease("linear")
-      .attrTween("transform", function (d, i) {
-        return function (t) {
-          var p = pathNode.getPointAtLength(pathNode.getTotalLength() * t);
-          return "translate(" + [p.x, p.y] + ")";
-        }
-      });
+      var circle = svgPaths.selectAll(".route")
+        .append("circle")
+        .attr("r", 10)
+        .attr("fill", '#f33')
+        .transition()
+        .duration(10000)
+        .ease("linear")
+        .attrTween("transform", function(d, i) {
+          var thePath = d3.select(this.parentNode).select("path").node();
+          return function(t) {
+            var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
+            return "translate(" + [p.x, p.y] + ")";
+          }
+        });
     zoomed();  
   });
-
 
   d3.json("docks.json", function(error, dots) {
     if (error) throw error;
@@ -162,6 +160,7 @@ body {
       })
       .attr("r", "8px")
       .attr("fill", "red");
+
     zoomed();
   });
 
@@ -219,14 +218,15 @@ body {
 
     svgPaths.selectAll(".dock")
       .attr("cx", function(d) {
-        console.log(d, projection(d));
         return projection(d)[0];
       })
       .attr("cy", function(d) {
         return projection(d)[1];
-      })
-      .attr("r", "8px")
-      .attr("fill", "red");
+      });
+
+    svgPaths.selectAll(".route path")
+      .attr("d", path);
+
   }
 
   function mousemoved() {
