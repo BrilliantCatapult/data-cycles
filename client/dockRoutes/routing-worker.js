@@ -40,6 +40,11 @@
    "coord": [37.794231, -122.402923],
    "amt": 15
  }, {
+   "dock": 46,
+   "loc": "Washington at Kearney",
+   "coord": [37.795425, -122.404767],
+   "amt": 15
+ }, {
    "dock": 47,
    "loc": "Post at Kearney",
    "coord": [37.788975, -122.403452],
@@ -196,19 +201,19 @@
    "amt": 15
  }, ];
 
-// Holds all the dock routes
-  var arr = [];
-  //Uses Leaflet Routing Machine to calculate the coordinates along the route
-   var calcRoutes = function(routeStart, routeEnd) {
+ // Holds all the dock routes
+ var arr = [];
+ //Uses Leaflet Routing Machine to calculate the coordinates along the route
+ var calcRoutes = function (routeStart, routeEnd) {
      L.Routing.control({
        waypoints: [
          L.latLng(routeStart.coord[0], routeStart.coord[1]),
          L.latLng(routeEnd.coord[0], routeEnd.coord[1])
        ],
-     }).addTo(map).on('routeselected', function(e) {
+     }).addTo(map).on('routeselected', function (e) {
        var route = e.route;
        for (var i = 0; i < route.coordinates.length; i++) {
-          //switch coordinate positions so that they fit geojson formatting
+         //switch coordinate positions so that they fit geojson formatting
          route.coordinates[i] = [route.coordinates[i][1], route.coordinates[i][0]]
        }
        //push to storage the correct geojson object formatting
@@ -226,38 +231,40 @@
      });
    }
    //Prints the information to console after it has been calculated (3-minutes is a bit excessive)
-setTimeout(function(){console.log(JSON.stringify(arr))}, 180000)
- 
+ setTimeout(function () {
+   console.log(JSON.stringify(arr))
+ }, 180000)
+
  //Creates all possible combinations of docs
  var k_combinations = function (set, k) {
-   var i, j, combs, head, tailcombs;
-   if (k > set.length || k <= 0) {
-     return [];
-   }
-   if (k == set.length) {
-     return [set];
-   }
-   if (k == 1) {
+     var i, j, combs, head, tailcombs;
+     if (k > set.length || k <= 0) {
+       return [];
+     }
+     if (k == set.length) {
+       return [set];
+     }
+     if (k == 1) {
+       combs = [];
+       for (i = 0; i < set.length; i++) {
+         combs.push([set[i]]);
+       }
+       return combs;
+     }
      combs = [];
-     for (i = 0; i < set.length; i++) {
-       combs.push([set[i]]);
+     for (i = 0; i < set.length - k + 1; i++) {
+       head = set.slice(i, i + 1);
+       tailcombs = k_combinations(set.slice(i + 1), k - 1);
+       for (j = 0; j < tailcombs.length; j++) {
+         combs.push(head.concat(tailcombs[j]));
+       }
      }
      return combs;
    }
-   combs = [];
-   for (i = 0; i < set.length - k + 1; i++) {
-     head = set.slice(i, i + 1);
-     tailcombs = k_combinations(set.slice(i + 1), k - 1);
-     for (j = 0; j < tailcombs.length; j++) {
-       combs.push(head.concat(tailcombs[j]));
-     }
-   }
-   return combs;
- }
- //makes combinations of tuples w/docks
+   //makes combinations of tuples w/docks
  var combos = k_combinations(docks, 2);
  //passes each route combination to calcRoutes function to make coordinates
-  //where first parameter is the start point obj and 2nd is end point obj
- for(var i = 0; i < combos.length; i++){
+ //where first parameter is the start point obj and 2nd is end point obj
+ for (var i = 0; i < combos.length; i++) {
    calcRoutes(combos[i][0], combos[i][1])
  }
