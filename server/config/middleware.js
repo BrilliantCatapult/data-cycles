@@ -4,6 +4,8 @@ var helpers = require('./helpers.js');
 module.exports = function (app, express) {
 
   var bikeRouter = express.Router();
+  var weatherRouter = express.Router();
+  var tripRouter = express.Router();
 
   app.use(express.static('client/'));
 
@@ -13,10 +15,14 @@ module.exports = function (app, express) {
   app.use(bodyParser.json());
 
   app.use('/api/bikes', bikeRouter);
+  app.use('/api/weather', weatherRouter);
+  app.use('/api/trip', tripRouter);
   app.use(helpers.errorLogger);
   app.use(helpers.errorHandler);
 
   require('../routes/bikeRoute.js')(bikeRouter);
+  require('../routes/weatherRoute.js')(weatherRouter);
+  require('../routes/tripRoute.js')(tripRouter);
 
   // client.ping({
   //   // ping usually has a 3000ms timeout 
