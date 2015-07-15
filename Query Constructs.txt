@@ -127,3 +127,38 @@ _search?search_type=count
             }
         }
     },
+
+
+// filter by date, zipcode, group by zipcode and get avg temp
+    {
+    "query" : {
+            "filtered": {
+                "query" : {
+                    "term" : { "zipcode" : 94107 }
+                },
+                "filter": {
+                    "range": {
+                        "date": {
+                            "lte": "12/13/2013",
+                            "gte": "12/12/2013"
+                        }
+                    }
+                }
+            }
+            
+        },
+    "aggs": {
+        "group_by_zipcode": {
+              "terms": {
+                "field": "zipcode"
+              },
+              "aggs":{
+                    "mean_temp":{
+                        "avg": {
+                            "field": "mean_temperature_f"
+                        }
+                    }
+                }
+            }
+        }
+    }
