@@ -62,6 +62,7 @@
 
   <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="d3.geo.til.js"></script>
     <script>
     var width = Math.max(960, window.innerWidth),
@@ -140,18 +141,13 @@
         //     return "translate(" + [p.x, p.y] + ")";
         //   }
         // })
-        .transition()
-        .duration(10000)
-        .ease("linear")
-        .attrTween("transform", function(d, i) {
-          var thePath = d3.select(this.parentNode).select("path").node();
-          return function(t) {
-            var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
-            return "translate(" + [p.x, p.y] + ")";
-          }
-        });
+
       render();
     });
+
+
+
+
 
     d3.json("docks.json", function(error, dots) {
       if (error) throw error;
@@ -270,7 +266,29 @@
       var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
       return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " " + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
     }
+
+    $(document).on('ready', function() {
+      console.log("here");
+      $('.button').on('click', function() {
+        console.log("clicked")
+        d3.selectAll('.cyclist')
+          .transition()
+          .duration(10000)
+          .ease("linear")
+          .attrTween("transform", function(d, i) {
+            console.log("THISSS ", this);
+            console.log("D ", d);
+            var thePath = d3.select(this.parentNode).select("path").node();
+            return function(t) {
+
+              var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
+              return "translate(" + [p.x, p.y] + ")";
+            }
+          });
+      });
+    })
     </script>
+    <button class="button">click</button>
   </body>
 
 </html>
