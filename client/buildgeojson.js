@@ -32,13 +32,6 @@ var buildGeoJson = function(duration, startTerminal, startDate, startTime, endTe
   var coordinates = dockRoutes[startTerminal + '-' + endTerminal]
   var geoJson = null
 
-  if (!coordinates) {
-    coordinates = dockRoutes[endTerminal + '-' + startTerminal];
-    
-    if (coordinates) {
-      coordinates.geometry.coordinates.reverse();
-    }
-  }
   if (coordinates){
     geoJson = 
     {
@@ -56,6 +49,7 @@ var buildGeoJson = function(duration, startTerminal, startDate, startTime, endTe
         "coordinates": coordinates.geometry.coordinates
       }
     };
-}
+  }
+  else console.log('coords not found', startTerminal, " and ", endTerminal )
   return geoJson;
 }

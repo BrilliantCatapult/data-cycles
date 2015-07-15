@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="d3sliderstyle.css">
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="../dockRoutes/dockRoutesObj.js"></script>
+  <script src="../buildgeojson.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="d3slider.js"></script>
+</head>
+<body>
+  <div id="buttons">
+    <button id="playbutton">Play</button>
+  </div>
+  <div id="slider"></div>
+  <script>
+    var zeroBug = 0.000001;
+    var i = zeroBug;
+    var play = false;
+    var slider = d3.slider().axis(d3.svg.axis().ticks(24)).max(24).value(zeroBug);
+    d3.select('#slider').call(slider);
+    var animate = function(){
+      if (play){  
+       if (i === 24) {
+          i = zeroBug;
+        }
+        else {
+          i++;
+          if (i === 1 + zeroBug) i = 1;
+        }
+        console.log(i);
+        slider.value(i);
+        d3.timer(animate, 400)
+      }
+      return true;
+    }
+    var button = d3.select("#playbutton");
+    button.on("click", function(){
+      play = !play;
+      animate();
+    });
+
+  </script>
+</body>
+</html>
