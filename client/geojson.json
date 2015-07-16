@@ -28,7 +28,10 @@
   }, 
   {
     "type": "Feature",
-    "properties": {},
+    "properties": {
+      "startime":123456789
+
+      },
     "geometry": {
       "type": "LineString",
       "coordinates": [
