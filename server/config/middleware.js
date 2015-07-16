@@ -6,6 +6,7 @@ module.exports = function (app, express) {
   var bikeRouter = express.Router();
   var weatherRouter = express.Router();
   var tripRouter = express.Router();
+  var timelineRouter = express.Router();
 
   app.use(express.static('client/'));
 
@@ -17,12 +18,14 @@ module.exports = function (app, express) {
   app.use('/api/bikes', bikeRouter);
   app.use('/api/weather', weatherRouter);
   app.use('/api/trip', tripRouter);
+  app.use('/api/timeline', timelineRouter);
   app.use(helpers.errorLogger);
   app.use(helpers.errorHandler);
 
   require('../routes/bikeRoute.js')(bikeRouter);
   require('../routes/weatherRoute.js')(weatherRouter);
   require('../routes/tripRoute.js')(tripRouter);
+  require('../routes/timelineRoute.js')(timelineRouter);
 
   // client.ping({
   //   // ping usually has a 3000ms timeout 
