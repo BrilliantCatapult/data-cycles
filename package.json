@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Bike Share Visualization",
   "main": "index.js",
-  "scripts": {
-    "test": "gulp --lint"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bahiafayez/Brilliant-Catapult.git"
