@@ -38,7 +38,7 @@
           .pipe(concat('all.js'))
           .pipe(gulp.dest('dist'))
           .pipe(rename('all.min.js')) 
-          .pipe(uglify('all.min.js'))
+          .pipe(uglify())
           .pipe(gulp.dest('dist'));
   });
 
@@ -64,4 +64,4 @@
   });
 
   // Default Task
-  gulp.task('default', ['test', 'lint', 'scripts', 'watch']);
+  gulp.task('default', ['scripts', 'watch']);
