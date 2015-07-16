@@ -25,10 +25,11 @@
     var dbJson;
     var tripCount = 0;
 
-    d3.json("../exampledbresponse.json", function(error, json) {
+    d3.json("/api/timeline", function(error, json) {
       if (error) {
         console.log("error", error);
       }
+      console.log("successsssss--------->", json);
       dbJson = parseDBJson(json);
     });
 

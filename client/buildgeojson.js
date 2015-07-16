@@ -29,8 +29,20 @@ var parseDBJson = function(json) {
 }
 
 var buildGeoJson = function(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, id) {
-  var coordinates = dockRoutes[startTerminal + '-' + endTerminal]
-  var geoJson = null
+  var coordinates = dockRoutes[startTerminal + "-" + endTerminal];
+  var geoJson = null;
+
+  if (!coordinates) {
+    if (duration <= 240) {
+      var coordinates = dockRoutes[startTerminal + "-" + endTerminal + "s"];
+    }
+    else if (duration > 240 && duration <= 600) {
+      var coordinates = dockRoutes[startTerminal + "-" + endTerminal + "m"];
+    }
+    else if (duration > 600) {
+      var coordinates = dockRoutes[startTerminal + "-" + endTerminal + "l"];
+    }
+  }
 
   if (coordinates){
     geoJson = 
