@@ -70,13 +70,16 @@ module.exports = {
           }
         },
         "aggs": {
+          // "sort" : [
+          //     {"start_terminal" : {"order" : "asc"}}
+          // ],
           "activity_per_station": {
             "terms": {
               "field": field,
               "size": 700,
-              "order": {
-                "_count": "asc"
-              }
+               "order": {
+                 "_count": "desc"
+               }
             },
             "aggs" : {
               "activity_per_hour" : { "date_histogram" : { "field" : "start_date", "interval" : "hour"} }

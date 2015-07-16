@@ -137,3 +137,24 @@
   stroke: steelblue;
   stroke-width: 2.5px;
 }
+
+#mouse-tracker {
+  stroke: #E6E7E8;
+  stroke-width: 1px;
+}
+
+.hover-line { 
+  stroke: #E6E7E8;
+  fill: none;
+  stroke-width: 1px;
+  left: 10px;
+  shape-rendering: crispEdges;
+  opacity: 1e-6;
+}
+
+.hover-text {
+  stroke: none;
+  font-size: 30px;
+  font-weight: bold;
+  fill: #000000;
+}
