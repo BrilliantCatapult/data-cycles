@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="d3sliderstyle.css">
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="../dockRoutes/dockRoutesObj.js"></script>
+  <script src="../buildgeojson.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="d3slider.js"></script>
+</head>
+
+<body>
+  <div id="buttons">
+    <button id="playbutton">Play</button>
+  </div>
+  <div id="slider"></div>
+  <script>
+  var zeroBug = 0.000001;
+  var i = zeroBug;
+  var play = false;
+  var width = Math.max(960, window.innerWidth),
+    height = Math.max(500, window.innerHeight);
+  var animduration = 60000;
+
+  // var axis = d3.svg.axis();
+
+  // d3.select("body").append("svg")
+  //   .attr("class", "axis")
+  //   .attr("width", width)
+  //   .attr("height", 30)
+  //   .append("g")
+  //   .attr("transform", "translate(0,30)")
+  //   .call(axis);
+
+  // Set up the SVG
+  var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  // Define your time scale
+  var timescale = d3.time.scale()
+    .domain([new Date, new Date])
+    .nice(d3.time.day)
+    .range([0, width - 50]);
+
+  var animscale = d3.scale.linear()
+    .domain([0, animduration])
+    .range([0, width - 50]);
+
+  var axis = d3.svg.axis()
+    .scale(timescale)
+    .ticks(24)
+    .tickFormat(d3.time.format("%H:%M"))
+
+  // Add your axis
+  svg.append("g")
+    .attr("transform", "translate(5,0)")
+    .call(axis);
+
+  var cursor = svg.append("circle")
+    .attr('r',8)
+    .attr("fill", "red")
+    .attr("id", "cursor");
+
+  var timer, timermemo = 0;
+
+  var animate = function(e) {
+    if(!play) {
+      timermemo = timer;
+      return true;
+    }
+    timer = (timermemo + e) % animduration;
+    console.log("e", e, timer, animscale(timer));
+    cursor.attr("transform", function(d) {return "translate(" + animscale(timer) + ")";});
+    
+  }
+
+  var button = d3.select("#playbutton");
+  button.on("click", function() {
+    play = !play;
+    d3.timer(animate);
+  });
+
+
+  // var slider = d3.slider().axis(d3.svg.axis().ticks(24)).max(24).value(zeroBug);
+  // d3.select('#slider').call(slider);
+  // var animate = function() {
+  //   if (play) {
+  //     if (i === 24) {
+  //       i = zeroBug;
+  //     } else {
+  //       i++;
+  //       if (i === 1 + zeroBug) i = 1;
+  //     }
+  //     console.log(i);
+  //     slider.value(i);
+  //     d3.timer(animate, 400)
+  //   }
+  //   return true;
+  // }
+  // var button = d3.select("#playbutton");
+  // button.on("click", function() {
+  //   play = !play;
+  //   animate();
+  // });
+  </script>
+</body>
+
+</html>
