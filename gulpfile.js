@@ -37,8 +37,8 @@
       return gulp.src('client/**/*.js')
           .pipe(concat('all.js'))
           .pipe(gulp.dest('dist'))
-          .pipe(rename('all.min.js'))
-          .pipe(uglify())
+          .pipe(rename('all.min.js')) 
+          .pipe(uglify('all.min.js'))
           .pipe(gulp.dest('dist'));
   });
 
