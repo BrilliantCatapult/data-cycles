@@ -23,17 +23,9 @@
   var play = false;
   var width = Math.max(960, window.innerWidth),
     height = Math.max(500, window.innerHeight);
+
   var animduration = 60000;
-
-  // var axis = d3.svg.axis();
-
-  // d3.select("body").append("svg")
-  //   .attr("class", "axis")
-  //   .attr("width", width)
-  //   .attr("height", 30)
-  //   .append("g")
-  //   .attr("transform", "translate(0,30)")
-  //   .call(axis);
+  var hour = 60 * 60 * 1000;
 
   // Set up the SVG
   var svg = d3.select("body").append("svg")
@@ -47,6 +39,10 @@
     .range([0, width - 50]);
 
   var animscale = d3.scale.linear()
+    .domain([0, hour])
+    .range([0, animduration]);
+
+  var millisecondstohoursscale = d3.scale.linear()
     .domain([0, animduration])
     .range([0, width - 50]);
 
@@ -67,15 +63,56 @@
 
   var timer, timermemo = 0;
 
+  var formatTime = d3.time.format("%H:%M");
+  // year, month, day, hours, minutes, seconds, milliseconds
+  var formatMilliseconds = function(d) { 
+    var hours = Math.floor(d / hour);
+    var minutes = Math.floor((d % hour) / (60 * 1000));
+      if (minutes < 10) {
+        minutes = "0" + minutes;
+      } 
+    return hours + ":" + minutes;
+  };
+
+  d3.json("/api/timeline", function(error, json) {
+    if (error) {
+      console.log("error", error);
+    }
+    console.log("successsssss--------->", json);
+    dbJson = parseDBJson(json);
+  });
+
+  var checkForTrip = function(time) {
+    var trip = {
+      "type": "FeatureCollection",
+      "features": []
+    };
+
+    while (dbJson.features[tripCount]["properties"]["startTime"] === time){
+      trip.features.push(dbJson.features[tripCount]);
+      tripCount++;
+
+      if (tripCount === dbJson.features.length){
+        tripCount = 0;
+      }
+    }
+    return trip;
+  };
+
   var animate = function(e) {
     if(!play) {
       timermemo = timer;
       return true;
     }
     timer = (timermemo + e) % animduration;
-    console.log("e", e, timer, animscale(timer));
+    var currentTime = formatMilliseconds(timer*60*24);
+    console.log("timer", formatMilliseconds(timer*60*24), timer*60*24);
     cursor.attr("transform", function(d) {return "translate(" + animscale(timer) + ")";});
-    
+    var newTrip = checkForTrip(currentTime);
+
+    if (newTrip.features.length) {
+      drawTrip(newTrip);
+    }
   }
 
   var button = d3.select("#playbutton");
@@ -84,28 +121,75 @@
     d3.timer(animate);
   });
 
+  var mins = 0;
+  var hours = 0;
+  var dbJson;
+  var tripCount = 0;
 
-  // var slider = d3.slider().axis(d3.svg.axis().ticks(24)).max(24).value(zeroBug);
-  // d3.select('#slider').call(slider);
-  // var animate = function() {
-  //   if (play) {
-  //     if (i === 24) {
-  //       i = zeroBug;
-  //     } else {
-  //       i++;
-  //       if (i === 1 + zeroBug) i = 1;
-  //     }
-  //     console.log(i);
-  //     slider.value(i);
-  //     d3.timer(animate, 400)
-  //   }
-  //   return true;
-  // }
-  // var button = d3.select("#playbutton");
-  // button.on("click", function() {
-  //   play = !play;
-  //   animate();
-  // });
+
+
+  var projection = d3.geo.mercator()
+    .scale((1 << 21) / 2 / Math.PI)
+    .translate([-width / 2, -height / 2]);
+
+  var path = d3.geo.path()
+    .projection(projection);
+
+  var zoom = d3.behavior.zoom()
+    .scale(projection.scale() * 2 * Math.PI)
+    .scaleExtent([1 << 20, 1 << 23])
+    .translate(projection([-122.4, 37.7782]).map(function(x) {
+      console.log('zoom', x);
+      return -x;
+    }));
+
+  var map = d3.select("body").append("div")
+    .attr("class", "map")
+    .style("width", width + "px")
+    .style("height", height + "px")
+    .call(zoom);
+
+  var svgPoints = map.append("svg:svg")
+    .attr("class", 'points')
+    .style("width", width + "px")
+    .style("height", height + "px")
+    .call(zoom);
+
+  projection
+    .scale(zoom.scale() / 2 / Math.PI)
+    .translate(zoom.translate());
+
+  var drawTrip = function(trips) {
+    /////// ADD IN RENDER CODE
+    var pathNode = svgPoints.append("svg:g")
+      .selectAll("path")
+      .data(trips.features)
+      .enter()
+      .append("svg:g")
+      .attr("class", "route")
+      .append("svg:path")
+      .attr("d", path)
+      .attr("fill-opacity", 0)
+      .attr("stroke", "#333");
+
+    var circle = svgPoints.selectAll(".route")
+      .append("circle")
+      .attr("r", 10)
+      .attr("fill", '#f33')
+      .transition()
+      .duration(10000)
+      .ease("linear")
+      .attrTween("transform", function(d, i) {
+        var thePath = d3.select(this.parentNode).select("path").node();
+        // console.log(thePath);
+        return function(t) {
+          var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
+          return "translate(" + [p.x, p.y] + ")";
+        }
+      });
+  }
+
+
   </script>
 </body>
 
