@@ -590,27 +590,27 @@ var createWeatherChart = function(start_date, end_date){
              .style("opacity", 1); // Making line visible
 
          // Legend tooltips // http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
-         console.log(x.invert(d3.mouse(this)[0]));
-         var x0 = x.invert(d3.mouse(this)[0]), /* d3.mouse(this)[0] returns the x position on the screen of the mouse. xScale.invert function is reversing the process that we use to map the domain (date) to range (position on screen). So it takes the position on the screen and converts it into an equivalent date! */
+         //console.log(x.invert(d3.mouse(this)[0]));
+         var x0 = x.invert(d3.mouse(this)[0]); /* d3.mouse(this)[0] returns the x position on the screen of the mouse. xScale.invert function is reversing the process that we use to map the domain (date) to range (position on screen). So it takes the position on the screen and converts it into an equivalent date! */
          
-         i = bisectDate(activity, x0, 1), // use our bisectDate function that we declared earlier to find the index of our data array that is close to the mouse cursor
+         // i = bisectDate(activity, x0, 1), // use our bisectDate function that we declared earlier to find the index of our data array that is close to the mouse cursor
          
-         /*It takes our data array and the date corresponding to the position of or mouse cursor and returns the index number of the data array which has a date that is higher than the cursor position.*/
-         d0 = activity[i - 1],
-         d1 = activity[i],
-         /*d0 is the combination of date and rating that is in the data array at the index to the left of the cursor and d1 is the combination of date and close that is in the data array at the index to the right of the cursor. In other words we now have two variables that know the value and date above and below the date that corresponds to the position of the cursor.*/
-         d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-         /*The final line in this segment declares a new array d that is represents the date and close combination that is closest to the cursor. It is using the magic JavaScript short hand for an if statement that is essentially saying if the distance between the mouse cursor and the date and close combination on the left is greater than the distance between the mouse cursor and the date and close combination on the right then d is an array of the date and close on the right of the cursor (d1). Otherwise d is an array of the date and close on the left of the cursor (d0).*/
-          console.log("I ISSSSS ", i);
+         // /*It takes our data array and the date corresponding to the position of or mouse cursor and returns the index number of the data array which has a date that is higher than the cursor position.*/
+         // d0 = activity[i - 1],
+         // d1 = activity[i],
+         // d0 is the combination of date and rating that is in the data array at the index to the left of the cursor and d1 is the combination of date and close that is in the data array at the index to the right of the cursor. In other words we now have two variables that know the value and date above and below the date that corresponds to the position of the cursor.
+         // d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+         // /*The final line in this segment declares a new array d that is represents the date and close combination that is closest to the cursor. It is using the magic JavaScript short hand for an if statement that is essentially saying if the distance between the mouse cursor and the date and close combination on the left is greater than the distance between the mouse cursor and the date and close combination on the right then d is an array of the date and close on the right of the cursor (d1). Otherwise d is an array of the date and close on the left of the cursor (d0).*/
+         //  console.log("I ISSSSS ", i);
          //d is now the data row for the date closest to the mouse position
 
          focus
          .selectAll("text").text(function(d){
             //because you didn't explictly set any data on the <text>
             //elements, each one inherits the data from the focus <g>
-              console.log(d.values);
+            //  console.log(d.values);
             i = bisectDate(d.values, x0, 0); // use our bisectDate function that we declared earlier to find the index of our data array that is close to the mouse cursor
-            console.log("i isssss ", i);
+            //console.log("i isssss ", i);
             /*It takes our data array and the date corresponding to the position of or mouse cursor and returns the index number of the data array which has a date that is higher than the cursor position.*/
             d0 = d.values[i - 1];
             d1 = d.values[i];
