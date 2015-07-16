@@ -11,7 +11,12 @@
   var uglify = require('gulp-uglify');
   var rename = require('gulp-rename');
   var shell = require('gulp-shell'); 
-
+  var jasmine = require('gulp-jasmine');
+   
+  gulp.task('test', function () {
+      return gulp.src('spec/test.js')
+          .pipe(jasmine());
+  });
 
   // Lint Task
   gulp.task('lint', function() {
@@ -37,6 +42,9 @@
           .pipe(gulp.dest('dist'));
   });
 
+  // gulp.task('test', function(done){
+  //   //start jasmine 
+  // });
 
   gulp.task('docs', shell.task([ 
    'node_modules/jsdoc/jsdoc.js '+ 
@@ -56,4 +64,4 @@
   });
 
   // Default Task
-  gulp.task('default', ['lint', 'scripts', 'watch']);
+  gulp.task('default', ['test', 'lint', 'scripts', 'watch']);
