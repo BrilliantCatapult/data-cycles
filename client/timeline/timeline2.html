@@ -15,113 +15,50 @@
   </div>
   <div id="slider"></div>
   <script>
-  var zeroBug = 0.000001;
-  var i = zeroBug;
-  var play = false;
-  var width = Math.max(960, window.innerWidth),
-    height = Math.max(500, window.innerHeight);
+  var width = window.innerWidth - 50;
+  var height = Math.max(500, window.innerHeight);
+
+  var second = 1000;
+  var minute = 60 * second;
+  var hour = 60 * minute;
+  var day = 24 * hour;
 
   var dbJson;
-  var tripCount = 0;
+  var play = false;
+  var realTimeFormat;
+  var timer, timermemo = 0;
+  var realtime;
+  var circles = [];
 
-  var animduration = 60000;
-  var hour = 60 * 60 * 1000;
+  var animduration = 5 * minute;
 
-  // Set up the SVG
-  var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-  // Define your time scale
   var timescale = d3.time.scale()
     .domain([new Date, new Date])
     .nice(d3.time.day)
-    .range([0, width - 50]);
+    .range([0, width]);
 
   var animscale = d3.scale.linear()
-    .domain([0, hour])
-    .range([0, animduration]);
-
-  var millisecondstohoursscale = d3.scale.linear()
     .domain([0, animduration])
-    .range([0, width - 50]);
+    .range([0, width]);
 
   var axis = d3.svg.axis()
     .scale(timescale)
     .ticks(24)
-    .tickFormat(d3.time.format("%H:%M"))
+    .tickFormat(d3.time.format("%H"));
 
-  // Add your axis
-  svg.append("g")
-    .attr("transform", "translate(5,0)")
-    .call(axis);
-
-  var cursor = svg.append("circle")
-    .attr('r',8)
-    .attr("fill", "red")
-    .attr("id", "cursor");
-
-  var timer, timermemo = 0;
-
-  var formatTime = d3.time.format("%H:%M");
-  // year, month, day, hours, minutes, seconds, milliseconds
-  var formatMilliseconds = function(d) { 
+  var formatMilliseconds = function(d) {
     var hours = Math.floor(d / hour);
-    var minutes = Math.floor((d % hour) / (60 * 1000));
-      if (minutes < 10) {
-        minutes = "0" + minutes;
-      } 
+    var minutes = Math.floor((d % hour) / minute);
+    if (minutes < 10) {
+      minutes = "0" + minutes;
+    }
     return hours + ":" + minutes;
   };
 
-  d3.json("/api/timeline", function(error, json) {
-    if (error) {
-      console.log("error", error);
-    }
-    console.log("successsssss--------->", json);
-    dbJson = parseDBJson(json);
-  });
-
-  var checkForTrip = function(time) {
-    var trip = {
-      "type": "FeatureCollection",
-      "features": []
-    };
-
-    while (dbJson.features[tripCount]["properties"]["startTime"] === time){
-      trip.features.push(dbJson.features[tripCount]);
-      tripCount++;
-      console.log('matched trip event', tripCount);
-      if (tripCount === dbJson.features.length){
-        tripCount = 0;
-      }
-    }
-    return trip;
+  var formatTimeToMilliseconds = function(string) {
+    var values = string.split(":");
+    return values[0] * hour + values[1] * minute;
   };
-
-  var animate = function(e) {
-    if(!play) {
-      timermemo = timer;
-      return true;
-    }
-    timer = (timermemo + e) % animduration;
-    var currentTime = formatMilliseconds(timer*60*24);
-    // console.log("timer", formatMilliseconds(timer*60*24), timer*60*24);
-    cursor.attr("transform", function(d) {return "translate(" + animscale(timer) + ")";});
-    var newTrip = checkForTrip(currentTime);
-
-    if (newTrip.features.length) {
-      drawTrip(newTrip);
-    }
-  }
-
-  var button = d3.select("#playbutton");
-  button.on("click", function() {
-    play = !play;
-    d3.timer(animate);
-  });
-
-
 
   var projection = d3.geo.mercator()
     .scale((1 << 21) / 2 / Math.PI)
@@ -137,6 +74,18 @@
       console.log('zoom', x);
       return -x;
     }));
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width);
+
+  svg.append("g")
+    .attr("transform", "translate(5,0)")
+    .call(axis);
+
+  var cursor = svg.append("circle")
+    .attr('r', 8)
+    .attr("fill", "red")
+    .attr("id", "cursor");
 
   var map = d3.select("body").append("div")
     .attr("class", "map")
@@ -154,10 +103,56 @@
     .scale(zoom.scale() / 2 / Math.PI)
     .translate(zoom.translate());
 
+  d3.json("/api/timeline", function(error, json) {
+    if (error) {
+      console.log("error", error);
+    }
+    dbJson = parseDBJson(json);
+    console.log("successsssss--------->", dbJson);
+    drawTrip(dbJson);
+  });
+
+  var animate = function(e) {
+    if (!play) {
+      timermemo = timer;
+      return true;
+    }
+    timer = (timermemo + e) % animduration;
+    realtime = timer * day / animduration;
+    realTimeFormat = formatMilliseconds(realtime);
+    
+    // console.log("timer", realTimeFormat, timer);
+
+    cursor.attr("transform", function(d) {
+      return "translate(" + animscale(timer) + ")";
+    });
+    for (var i = 0; i < circles[0].length; i++) {
+
+      d3.select(circles[0][i]).attr("transform", function(d) {
+        var thePath = d3.select(this.parentNode).select("path").node();
+        var startTime = formatTimeToMilliseconds(d.properties.startTime);
+        var endTime = formatTimeToMilliseconds(d.properties.endTime);
+
+        if (realtime - startTime > 0 && endTime - realtime > 0) {
+          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+          return "translate(" + [p.x, p.y] + ")";
+        }
+      });
+    }
+  };
+
+  var button = d3.select("#playbutton");
+  button.on("click", function() {
+    play = !play;
+    if (play) {
+      d3.timer(animate);
+    }
+  });
+
   var drawTrip = function(trips) {
     console.log("draw trips----->", trips)
-    /////// ADD IN RENDER CODE
-    var pathNode = svgPoints.append("svg:g")
+
+    var routes = svgPoints.append("svg:g")
       .selectAll("path")
       .data(trips.features)
       .enter()
@@ -168,24 +163,11 @@
       .attr("fill-opacity", 0)
       .attr("stroke", "#333");
 
-    var circle = svgPoints.selectAll(".route")
+    circles = svgPoints.selectAll(".route")
       .append("circle")
       .attr("r", 10)
-      .attr("fill", '#f33')
-      .transition()
-      .duration(10000)
-      .ease("linear")
-      .attrTween("transform", function(d, i) {
-        var thePath = d3.select(this.parentNode).select("path").node();
-        // console.log(thePath);
-        return function(t) {
-          var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
-          return "translate(" + [p.x, p.y] + ")";
-        }
-      });
+      .attr("fill", '#f33');
   }
-
-
   </script>
 </body>
 
