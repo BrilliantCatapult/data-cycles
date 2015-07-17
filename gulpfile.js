@@ -8,7 +8,6 @@
   var jshint = require('gulp-jshint');
   //var sass = require('gulp-sass');
   var concat = require('gulp-concat');
-  var uglify = require('gulp-uglify');
   var rename = require('gulp-rename');
   var shell = require('gulp-shell'); 
   var jasmine = require('gulp-jasmine');
@@ -38,7 +37,6 @@
           .pipe(concat('all.js'))
           .pipe(gulp.dest('dist'))
           .pipe(rename('all.min.js')) 
-          .pipe(uglify())
           .pipe(gulp.dest('dist'));
   });
 
@@ -64,4 +62,4 @@
   });
 
   // Default Task
-  gulp.task('default', ['test', 'scripts', 'watch']);
+  gulp.task('default', ['test', 'scripts']);
