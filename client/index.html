@@ -3,6 +3,11 @@
 
 <head>
   <title></title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="d3.geo.til.js"></script>
+  <script src="dockRoutes/dockRoutesObj.js"></script>
+  <script src="buildgeojson.js"></script>
   <meta charset="utf-8">
   <style>
   body {
@@ -59,22 +64,70 @@
     position: absolute;
   }
   </style>
+  </head>
 
   <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="d3.geo.til.js"></script>
+    <div id="buttons">
+      <button id="playbutton">Play</button>
+    </div>
+    <div id="slider"></div>
+    
     <script>
-    var width = Math.max(960, window.innerWidth),
-      height = Math.max(500, window.innerHeight),
-      prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
+    var width = window.innerWidth - 50;
+    var height = Math.max(500, window.innerHeight);
+    var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
+
+    var second = 1000;
+    var minute = 60 * second;
+    var hour = 60 * minute;
+    var day = 24 * hour;
+
+    var dbJson;
+    var play = false;
+    var realTimeFormat;
+    var timer, timermemo = 0;
+    var realtime;
+    var circles = [];
+
+    var animduration = 5 * minute;
+
+    var formatMilliseconds = function(d) {
+      var hours = Math.floor(d / hour);
+      var minutes = Math.floor((d % hour) / minute);
+      if (minutes < 10) {
+        minutes = "0" + minutes;
+      }
+      return hours + ":" + minutes;
+    };
+
+    var timeToMilliSeconds = function(string) {
+      var values = string.split(":");
+      return values[0] * hour + values[1] * minute;
+    };
+
+    var timescale = d3.time.scale()
+      .domain([new Date, new Date])
+      .nice(d3.time.day)
+      .range([0, width]);
+
+    var animscale = d3.scale.linear()
+      .domain([0, animduration])
+      .range([0, width]);
+
+    var axis = d3.svg.axis()
+      .scale(timescale)
+      .ticks(24)
+      .tickFormat(d3.time.format("%H"));
 
     var tile = d3.geo.tile()
       .size([width, height]);
 
     var projection = d3.geo.mercator()
       .scale((1 << 21) / 2 / Math.PI)
-      .translate([-width / 2, -height / 2]); // just temporary
+      .translate([-width / 2, -height / 2]);
+
+    var path = d3.geo.path()
+      .projection(projection);
 
     var tilePath = d3.geo.path()
       .projection(projection);
@@ -95,32 +148,84 @@
       .call(zoom);
     // .on("mousemove", mousemoved);
 
-    var svgPaths = map.append("svg")
-      .attr("class", 'svg-paths')
-      .style("width", width + "px")
-      .style("height", height + "px")
-      .call(zoom);
-
     var tilesLayer = map.append("div")
       .attr("class", "layer");
 
     var info = map.append("div")
       .attr("class", "info");
 
-    var path = d3.geo.path().projection(projection);
+    var svgTimeline = d3.select("body").append("svg")
+      .attr("width", width);
+
+    svgTimeline.append("g")
+      .attr("transform", "translate(5,0)")
+      .call(axis);
+
+    var cursor = svgTimeline.append("circle")
+      .attr('r', 8)
+      .attr("fill", "red")
+      .attr("id", "cursor");
+
+    var svgBikeRoutes = map.append("svg:svg")
+      .attr("class", 'points')
+      .style("width", width + "px")
+      .style("height", height + "px")
+      .call(zoom);
 
     projection
       .scale(zoom.scale() / 2 / Math.PI)
       .translate(zoom.translate());
 
-    d3.json("geojson.json", function(error, json) {
+    d3.json("/api/timeline", function(error, json) {
       if (error) {
         console.log("error", error);
       }
+      dbJson = parseDBJson(json);
+      console.log("successsssss--------->", dbJson);
+      drawTrip(dbJson);
+    });
 
-      var pathNode = svgPaths.append("svg:g")
+    var animate = function(e) {
+      if (!play) {
+        timermemo = timer;
+        return true;
+      }
+      timer = (timermemo + e) % animduration;
+      realtime = timer * day / animduration;
+      realTimeFormat = formatMilliseconds(realtime);
+
+      // console.log("timer", realTimeFormat, timer);
+
+      cursor.attr("transform", function(d) {
+        return "translate(" + animscale(timer) + ")";
+      });
+
+      for (var i = 0; i < circles[0].length; i++) {
+        d3.select(circles[0][i]).attr("transform", function(d) {
+          var thePath = d3.select(this.parentNode).select("path").node();
+          var startTime = timeToMilliSeconds(d.properties.startTime);
+          var endTime = timeToMilliSeconds(d.properties.endTime);
+
+          if (realtime - startTime > 0 && endTime - realtime > 0) {
+            var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+            return "translate(" + [p.x, p.y] + ")";
+          }
+        });
+      }
+    };
+
+    var button = d3.select("#playbutton");
+    button.on("click", function() {
+      play = !play;
+      if (play) {
+        d3.timer(animate);
+      }
+    });
+
+    var drawTrip = function(trips) {
+      var routes = svgBikeRoutes.append("svg:g")
         .selectAll("path")
-        .data(json.features)
+        .data(trips.features)
         .enter()
         .append("svg:g")
         .attr("class", "route")
@@ -129,30 +234,16 @@
         .attr("fill-opacity", 0)
         .attr("stroke", "#333");
 
-      var circle = svgPaths.selectAll(".route")
+      circles = svgBikeRoutes.selectAll(".route")
         .append("circle")
-        .attr("class", "cyclist")
         .attr("r", 10)
-        .attr("fill", '#f33')
-        // .attr({
-        //   "transform": function() {
-        //     var thePath = d3.select(this.parentNode).select("path").node();
-        //     var p = thePath.getPointAtLength(0)
-        //     return "translate(" + [p.x, p.y] + ")";
-        //   }
-        // })
-
-      render();
-    });
-
-
-
-
+        .attr("fill", '#f33');
+    }
 
     d3.json("docks.json", function(error, dots) {
       if (error) throw error;
       console.log(dots);
-      svgPaths.selectAll(".dock").data(dots)
+      svgBikeRoutes.selectAll(".dock").data(dots)
         .enter()
         .append("circle")
         .attr("class", "dock")
@@ -221,7 +312,7 @@
           });
         });
 
-      svgPaths.selectAll(".dock")
+      svgBikeRoutes.selectAll(".dock")
         .attr("cx", function(d) {
           return projection(d)[0];
         })
@@ -229,10 +320,10 @@
           return projection(d)[1];
         });
 
-      svgPaths.selectAll(".route path")
+      svgBikeRoutes.selectAll(".route path")
         .attr("d", path);
 
-      svgPaths.selectAll(".cyclist")
+      svgBikeRoutes.selectAll(".route circle")
         .attr({
           "transform": function() {
             var thePath = d3.select(this.parentNode).select("path").node();
@@ -240,7 +331,6 @@
             return "translate(" + [p.x, p.y] + ")";
           }
         });
-
     }
 
     function mousemoved() {
@@ -266,27 +356,6 @@
       var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
       return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " " + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
     }
-
-    $(document).on('ready', function() {
-      console.log("here");
-      $('.button').on('click', function() {
-        console.log("clicked")
-        d3.selectAll('.cyclist')
-          .transition()
-          .duration(10000)
-          .ease("linear")
-          .attrTween("transform", function(d, i) {
-            console.log("THISSS ", this);
-            console.log("D ", d);
-            var thePath = d3.select(this.parentNode).select("path").node();
-            return function(t) {
-
-              var p = thePath.getPointAtLength(thePath.getTotalLength() * t);
-              return "translate(" + [p.x, p.y] + ")";
-            }
-          });
-      });
-    })
     </script>
     <button class="button">click</button>
   </body>
