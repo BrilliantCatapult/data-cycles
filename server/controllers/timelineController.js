@@ -50,6 +50,56 @@ module.exports = {
     });
   },
 
+  slider: function(req, res, next){
+    var date = req.query.date;
+    var order = req.query.order;
+    var start_date = req.query.start_date || "12/10/2013 00:00";
+    var end_date = req.query.end_date || "12/11/2013 00:00";
+
+    var size = req.query.size || 700;
+    elasticClient.search({
+      index: 'bikeshare',
+      type: 'trip',
+      body: {
+        "sort": {
+          "start_date": "asc"  
+        },
+        "filter": {
+            "bool": {
+                "must": {
+                    "and": [
+                        {
+                          "range" : {
+                              "start_date": {
+                                  "gte": start_date,
+                                  "lte": end_date
+                              }
+                          }
+                      },
+                        {
+                            "range": {
+                                "start_terminal": {
+                                    "gte": "41",
+                                    "lte": "82"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "size": 2000
+      }
+    }).then(function (resp) {
+      var hits = resp.hits.hits;
+      //console.log(resp);
+      res.json(resp);
+    }, function (err) {
+      res.json({"message": "oh no"})
+      console.trace(err.message);
+    });
+  },
+
   post: function (req, res, next) {
     var date = req.query.date
     elasticClient.create({
