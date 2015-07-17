@@ -64,4 +64,4 @@
   });
 
   // Default Task
-  gulp.task('default', ['scripts', 'watch']);
+  gulp.task('default', ['test', 'scripts', 'watch']);
