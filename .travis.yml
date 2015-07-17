@@ -8,3 +8,4 @@ before_script:
   - npm install -g gulp
   - npm install -g gulp-jasmine
   - bower install
+  - gulp test
