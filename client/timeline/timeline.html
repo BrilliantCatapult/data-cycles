@@ -18,12 +18,15 @@
 
   <script>
     var zeroBug = 0.000001;
-    var i = zeroBug;
+    var sliderValue = zeroBug;
     var play = false;
     var mins = 0;
     var hours = 0;
     var dbJson;
-    var tripCount = 0;
+    // var tripCount = 0;
+    var tripHash = {};
+    
+
 
     d3.json("/api/timeline", function(error, json) {
       if (error) {
@@ -31,6 +34,9 @@
       }
       console.log("successsssss--------->", json);
       dbJson = parseDBJson(json);
+      calcEvents();
+
+
     });
 
     var slider = d3.slider().axis(d3.svg.axis().ticks(24)).max(24).animate(500).value(zeroBug);
@@ -40,15 +46,15 @@
       if (play){
         var currentTime = countTime();
         if (currentTime[1] === "00") {
-          console.log(currentTime, i, "--->wut")
-          if (i === 24) {
-            i = zeroBug;
+          console.log(currentTime, sliderValue, "--->wut")
+          if (sliderValue === 24) {
+            sliderValue = zeroBug;
           }
           else {
-            i++;
-            if (i === 1 + zeroBug) i = 1;
+            sliderValue++;
+            if (sliderValue === 1 + zeroBug) sliderValue = 1;
           }
-          slider.value(i)
+          slider.value(sliderValue)
         }
         currentTime = currentTime.join(":");
         var newTrip = checkForTrip(currentTime);
@@ -96,17 +102,61 @@
         "features": []
       };
 
-      while (dbJson.features[tripCount]["properties"]["startTime"] === time){
-        trip.features.push(dbJson.features[tripCount]);
-        tripCount++;
-
-        if (tripCount === dbJson.features.length){
-          tripCount = 0;
+      if (tripHash[time]["startingTrips"].length) {
+        for (var i = 0; i < tripHash[time]["startingTrips"].length; i++) {
+          trip.features.push(dbJson.features[tripHash[time]["startingTrips"][i]]);
         }
       }
+
+      // while (dbJson.features[tripCount]["properties"]["startTime"] === time){
+      //   trip.features.push(dbJson.features[tripCount]);
+      //   tripCount++;
+
+      //   if (tripCount === dbJson.features.length){
+      //     tripCount = 0;
+      //   }
+      // }
       return trip;
     };
 
+    var calcEvents = function(){
+      for (var i = 0; i < 1440; i++){
+          var time = countTime().join(":");
+          tripHash[time] = {"currentTrips": [], "startingTrips": []};
+      }
+      mins = 0;
+      hours = 0;
+
+      for (var i = 0; i < dbJson.features.length; i++){
+        var startTime = dbJson.features[i]["properties"]["startTime"];
+        var endTime = dbJson.features[i]["properties"]["endTime"];
+        var splitStartTime = startTime.split(":");
+        var splitEndTime = endTime.split(":");
+        hours = splitStartTime[0];
+        mins = splitStartTime[1];
+
+        tripHash[startTime]["startingTrips"].push(i);
+
+        // console.log(splitStartTime, splitEndTime);
+        // console.log("hours and mins ", hours, mins);
+
+        for (var h = splitStartTime[0], m = splitStartTime[1]; m < splitEndTime[1] && h <= splitEndTime[0]; h = hours, m = mins) {
+          tempTime = h + ":" + m;
+          // console.log("tempTime", tempTime);
+          // var tempTime = countTime().join(":");
+          // console.log(tempTime);
+          tripHash[tempTime]["currentTrips"].push(i);
+          mins = countTime()[1];
+          // console.log("new hours and mins ", hours, mins);
+        }
+      }
+      mins = 0;
+      hours = 0;
+
+      console.log(tripHash);
+    };
+    // setTimeout(function() {calcEvents()}, 7000);
+    
 
     var width = Math.max(960, window.innerWidth),
       height = Math.max(500, window.innerHeight);
