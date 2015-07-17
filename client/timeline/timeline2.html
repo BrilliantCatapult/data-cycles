@@ -55,7 +55,7 @@
     return hours + ":" + minutes;
   };
 
-  var formatTimeToMilliseconds = function(string) {
+  var timeToMilliSeconds = function(string) {
     var values = string.split(":");
     return values[0] * hour + values[1] * minute;
   };
@@ -75,14 +75,14 @@
       return -x;
     }));
 
-  var svg = d3.select("body").append("svg")
+  var svgTimeline = d3.select("body").append("svg")
     .attr("width", width);
 
-  svg.append("g")
+  svgTimeline.append("g")
     .attr("transform", "translate(5,0)")
     .call(axis);
 
-  var cursor = svg.append("circle")
+  var cursor = svgTimeline.append("circle")
     .attr('r', 8)
     .attr("fill", "red")
     .attr("id", "cursor");
@@ -93,7 +93,7 @@
     .style("height", height + "px")
     .call(zoom);
 
-  var svgPoints = map.append("svg:svg")
+  var svgBikeRoutes = map.append("svg:svg")
     .attr("class", 'points')
     .style("width", width + "px")
     .style("height", height + "px")
@@ -126,12 +126,12 @@
     cursor.attr("transform", function(d) {
       return "translate(" + animscale(timer) + ")";
     });
-    for (var i = 0; i < circles[0].length; i++) {
 
+    for (var i = 0; i < circles[0].length; i++) {
       d3.select(circles[0][i]).attr("transform", function(d) {
         var thePath = d3.select(this.parentNode).select("path").node();
-        var startTime = formatTimeToMilliseconds(d.properties.startTime);
-        var endTime = formatTimeToMilliseconds(d.properties.endTime);
+        var startTime = timeToMilliSeconds(d.properties.startTime);
+        var endTime = timeToMilliSeconds(d.properties.endTime);
 
         if (realtime - startTime > 0 && endTime - realtime > 0) {
           var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
@@ -150,9 +150,7 @@
   });
 
   var drawTrip = function(trips) {
-    console.log("draw trips----->", trips)
-
-    var routes = svgPoints.append("svg:g")
+    var routes = svgBikeRoutes.append("svg:g")
       .selectAll("path")
       .data(trips.features)
       .enter()
@@ -163,7 +161,7 @@
       .attr("fill-opacity", 0)
       .attr("stroke", "#333");
 
-    circles = svgPoints.selectAll(".route")
+    circles = svgBikeRoutes.selectAll(".route")
       .append("circle")
       .attr("r", 10)
       .attr("fill", '#f33');
