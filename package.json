@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Bike Share Visualization",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bahiafayez/Brilliant-Catapult.git"
@@ -20,17 +17,18 @@
     "body-parser": "^1.13.2",
     "elasticsearch": "^5.0.0",
     "express": "^4.13.1",
+    "jsdoc": "^3.3.2"
+  },
+  "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
+    "gulp-jasmine": "^2.0.1",
+    "gulp-jsdoc": "^0.1.4",
     "gulp-jshint": "^1.11.2",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.3",
     "gulp-shell": "^0.4.2",
-    "gulp-uglify": "^1.2.0",
-    "jsdoc": "^3.3.2"
-  },
-  "devDependencies": {
-    "gulp-jsdoc": "^0.1.4",
+    "gulp-uglify": "1.1.0",
     "minami": "^1.1.0"
   }
 }
