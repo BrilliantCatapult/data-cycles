@@ -13,6 +13,11 @@
   body {
     margin: 0;
   }
+
+  .hide {
+    display: none;
+    visibility: hidden;
+  }
   
   .map {
     position: relative;
@@ -45,7 +50,7 @@
   }
   
   .tile .highway {
-    stroke: #f39;
+    stroke: grey;
     stroke-width: 1.5px;
   }
   
@@ -63,14 +68,21 @@
     background-color: transparent;
     position: absolute;
   }
+
+  .timeline {
+    position: relative;
+    height: 40px;
+  }
   </style>
 </head>
 
 <body>
-  <div id="buttons">
-    <button id="playbutton">Play</button>
+  <div class="timeline">
+    <div id="buttons">
+      <button id="playbutton">Play</button>
+    </div>
+    <div id="slider"></div>
   </div>
-  <div id="slider"></div>
   <script>
   var width = window.innerWidth;
   var height = Math.max(500, window.innerHeight);
@@ -84,11 +96,11 @@
   var dbJson;
   var play = false;
   var realTimeFormat;
-  var timer, timermemo = 0;
   var realtime;
   var circles = [];
 
-  var animduration = 5*minute;
+  var animduration = 10 * minute;
+  var timer, timermemo = 0.35 *animduration;
 
   var formatMilliseconds = function(d) {
     var hours = Math.floor(d / hour);
@@ -122,7 +134,7 @@
     .size([width, height]);
 
   var projection = d3.geo.mercator()
-    .scale((1 << 21) / 2 / Math.PI)
+    .scale((1 << 22) / 2 / Math.PI)
     .translate([-width / 2, -height / 2]);
 
   var path = d3.geo.path()
@@ -134,7 +146,7 @@
   var zoom = d3.behavior.zoom()
     .scale(projection.scale() * 2 * Math.PI)
     .scaleExtent([1 << 20, 1 << 23])
-    .translate(projection([-122.4, 37.7782]).map(function(x) {
+    .translate(projection([-122.4, 37.785]).map(function(x) {
       console.log('zoom', x);
       return -x;
     }))
@@ -143,7 +155,7 @@
   var map = d3.select("body").append("div")
     .attr("class", "map")
     .style("width", width + "px")
-    .style("height", height + "px")
+    .style("height", height-50 + "px")
     .call(zoom);
   // .on("mousemove", mousemoved);
 
@@ -153,7 +165,7 @@
   var info = map.append("div")
     .attr("class", "info");
 
-  var svgTimeline = d3.select("body").append("svg")
+  var svgTimeline = d3.select(".timeline").append("svg")
     .attr("width", width);
 
   svgTimeline.append("g")
@@ -223,30 +235,17 @@
   };
 
   var makeRings = function(id, color) {
-    d3.select("#dock-" + id).append("circle")
-      .attr({
-        "class": "ring",
-        "fill": "grey", 
-        "stroke": color,
-        "stroke-width": "2px",
-        "r": "5px",
-        "opacity": 0.8,
-        "fill-opacity": 0.5 
-      })
-      .attr("class", "ring")
-      .attr("cx", function(d) {
-        return projection(d.coord)[0]
-      })
-      .attr("cy", function(d) {
-        return projection(d.coord)[1]
-      })
+    d3.select("#dock-" + id + " .ring")
+      .classed("hide", false)
+      .attr("stroke", color)
       .transition()
-      .duration(500)
-      .ease('linear')
+      .ease("elastic")
+      .duration(800)
       .attr("r", "20px")
-      .attr("opacity", 0) //transition opacity
-      .remove(); //remove when transition is complete
-    render();
+      .each("end", function(){
+        d3.select(this).classed("hide", true)
+          .attr("r", "5px");
+      });
   };
 
   var button = d3.select("#playbutton");
@@ -294,16 +293,16 @@
     if (error) throw error;
     console.log("docks", docks);
     var c = d3.scale.linear().domain(d3.extent(arr)).range([0, 1]);
-    svgBikeRoutes.selectAll(".dock").data(docks.features)
+    var docks = svgBikeRoutes.selectAll(".dock").data(docks.features)
       .enter()
       .append("g")
       .attr("id", function(d) {
         return "dock-" + d.dock
-      })
-      .append("circle")
+      });
+      
+    docks.append("circle")
       .attr("class", "dock")
       .attr("cx", function(d) {
-        // console.log(projection(d.coord)[0])
         return projection(d.coord)[0];
       })
       .attr("cy", function(d) {
@@ -313,6 +312,21 @@
       .attr("fill", function(d) {
         return heatmapColor(c(d.amt))
       });
+
+    docks.append("circle")
+      .attr({
+        "fill": "none",
+        "stroke-width": "1px",
+        "r": "5px",
+      })
+      .classed("ring hide", true)
+      .attr("cx", function(d) {
+        return projection(d.coord)[0]
+      })
+      .attr("cy", function(d) {
+        return projection(d.coord)[1]
+      });
+
     render();
   });
 
@@ -379,14 +393,13 @@
     svgBikeRoutes.selectAll(".route path")
       .attr("d", path);
 
-    svgBikeRoutes.selectAll(".route circle")
-      .attr({
-        "transform": function() {
-          var thePath = d3.select(this.parentNode).select("path").node();
-          var p = thePath.getPointAtLength(thePath.getTotalLength());
-          return "translate(" + [p.x, p.y] + ")";
-        }
-      });
+    svgBikeRoutes.selectAll(".ring")
+      .attr("cx", function(d) {
+        return projection(d.coord)[0]
+      })
+      .attr("cy", function(d) {
+        return projection(d.coord)[1]
+      })
   }
 
   function mousemoved() {
