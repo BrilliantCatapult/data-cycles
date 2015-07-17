@@ -6,6 +6,7 @@ var elasticClient = require('../config/elasticsearch.js');
 module.exports = function (app) {
 
   app.get('/', timelineController.get);
+  app.get('/slider', timelineController.slider);
   app.post('/', timelineController.post);
 
 };

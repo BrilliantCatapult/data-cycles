@@ -162,3 +162,49 @@ _search?search_type=count
             }
         }
     }
+
+
+
+// aggregate by day -> station id -> avg # of bikes available per hour
+{
+        "aggs": {
+              "group_by_id": {
+                  "filter": {
+                      "range" : {
+                          "time": {
+                              "gte": "2013/12/18 00:00:00",
+                              "lte": "2013/12/19 0:00:00"
+                          }
+                      }
+                  },
+                  "aggs":{
+                      "group_yay": {
+                          "terms": {
+                              "field": "station_id",
+                              "size": 100
+                          },
+                          "aggs":{
+                            "time_count":{
+                                "date_histogram": {
+                                    "field":"time", 
+                                    "interval":"hour"
+                                },
+                                "aggs": {
+                              "avg_bikes": {
+                                  "avg": {
+                                      "field": "bikes_available"
+                                  }
+                                  
+                                 
+                              }
+                             
+                            }
+                          }
+                          }
+                    }
+              }
+          }  
+          
+    }
+}
+    
