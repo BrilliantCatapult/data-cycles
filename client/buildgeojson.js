@@ -54,7 +54,9 @@ var buildGeoJson = function(duration, startTerminal, startDate, startTime, endTe
         "startDate": startDate,
         "startTime": startTime,
         "endDate": endDate,
-        "endTime": endTime
+        "endTime": endTime, 
+        "startTerminal": startTerminal, 
+        "endTerminal": endTerminal
         },
       "geometry": {
         "type": "LineString",

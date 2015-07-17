@@ -1,4 +1,179 @@
-[
-    [-122.4, 37.7782],
-    [-122.39, 37.8]
-  ]
+{
+  "type": "DockCollection",
+  "features": [{
+    "dock": 41,
+    "loc": "Clay at Battery",
+    "coord": [-122.39997, 37.795001],
+    "amt": 15
+  }, {
+    "dock": 42,
+    "loc": "Davis at Jackson",
+    "coord": [-122.398436, 37.79728],
+    "amt": 15
+  }, {
+    "dock": 45,
+    "loc": "Commercial at Montgomery",
+    "coord": [-122.402923, 37.794231],
+    "amt": 15
+  }, {
+    "dock": 46,
+    "loc": "Washington at Kearney",
+    "coord": [-122.404767, 37.795425],
+    "amt": 15
+  }, {
+    "dock": 47,
+    "loc": "Post at Kearney",
+    "coord": [-122.403452, 37.788975],
+    "amt": 19
+  }, {
+    "dock": 48,
+    "loc": "Embarcadero at Vallejo",
+    "coord": [-122.398525, 37.799953],
+    "amt": 15
+  }, {
+    "dock": 49,
+    "loc": "Spear at Folsom",
+    "coord": [-122.390264, 37.789625],
+    "amt": 19
+  }, {
+    "dock": 50,
+    "loc": "Harry Bridges Plaza (Ferry Building)",
+    "coord": [-122.394203, 37.795392],
+    "amt": 23
+  }, {
+    "dock": 51,
+    "loc": "Embarcadero at Folsom",
+    "coord": [-122.391034, 37.791464],
+    "amt": 19
+  }, {
+    "dock": 53,
+    "loc": "Powell Street BART",
+    "coord": [-122.408433, 37.783871],
+    "amt": 19
+  }, {
+    "dock": 54,
+    "loc": "Embarcadero at Bryant",
+    "coord": [-122.388013, 37.787152],
+    "amt": 15
+  }, {
+    "dock": 55,
+    "loc": "Temporary Transbay Terminal (Howard at Beale)",
+    "coord": [-122.394643, 37.789756],
+    "amt": 23
+  }, {
+    "dock": 56,
+    "loc": "Beale at Market",
+    "coord": [-122.397086, 37.792251],
+    "amt": 19
+  }, {
+    "dock": 57,
+    "loc": "5th at Howard",
+    "coord": [-122.405127, 37.781752],
+    "amt": 15
+  }, {
+    "dock": 58,
+    "loc": "San Francisco City Hall",
+    "coord": [-122.418235, 37.77865],
+    "amt": 19
+  }, {
+    "dock": 59,
+    "loc": "Golden Gate at Polk",
+    "coord": [-122.418603, 37.781332],
+    "amt": 23
+  }, {
+    "dock": 60,
+    "loc": "Embarcadero at Sansome",
+    "coord": [-122.403234, 37.80477],
+    "amt": 15
+  }, {
+    "dock": 61,
+    "loc": "2nd at Townsend",
+    "coord": [-122.390288, 37.780526],
+    "amt": 27
+  }, {
+    "dock": 62,
+    "loc": "2nd at Folsom",
+    "coord": [-122.396236, 37.785299],
+    "amt": 19
+  }, {
+    "dock": 63,
+    "loc": "Howard at 2nd",
+    "coord": [-122.398108, 37.786978],
+    "amt": 19
+  }, {
+    "dock": 64,
+    "loc": "2nd at South Park",
+    "coord": [-122.392738, 37.782259],
+    "amt": 15
+  }, {
+    "dock": 65,
+    "loc": "Townsend at 7th",
+    "coord": [-122.402717, 37.771058],
+    "amt": 15
+  }, {
+    "dock": 66,
+    "loc": "South Van Ness at Market",
+    "coord": [-122.418954, 37.774814],
+    "amt": 19
+  }, {
+    "dock": 67,
+    "loc": "Market at 10th",
+    "coord": [-122.417385, 37.776619],
+    "amt": 27
+  }, {
+    "dock": 68,
+    "loc": "Yerba Buena Center of the Arts (3rd @ Howard)",
+    "coord": [-122.401014, 37.784878],
+    "amt": 19
+  }, {
+    "dock": 69,
+    "loc": "San Francisco Caltrain 2 (330 Townsend)",
+    "coord": [-122.39607, 37.776377],
+    "amt": 23
+  }, {
+    "dock": 70,
+    "loc": "San Francisco Caltrain (Townsend at 4th)",
+    "coord": [-122.395569, 37.776317],
+    "amt": 19
+  }, {
+    "dock": 71,
+    "loc": "Powell at Post (Union Square)",
+    "coord": [-122.408499, 37.788446],
+    "amt": 19
+  }, {
+    "dock": 72,
+    "loc": "Civic Center BART (7th at Market)",
+    "coord": [-122.412919, 37.780356],
+    "amt": 23
+  }, {
+    "dock": 73,
+    "loc": "Grant Avenue at Columbus Avenue",
+    "coord": [-122.407245, 37.798522],
+    "amt": 15
+  }, {
+    "dock": 74,
+    "loc": "Steuart at Market",
+    "coord": [-122.394434, 37.794139],
+    "amt": 23
+  }, {
+    "dock": 75,
+    "loc": "Mechanics Plaza (Market at Battery)",
+    "coord": [-122.3990511, 37.7913],
+    "amt": 9
+  }, {
+    "dock": 76,
+    "loc": "Market at 4th",
+    "coord": [-122.404966, 37.786305],
+    "amt": 19
+  }, {
+    "dock": 77,
+    "loc": "Market at Sansome",
+    "coord": [-122.400811, 37.789625],
+    "amt": 27
+  }, {
+    "dock": 82,
+    "loc": "Broadway St at Battery St",
+    "coord": [-122.400862, 37.798541],
+    "amt": 15
+  }]
+}
