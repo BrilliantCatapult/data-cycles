@@ -7,7 +7,7 @@ $(document).ready(function () {
   xy = d3.geo.mercator().scale(480000).translate([630700, 401100]);
   path = d3.geo.path().projection(xy);
   vis = d3.select("#map").append("svg:svg").attr("width", 960).attr("height", 600);
-  d3.json("path.json", function (error, dots) {
+  d3.json("../json/path.json", function (error, dots) {
     vis.append("svg:g").attr("class", "route").selectAll("path").data(json.features).enter().append("svg:path").attr("d", path).attr("fill-opacity", 0.5).attr("fill", "#fff").attr("stroke", "#333");
     // Draw a red circle on the map:
     group = vis.append("svg:g");

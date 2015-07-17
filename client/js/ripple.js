@@ -9,7 +9,7 @@
       //instead of arr, create array based on max amount at specific dock w/underscore _.range(27);
       var arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
      
-      d3.json("docks.json", function(error, docks) {
+      d3.json("../json/docks.json", function(error, docks) {
           if (error) throw error;
           console.log(d3.extent(arr))
           var c = d3.scale.linear().domain(d3.extent(arr)).range([0, 1]);
