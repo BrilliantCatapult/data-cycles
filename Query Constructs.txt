@@ -207,4 +207,118 @@ _search?search_type=count
           
     }
 }
+
+//// 
+{
+"query":{
+    "range": {
+        "time": {
+            "gte": "2013/09/08 00:00:00",
+            "lte": "2013/09/08 23:00:00"
+        }
+    }
+},
+"size": "1"
+}
+
+
+
+// returns the number of bikes at start of day for each station
+{
+    "aggs": {
+        "first_daily_event": {
+            "filter": {
+                "bool": {
+                    "must": {
+                        "and": [{
+                            "range": {
+                                "time": {
+                                    "gte": "2013/09/09 00:00:00",
+                                    "lte": "2013/09/10 00:00:00"
+                                }
+                            }
+                        },
+                        {
+                            "range": {
+                                "station_id": {
+                                    "gte": "41",
+                                    "lte": "82"
+                                }
+                            }
+                        }]
+                    }
+                }
+            },
+            "aggs": {
+                "station_group": {
+                    "terms": {
+                        "field": "station_id"
+                    },
+                    "aggs": {
+                        "min_time": {
+                            "min": {
+                                "field": "time"
+                            }
+                        },
+                        "lowest_score_top_hits": {
+                          "top_hits": {
+                            "size":1,
+                            "sort": [{"time": {"order": "asc"}}]
+                          }
+                        }
+                       
+                    }
+                }
+            }
+        }
+    }
+}
+
+// this also works
+
+{
+    "aggs": {
+        "first_daily_event": {
+            "filter": {
+                "bool": {
+                    "must": {
+                        "and": [{
+                            "range": {
+                                "time": {
+                                    "gte": "2013/09/09 00:00:00",
+                                    "lte": "2013/09/10 00:00:00"
+                                }
+                            }
+                        },
+                        {
+                            "range": {
+                                "station_id": {
+                                    "gte": "41",
+                                    "lte": "82"
+                                }
+                            }
+                        }]
+                    }
+                }
+            },
+            "aggs": {
+                "station_group": {
+                    "terms": {
+                        "field": "station_id"
+                    },
+                    "aggs": {
+                        "lowest_score_top_hits": {
+                          "top_hits": {
+                            "size":1,
+                            "sort": [{"time": {"order": "asc"}}]
+                          }
+                        }
+                       
+                    }
+                }
+            }
+        }
+    }
+}
+
     

@@ -95,6 +95,68 @@ module.exports = {
       res.json({"message": "oh no"})
       console.trace(err.message);
     });
+  },
+  bikesAvailable: function (req, res, next) {
+    var zipcode = req.body.zipcode || 94107;
+    var start_date = req.body.start_date || "2014/02/09 00:00:00";
+    console.log("START DATE",start_date);
+    var end_date = req.body.end_date || "2014/02/09 00:00:05";
+    var field = req.body.field || "start_terminal";
+    elasticClient.search({
+      index: 'bikeshare',
+      type: 'rebalancing',
+      body: { 
+          "aggs": {
+            "first_daily_event": {
+              "filter": {
+                "bool": {
+                  "must": {
+                    "and": [{
+                      "range": {
+                          "time": {
+                              "gte": start_date,
+                              "lte": end_date
+                          }
+                      }
+                  },
+                  {
+                      "range": {
+                          "station_id": {
+                              "gte": "41",
+                              "lte": "82"
+                          }
+                      }
+                  }]
+              }
+          }
+      },
+      "aggs": {
+          "station_group": {
+              "terms": {
+                  "field": "station_id"
+              },
+              "aggs": {
+                  "lowest_score_top_hits": {
+                    "top_hits": {
+                      "size":1,
+                      "sort": [{"time": {"order": "asc"}}]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }).then(function (resp) {
+      var hits = resp.hits.hits;
+      console.log("TRIP ",resp);
+      res.json(resp);
+    }, function (err) {
+      res.json({"message": "oh no"})
+      console.trace(err.message);
+    });
   }
+
 
 };
