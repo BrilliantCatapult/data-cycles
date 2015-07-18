@@ -14,10 +14,6 @@
   },
   "homepage": "https://github.com/bahiafayez/Brilliant-Catapult#readme",
   "engines": {
-<<<<<<< HEAD
-
-=======
->>>>>>> 744d039d112a5e9ef3aa6a159c6e01d348d5c9dc
     "node": "0.10.x"
   },
   "dependencies": {
