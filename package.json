@@ -13,6 +13,9 @@
     "url": "https://github.com/bahiafayez/Brilliant-Catapult/issues"
   },
   "homepage": "https://github.com/bahiafayez/Brilliant-Catapult#readme",
+  "engines": {
+      "node": "0.10.x"
+    },
   "dependencies": {
     "body-parser": "^1.13.2",
     "elasticsearch": "^5.0.0",
