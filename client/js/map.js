@@ -1,5 +1,4 @@
-var width = document.getElementById("map").clientWidth;
-var height = Math.max(500, window.innerHeight);
+var width, height;
 var second = 1000;
 var minute = 60 * second;
 var hour = 60 * minute;
@@ -7,11 +6,10 @@ var day = 24 * hour;
 
 var dbJson;
 var play = false;
-var realTimeFormatted;
 var realtime;
 var circles = [];
 var animduration = 10 * minute;
-var timer, timermemo = 0.35 * animduration;
+var timer, timermemo = 0.313 * animduration;
 var playmemo;
 
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
@@ -31,7 +29,7 @@ var timeToMilliSeconds = function (string) {
 };
 
 var makeRings = function (id, color) {
-  d3.select("#dock-" + id + " .ring")
+  d3.select("#ring-" + id)
     .classed("hide", false)
     .attr("stroke", color)
     .transition()
@@ -43,10 +41,11 @@ var makeRings = function (id, color) {
     });
 };
 
-var drawTrip = function (trips) {
-  var routes = svgBikeAnimations.append("svg:g")
+var drawRoutes = function (routes) {
+  var routes = animations.append("svg:g")
+    .classed("routes", true)
     .selectAll("path")
-    .data(trips.features)
+    .data(routes.features)
     .enter()
     .append("svg:g")
     .attr("class", "route")
@@ -54,7 +53,7 @@ var drawTrip = function (trips) {
     .attr("d", path)
     .attr("fill-opacity", 0);
 
-  circles = svgBikeAnimations.selectAll(".route")
+  circles = animations.selectAll(".route")
     .append("circle")
     .attr("r", 3)
     .attr("fill", '#f33')
@@ -67,6 +66,13 @@ var setHandlePosition = function(t){
   handle.attr("transform", function (d) {
     return "translate(" + animscale(t) + ")";
   });
+};
+
+var setTimer = function(t) {
+  realtime = t * day / animduration;
+  var realTimeFormatted = formatMilliseconds(realtime);
+  timerdisplay.html(realTimeFormatted);
+  // console.log("timer", realTimeFormatted, timer);
 }
 
 var brushstart = function() {
@@ -92,18 +98,16 @@ var brushend = function() {
 var animate = function (e) {
   if (!play) {
     timermemo = timer;
+    button.html("Play");
     return true;
   }
+  button.html("Stop");
   renderFrame(e);
 };
 
 var renderFrame = function(e) {
   timer = (timermemo + e) % animduration;
-  realtime = timer * day / animduration;
-  realTimeFormatted = formatMilliseconds(realtime);
-  timerdisplay.html(realTimeFormatted);
-  // console.log("timer", realTimeFormatted, timer);
-
+  setTimer(timer); 
   setHandlePosition(timer);
 
   for (var i = 0; i < circles[0].length; i++) {
@@ -180,24 +184,24 @@ var renderZoom = function () {
       });
     });
 
-  svgBikeAnimations.selectAll(".dock")
+  animations.selectAll(".dock")
     .attr("cx", function (d) {
       return projection(d.coord)[0];
     }).attr("cy", function (d) {
       return projection(d.coord)[1];
     });
   
-  svgBikeAnimations.selectAll(".route path")
+  animations.selectAll(".route path")
     .attr("d", path);
 
-  svgBikeAnimations.selectAll(".ring")
+  animations.selectAll(".ring")
     .attr("cx", function (d) {
       return projection(d.coord)[0]
     }).attr("cy", function (d) {
       return projection(d.coord)[1]
     });
 
-  svgBikeAnimations.selectAll(".route circle")
+  animations.selectAll(".route circle")
     .attr({
       "transform": function(d) {
         var thePath = d3.select(this.parentNode).select("path").node();
@@ -235,6 +239,22 @@ var formatLocation = function (p, k) {
   var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
   return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " " + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
 };
+
+var loaded = function () {
+  button.attr('disabled', null);
+  handle.classed("hide", false);
+  animations.selectAll(".dock").classed("hide", false);
+  setHandlePosition(timermemo);
+  setTimer(timermemo); 
+  button.html("Play");
+};
+
+function updateWindow(){
+  width = document.getElementById("map").clientWidth;
+  height = Math.max(500, window.innerHeight);
+};
+
+updateWindow();
 
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
@@ -286,20 +306,14 @@ var zoom = d3.behavior.zoom()
   }))
   .on("zoom", renderZoom);
 
-var button = d3.select("#playbutton");
-
 var map = d3.select("#map")
-  .append("div")
-  .attr("class", "map")
-  .style("width", width + "px")
-  .style("height", height - 50 + "px")
-  .call(zoom);
+  .call(zoom)
+  .on("mousemove", mousemoved);
 
-// .on("mousemove", mousemoved);
 var tilesLayer = map.append("div")
-  .attr("id", "maplayer");
+  .attr("id", "tileslayer");
 
-var svgBikeAnimations = map.append("svg:svg")
+var animations = map.append("svg:svg")
   .attr("id", 'bikeAnimations')
   .style("width", width + "px")
   .style("height", height - 50 + "px")
@@ -317,9 +331,13 @@ var slider = svgTimeline.append("g")
   .call(axis)
   .call(brush);
 
+var button = d3.select("#playbutton")
+  .attr('disabled', true);
+
 var handle = slider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
-  .attr("id", "handle");
+  .attr("id", "handle")
+  .classed("hide", true);
 
 var timerdisplay = d3.select("#timer");
 
@@ -332,31 +350,33 @@ d3.json("/api/timeline", function (error, json) {
   }
   dbJson = parseDBJson(json);
   console.log("successsssss--------->", dbJson);
-  drawTrip(dbJson);
+  drawRoutes(dbJson);
+  loaded();
 });
 
 button.on("click", function () {
   play = !play;
   if (play) {
     d3.timer(animate);
-  }
+  } 
 });
 
-d3.json("../json/docks.json", function (error, docks) {
+d3.json("../json/docks.json", function (error, terminals) {
   if (error) throw error;
 
   var c = d3.scale.linear()
     .domain([0, 27])
     .range([0, 1]);
 
-  var docks = svgBikeAnimations.selectAll(".dock")
-    .data(docks.features)
-    .enter().append("g")
+  var docks = animations.append("g")
+    .classed("docks", true)
+    .selectAll("circle")
+    .data(terminals.features)
+    .enter()
+    .append("circle")
     .attr("id", function (d) {
       return "dock-" + d.dock
-    });
-
-  docks.append("circle")
+    })
     .attr("class", "dock")
     .attr("cx", function (d) {
       return projection(d.coord)[0];
@@ -364,9 +384,18 @@ d3.json("../json/docks.json", function (error, docks) {
       return projection(d.coord)[1];
     }).attr("r", "5px").attr("fill", function (d) {
       return colorscale(c(d.amt))
-    });
+    })
+    .classed("hide", true);
 
-  docks.append("circle")
+  var rings = animations.append("g")
+    .classed("rings", true)
+    .selectAll("circle")
+    .data(terminals.features)
+    .enter()
+    .append("circle")
+    .attr("id", function (d) {
+      return "ring-" + d.dock
+    })
     .attr({
       "fill": "none",
       "stroke-width": "1px",
@@ -383,4 +412,4 @@ d3.json("../json/docks.json", function (error, docks) {
   renderZoom();
 });
 
-setHandlePosition(timermemo);
+window.onresize = updateWindow;
