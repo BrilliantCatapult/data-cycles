@@ -1,5 +1,5 @@
 require('dotenv').load();
-console.log('hello')
+
 var express = require('express');
 
 var app = require('./server/server.js');
