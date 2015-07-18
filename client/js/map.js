@@ -15,6 +15,7 @@ var realtime;
 var circles = [];
 var animduration = 10 * minute;
 var timer, timermemo = 0.35 * animduration;
+var playmemo;
 
   //circle for bike (.route) radius down to 3
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
@@ -35,8 +36,9 @@ var animscale = d3.scale.linear()
 var brush = d3.svg.brush()
   .x(animscale)
   .extent([0, 0])
-  .on("brush", brushed)
-  .on("brushend", endBrush);
+  .on("brushstart", brushstart)
+  .on("brush", brushing)
+  .on("brushend", brushend);
 
 var axis = d3.svg.axis()
   .scale(timescale)
@@ -64,7 +66,7 @@ var zoom = d3.behavior.zoom()
     console.log('zoom', x);
     return -x;
   }))
-  .on("zoom", render);
+  .on("zoom", renderZoom);
 
 var button = d3.select("#playbutton");
 
@@ -99,63 +101,36 @@ var slider = svgTimeline.append("g")
 
 var handle = slider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
-  // .attr("transform", "translate(-15, 0)")
   .attr("id", "handle");
+
+var timerdisplay = d3.select("#timer");
 
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
 
-function brushed() {
-  if (d3.event.sourceEvent) { 
-    play = false;
+function brushstart() {
+  playmemo = play;
+  console.log("playmemo a", playmemo);
+  play = false;
+};
 
+function brushing() {
+  if (d3.event.sourceEvent) { 
     timermemo = animscale.invert(d3.mouse(this)[0]);
-    
     handle.attr("transform", function (d) {
       return "translate(" + animscale(timermemo) + ")";
     });
-
-    timer = (timermemo) % animduration;
-    realtime = timer * day / animduration;
-    realTimeFormatted = formatMilliseconds(realtime);
-    d3.select("#timer").html(realTimeFormatted);
-
-    for (var i = 0; i < circles[0].length; i++) {
-    d3.select(circles[0][i])
-      .attr("transform", function (d) {
-        var thePath = d3.select(this.parentNode).select("path").node();
-        var startTime = timeToMilliSeconds(d.properties.startTime);
-        var endTime = timeToMilliSeconds(d.properties.endTime);
-
-        if (realtime - startTime > 0 && endTime - realtime > 0) {
-          if (d3.select(circles[0][i]).classed("hide")) {
-            d3.select(circles[0][i]).classed("hide", false);
-            makeRings(d.properties.startTerminal, "red");
-          }
-          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-          return "translate(" + [p.x, p.y] + ")";
-        } else {
-          if (!d3.select(circles[0][i]).classed("hide")) {
-            d3.select(circles[0][i]).classed("hide", true);
-            makeRings(d.properties.endTerminal, "green");
-          }
-        }
-      });
+    renderFrame(0);
   }
-  }
-
-
-  // if (playmemo) {
-  //   play = true;
-  //   d3.timer(animate);
-  // }
 };
 
-function endBrush() {
-  console.log('endBrush has happened');
-  play = true;
-  d3.timer(animate);
-}
+function brushend() {
+  console.log("playmemo", playmemo);
+  if(playmemo) {
+    play = true;
+    d3.timer(animate);
+  }
+};
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
@@ -200,7 +175,7 @@ var drawTrip = function (trips) {
     .attr("fill", '#f33')
     .classed("hide", true);
 
-  render();
+  renderZoom();
 };
 
 var animate = function (e) {
@@ -208,10 +183,14 @@ var animate = function (e) {
     timermemo = timer;
     return true;
   }
+  renderFrame(e);
+};
+
+var renderFrame = function(e) {
   timer = (timermemo + e) % animduration;
   realtime = timer * day / animduration;
   realTimeFormatted = formatMilliseconds(realtime);
-  d3.select("#timer").html(realTimeFormatted);
+  timerdisplay.html(realTimeFormatted);
 
   // console.log("timer", realTimeFormatted, timer);
   handle.attr("transform", function (d) {
@@ -228,21 +207,25 @@ var animate = function (e) {
         if (realtime - startTime > 0 && endTime - realtime > 0) {
           if (d3.select(circles[0][i]).classed("hide")) {
             d3.select(circles[0][i]).classed("hide", false);
-            makeRings(d.properties.startTerminal, "red");
+            if (play) {
+              makeRings(d.properties.startTerminal, "red");
+            }
           }
           var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
           return "translate(" + [p.x, p.y] + ")";
         } else {
           if (!d3.select(circles[0][i]).classed("hide")) {
             d3.select(circles[0][i]).classed("hide", true);
-            makeRings(d.properties.endTerminal, "green");
+            if (play) {
+              makeRings(d.properties.endTerminal, "green");
+            }
           }
         }
       });
   }
-};
+}
 
-function render() {
+function renderZoom() {
   var tiles = tile.scale(zoom.scale()).translate(zoom.translate())();
 
   projection.scale(zoom.scale() / 2 / Math.PI)
@@ -397,7 +380,7 @@ d3.json("../json/docks.json", function (error, docks) {
       return projection(d.coord)[1]
     });
 
-  render();
+  renderZoom();
 });
 
 

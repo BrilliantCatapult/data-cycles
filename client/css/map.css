@@ -13,8 +13,8 @@ body {
   overflow: hidden;
 }
 
-.handle {
-  fill: #fff;
+#handle {
+  fill: red;
   cursor: pointer;
 }
 
