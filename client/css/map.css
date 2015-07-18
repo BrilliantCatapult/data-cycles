@@ -1,0 +1,76 @@
+body {
+  margin: 0;
+  font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+}
+
+.container {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 960px; 
+  overflow: hidden;
+}
+
+#timeline {
+  font-size: 0.5em;
+}
+
+.hide {
+  display: none;
+  visibility: hidden;
+}
+
+.map {
+  position: relative;
+  overflow: hidden;
+}
+
+#maplayer {
+  position: absolute;
+  z-index: -100;
+}
+
+.tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+}
+
+.tile path {
+  fill: none;
+  stroke: grey;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.tile .major_road {
+  stroke: #776;
+}
+
+.tile .minor_road {
+  stroke: #ccb;
+}
+
+.tile .highway {
+  stroke: grey;
+  stroke-width: 1.5px;
+}
+
+.tile .rail {
+  stroke: #7de;
+}
+
+.info {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+.svg-paths {
+  background-color: transparent;
+  position: absolute;
+}
+
+.timeline {
+  position: relative;
+  height: 40px;
+}
