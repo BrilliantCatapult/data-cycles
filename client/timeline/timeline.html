@@ -33,11 +33,27 @@
         console.log("error", error);
       }
       console.log("successsssss--------->", json);
-      dbJson = parseDBJson(json);
-      calcEvents();
+      // dbJson = parseDBJson(json);
+      // calcEvents();
+      calcAvailableBikes(json);
 
 
     });
+
+    var calcAvailableBikes = function(json) {
+      var availableBikes = {};
+      if (!json) { return availableBikes; }
+
+      for (var i = 0; i < json.aggregations.first_daily_event.station_group.buckets.length; i++) {
+        var path = json.aggregations.first_daily_event.station_group.buckets[i].lowest_score_top_hits.hits.hits[0]["_source"];
+        availableBikes[path.station_id] = {
+          "bikes_available": path.bikes_available, 
+          "docks_available": path.docks_available, 
+          "total": parseInt(path.bikes_available) + parseInt(path.docks_available)
+        };
+      }
+      return availableBikes;
+    };
 
     var slider = d3.slider().axis(d3.svg.axis().ticks(24)).max(24).animate(500).value(zeroBug);
     d3.select('#slider').call(slider);
