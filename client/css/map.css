@@ -1,3 +1,6 @@
+/* @override 
+	http://localhost:3000/css/map.css */
+
 body {
   margin: 0;
   font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
@@ -10,8 +13,17 @@ body {
   overflow: hidden;
 }
 
+.handle {
+  fill: #fff;
+  cursor: pointer;
+}
+
 #timeline {
   font-size: 0.5em;
+  
+}
+#timeline svg {
+  height: 40px;
 }
 
 .hide {
