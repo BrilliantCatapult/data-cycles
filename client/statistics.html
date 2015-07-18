@@ -1,50 +1,53 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!-- Standard Meta -->
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  
   <!-- Site Properities -->
   <title>Statistics</title>
-  <link rel="stylesheet" type="text/css" href="styles/style_statistics.css">
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <link rel="stylesheet" type="text/css" href="css/statistics.css">
 </head>
+
 <body>
-    
-      <div class="column">
-        <h4>Top Ten Bikes</h4>
-        <div style="display:block;width:100%" id="top_bike_use"></div>
-      </div>
-      <div class="column">
-        <h4>Bikes Least Used</h4>
-        <div  id="bottom_bike_use"></div>
-      </div>
-    
-    <div class="ui two column grid container" style="width:100%">
-      <div class="column">
-        <h4>All Bikes</h4>
-        <div style="display:block;" id="all_bike_use"></div>
-        <button id="sort_all">Sort</button>
-      </div>
-      <div class="column">
-        <h4>Most</h4>
-        <div style="display:block;" id="most"></div>
-        <h4>Least</h4>
-        <div style="display:block;" id="least"></div>
-      </div>
-    </div>
+  <div class="container">
+    <nav class="menu right"><a href="index.html">Map</a><span class="active">Statistics</span><a href="#">Predictions</a></nav>
+    <h1>Data Cycles</h1>
+    <h3>Bay Area Bike Share data visualization</h3>
+  </div>
+  <div class="container">
+    <h4>Top Ten Bikes</h4>
+    <div style="display:block;width:100%" id="top_bike_use"></div>
+  </div>
+  <div class="container">
+    <h4>Bikes Least Used</h4>
+    <div id="bottom_bike_use"></div>
+  </div>
+  <div class="container">
+    <h4>All Bikes</h4>
+    <div style="display:block;" id="all_bike_use"></div>
+    <button id="sort_all">Sort</button>
+  </div>
+  <div class="container">
+    <h4>Most</h4>
+    <div style="display:block;" id="most"></div>
+    <h4>Least</h4>
+    <div style="display:block;" id="least"></div>
+  </div>
+  <div class="container">
     <div id="bubble"></div>
-    <div class="ui two column grid container" style="width:100%">
-      <div class="column">
-        <h4>Station Activity</h4>
-        <div style="display:block;" id="station_activity"></div>
-      </div>
-      <div class="column">
-        <h4>Weather</h4>
-        <div style="display:block;" id="weather"></div>
-      </div>
-    </div>
+  </div>
+  <div class="container">
+    <h4>Station Activity</h4>
+    <div style="display:block;" id="station_activity"></div>
+  </div>
+  <div class="container">
+    <h4>Weather</h4>
+    <div style="display:block;" id="weather"></div>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   <script src="./bower_components/jquery/dist/jquery.min.js"></script>
   <script src="./bower_components/underscore/underscore-min.js"></script>
@@ -53,4 +56,5 @@
   <script src="./js/bike_bar_charts.js"></script>
   <script src="./js/bike_bubble_chart.js"></script>
 </body>
+
 </html>
