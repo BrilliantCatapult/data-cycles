@@ -10,7 +10,7 @@ var day = 24 * hour;
 
 var dbJson;
 var play = false;
-var realTimeFormat;
+var realTimeFormatted;
 var realtime;
 var circles = [];
 var animduration = 10 * minute;
@@ -19,7 +19,7 @@ var timer, timermemo = 0.35 * animduration;
   //circle for bike (.route) radius down to 3
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
 
-var heatmapColor = d3.scale.linear()
+var colorscale = d3.scale.linear()
   .domain(d3.range(0, 1, 1.0 / (colors.length - 1)))
   .range(colors);
 
@@ -32,10 +32,16 @@ var animscale = d3.scale.linear()
   .domain([0, animduration])
   .range([0, width]);
 
+var brush = d3.svg.brush()
+  .x(animscale)
+  .extent([0, 0])
+  .on("brush", brushed);
+
 var axis = d3.svg.axis()
   .scale(timescale)
   .ticks(24)
-  .tickFormat(d3.time.format("%H"));
+  .tickFormat(d3.time.format("%H"))
+  .orient("top");
 
 var tile = d3.geo.tile()
   .size([width, height]);
@@ -58,6 +64,64 @@ var zoom = d3.behavior.zoom()
     return -x;
   }))
   .on("zoom", render);
+
+var button = d3.select("#playbutton");
+
+var map = d3.select("#map")
+  .append("div")
+  .attr("class", "map")
+  .style("width", width + "px")
+  .style("height", height - 50 + "px")
+  .call(zoom);
+
+// .on("mousemove", mousemoved);
+var tilesLayer = map.append("div")
+  .attr("id", "maplayer");
+
+var svgBikeAnimations = map.append("svg:svg")
+  .attr("id", 'bikeAnimations')
+  .style("width", width + "px")
+  .style("height", height - 50 + "px")
+  .call(zoom);
+
+var info = map.append("div")
+  .attr("class", "info");
+
+var svgTimeline = d3.select("#timeline")
+  .append("svg")
+  .attr("width", width);
+
+var slider = svgTimeline.append("g")
+  .attr("transform", "translate(0,20)")
+  .call(axis)
+  .call(brush);
+
+var handle = slider.append("polygon")
+  .attr("points", "-15,20 0,0 15,20")
+  // .attr("transform", "translate(-15, 0)")
+  .attr("id", "handle");
+
+projection.scale(zoom.scale() / 2 / Math.PI)
+  .translate(zoom.translate());
+
+function brushed() {
+  // var playmemo;
+  // playmemo = play;
+  // play = false;
+  
+  if (d3.event.sourceEvent) { 
+    timermemo = animscale.invert(d3.mouse(this)[0]);
+  }
+
+  handle.attr("transform", function (d) {
+    return "translate(" + animscale(timermemo) + ")";
+  });
+
+  // if (playmemo) {
+  //   play = true;
+  //   d3.timer(animate);
+  // }
+};
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
@@ -112,9 +176,11 @@ var animate = function (e) {
   }
   timer = (timermemo + e) % animduration;
   realtime = timer * day / animduration;
-  realTimeFormat = formatMilliseconds(realtime);
-  // console.log("timer", realTimeFormat, timer);
-  cursor.attr("transform", function (d) {
+  realTimeFormatted = formatMilliseconds(realtime);
+  d3.select("#timer").html(realTimeFormatted);
+
+  // console.log("timer", realTimeFormatted, timer);
+  handle.attr("transform", function (d) {
     return "translate(" + animscale(timer) + ")";
   });
 
@@ -243,44 +309,6 @@ function formatLocation(p, k) {
   return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " " + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
 }
 
-var button = d3.select("#playbutton");
-
-var map = d3.select("#map")
-  .append("div")
-  .attr("class", "map")
-  .style("width", width + "px")
-  .style("height", height - 50 + "px")
-  .call(zoom);
-
-
-// .on("mousemove", mousemoved);
-var tilesLayer = map.append("div")
-  .attr("id", "maplayer");
-
-var svgBikeAnimations = map.append("svg:svg")
-  .attr("id", 'bikeAnimations')
-  .style("width", width + "px")
-  .style("height", height - 50 + "px")
-  .call(zoom);
-
-var info = map.append("div")
-  .attr("class", "info");
-
-var svgTimeline = d3.select("#timeline")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", 32 + "px");
-
-svgTimeline.append("g")
-  .attr("transform", "translate(5,0)")
-  .call(axis);
-
-var cursor = svgTimeline.append("circle")
-  .attr('r', 8).attr("fill", "red").attr("id", "cursor");
-
-projection.scale(zoom.scale() / 2 / Math.PI)
-  .translate(zoom.translate());
-
 d3.json("/api/timeline", function (error, json) {
   if (error) {
     console.log("error", error);
@@ -318,7 +346,7 @@ d3.json("../json/docks.json", function (error, docks) {
     }).attr("cy", function (d) {
       return projection(d.coord)[1];
     }).attr("r", "5px").attr("fill", function (d) {
-      return heatmapColor(c(d.amt))
+      return colorscale(c(d.amt))
     });
 
   docks.append("circle")

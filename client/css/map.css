@@ -13,8 +13,17 @@ body {
   overflow: hidden;
 }
 
+.handle {
+  fill: #fff;
+  cursor: pointer;
+}
+
 #timeline {
   font-size: 0.5em;
+  
+}
+#timeline svg {
+  height: 40px;
 }
 
 .hide {
