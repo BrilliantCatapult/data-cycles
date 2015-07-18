@@ -119,25 +119,26 @@ var animate = function (e) {
   });
 
   for (var i = 0; i < circles[0].length; i++) {
-    d3.select(circles[0][i]).attr("transform", function (d) {
-      var thePath = d3.select(this.parentNode).select("path").node();
-      var startTime = timeToMilliSeconds(d.properties.startTime);
-      var endTime = timeToMilliSeconds(d.properties.endTime);
+    d3.select(circles[0][i])
+      .attr("transform", function (d) {
+        var thePath = d3.select(this.parentNode).select("path").node();
+        var startTime = timeToMilliSeconds(d.properties.startTime);
+        var endTime = timeToMilliSeconds(d.properties.endTime);
 
-      if (realtime - startTime > 0 && endTime - realtime > 0) {
-        if (d3.select(circles[0][i]).classed("hide")) {
-          d3.select(circles[0][i]).classed("hide", false);
-          makeRings(d.properties.startTerminal, "red");
+        if (realtime - startTime > 0 && endTime - realtime > 0) {
+          if (d3.select(circles[0][i]).classed("hide")) {
+            d3.select(circles[0][i]).classed("hide", false);
+            makeRings(d.properties.startTerminal, "red");
+          }
+          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+          return "translate(" + [p.x, p.y] + ")";
+        } else {
+          if (!d3.select(circles[0][i]).classed("hide")) {
+            d3.select(circles[0][i]).classed("hide", true);
+            makeRings(d.properties.endTerminal, "green");
+          }
         }
-        var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-        return "translate(" + [p.x, p.y] + ")";
-      } else {
-        if (!d3.select(circles[0][i]).classed("hide")) {
-          d3.select(circles[0][i]).classed("hide", true);
-          makeRings(d.properties.endTerminal, "green");
-        }
-      }
-    });
+      });
   }
 };
 
@@ -202,7 +203,21 @@ function render() {
     }).attr("cy", function (d) {
       return projection(d.coord)[1]
     });
-}
+
+  svgBikeAnimations.selectAll(".route circle")
+    .attr({
+      "transform": function(d) {
+        var thePath = d3.select(this.parentNode).select("path").node();
+        var startTime = timeToMilliSeconds(d.properties.startTime);
+        var endTime = timeToMilliSeconds(d.properties.endTime);
+
+        if (realtime - startTime > 0 && endTime - realtime > 0) {
+          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+          return "translate(" + [p.x, p.y] + ")";
+        } 
+      }
+    });
+};
 
 function mousemoved() {
   info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
