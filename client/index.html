@@ -3,26 +3,28 @@
 
 <head>
   <title>Bay Area Bike Share | Datavisualization</title>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   <script src="js/d3.geo.til.js"></script>
   <script src="dockRoutes/dockRoutesObj.js"></script>
   <script src="js/buildgeojson.js"></script>
-  
-  <link rel="stylesheet" type="text/css" href="css/map.css">
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
   <meta charset="utf-8">
 </head>
 
 <body>
-    <div id="timeline" class="container">
-      <button id="playbutton">Play</button>
-      <span id="timer"></span>
-      <div id="slider"></div>
-    </div>
-    <div id="map" class="container">
-
-    </div>
-
+  <div class="container">
+    <nav class="menu right"><span class="active">Map</span><a href="statistics.html">Statistics</a><a href="#">Predictions</a></nav>
+    <h1>Data Cycles</h1>
+    <h3>Bay Area Bike Share data visualization</h3>
+  </div>
+  <div id="timeline" class="container">
+  </div>
+  <div id="controls" class="container">
+    <button id="playbutton" class="btn btn-m">Loading</button>
+    <span id="timer" class="right l"></span>
+  </div>
+  <div id="map" class="container">
+  </div>
   <script src="js/map.js"></script>
 </body>
 

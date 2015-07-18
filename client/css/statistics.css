@@ -138,23 +138,48 @@
   stroke-width: 2.5px;
 }
 
-#mouse-tracker {
-  stroke: #E6E7E8;
-  stroke-width: 1px;
+/*body {
+  font: 10px sans-serif;
+}*/
+
+.bar rect {
+  fill: steelblue;
 }
 
-.hover-line { 
-  stroke: #E6E7E8;
-  fill: none;
-  stroke-width: 1px;
-  left: 10px;
+.bar text.value {
+  fill: white;
+}
+
+.axis {
   shape-rendering: crispEdges;
-  opacity: 1e-6;
 }
 
-.hover-text {
-  stroke: none;
-  font-size: 30px;
-  font-weight: bold;
-  fill: #000000;
+.axis path {
+  fill: none;
 }
+
+.x.axis line {
+  stroke: #fff;
+  stroke-opacity: .8;
+}
+
+.y.axis path {
+  stroke: black;
+}
+
+/*body {
+  background-color: #FFFFFF;
+}
+.ui.menu .item img.logo {
+  margin-right: 1.5em;
+}
+.main.container {
+  margin-top: 7em;
+}
+.wireframe {
+  margin-top: 2em;
+}
+.ui.footer.segment {
+  margin: 5em 0em 0em;
+  padding: 5em 0em;
+}*/
