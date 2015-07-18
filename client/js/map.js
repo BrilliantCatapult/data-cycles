@@ -35,7 +35,8 @@ var animscale = d3.scale.linear()
 var brush = d3.svg.brush()
   .x(animscale)
   .extent([0, 0])
-  .on("brush", brushed);
+  .on("brush", brushed)
+  .on("brushend", endBrush);
 
 var axis = d3.svg.axis()
   .scale(timescale)
@@ -105,23 +106,56 @@ projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
 
 function brushed() {
-  // var playmemo;
-  // playmemo = play;
-  // play = false;
-  
   if (d3.event.sourceEvent) { 
+    play = false;
+
     timermemo = animscale.invert(d3.mouse(this)[0]);
+    
+    handle.attr("transform", function (d) {
+      return "translate(" + animscale(timermemo) + ")";
+    });
+
+    timer = (timermemo) % animduration;
+    realtime = timer * day / animduration;
+    realTimeFormatted = formatMilliseconds(realtime);
+    d3.select("#timer").html(realTimeFormatted);
+
+    for (var i = 0; i < circles[0].length; i++) {
+    d3.select(circles[0][i])
+      .attr("transform", function (d) {
+        var thePath = d3.select(this.parentNode).select("path").node();
+        var startTime = timeToMilliSeconds(d.properties.startTime);
+        var endTime = timeToMilliSeconds(d.properties.endTime);
+
+        if (realtime - startTime > 0 && endTime - realtime > 0) {
+          if (d3.select(circles[0][i]).classed("hide")) {
+            d3.select(circles[0][i]).classed("hide", false);
+            makeRings(d.properties.startTerminal, "red");
+          }
+          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+          return "translate(" + [p.x, p.y] + ")";
+        } else {
+          if (!d3.select(circles[0][i]).classed("hide")) {
+            d3.select(circles[0][i]).classed("hide", true);
+            makeRings(d.properties.endTerminal, "green");
+          }
+        }
+      });
+  }
   }
 
-  handle.attr("transform", function (d) {
-    return "translate(" + animscale(timermemo) + ")";
-  });
 
   // if (playmemo) {
   //   play = true;
   //   d3.timer(animate);
   // }
 };
+
+function endBrush() {
+  console.log('endBrush has happened');
+  play = true;
+  d3.timer(animate);
+}
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
