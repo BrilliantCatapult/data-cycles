@@ -2,5 +2,5 @@ node_modules
 .DS_Store
 .log
 client/bower_components
-server/config/elasticAuth.js
+.env
 dist
