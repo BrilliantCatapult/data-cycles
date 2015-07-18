@@ -8,99 +8,19 @@
   
   <!-- Site Properities -->
   <title>Statistics</title>
-  <link rel="stylesheet" type="text/css" href="css/statistics.css">
-  <link rel="stylesheet" type="text/css" href="bower_components/semantic-ui/dist/semantic.css">
-  <style type="text/css">
-  body {
-    font: 10px sans-serif;
-  }
-
-  .bar rect {
-    fill: steelblue;
-  }
-
-  .bar text.value {
-    fill: white;
-  }
-
-  .axis {
-    shape-rendering: crispEdges;
-  }
-
-  .axis path {
-    fill: none;
-  }
-
-  .x.axis line {
-    stroke: #fff;
-    stroke-opacity: .8;
-  }
-
-  .y.axis path {
-    stroke: black;
-  }
-
-  body {
-    background-color: #FFFFFF;
-  }
-  .ui.menu .item img.logo {
-    margin-right: 1.5em;
-  }
-  .main.container {
-    margin-top: 7em;
-  }
-  .wireframe {
-    margin-top: 2em;
-  }
-  .ui.footer.segment {
-    margin: 5em 0em 0em;
-    padding: 5em 0em;
-  }
-  </style>
-
+  <link rel="stylesheet" type="text/css" href="styles/style_statistics.css">
 </head>
 <body>
-
-  <div class="ui fixed inverted menu">
-    <div class="ui container">
-      <div href="#" class="header item">
-        <img class="logo" src="bower_components/semantic-ui/examples/assets/images/logo.png">
-        Bike Share
-      </div>
-      <a href="#" class="item">Home</a>
-      <a href="#" class="ui simple dropdown item">
-        Dropdown <i class="dropdown icon"></i>
-        <div class="menu">
-          <div class="item">Link Item</div>
-          <div class="item">Link Item</div>
-          <div class="divider"></div>
-          <div class="header">Header Item</div>
-          <div class="item">
-            <i class="dropdown icon"></i>
-            Sub Menu
-            <div class="menu">
-              <div class="item">Link Item</div>
-              <div class="item">Link Item</div>
-            </div>
-          </div>
-          <div class="item">Link Item</div>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <div class="ui main text">
     
-    <div class="ui two column doubling grid container" style="width:100%">
       <div class="column">
         <h4>Top Ten Bikes</h4>
-        <div style="display:block;" id="top_bike_use"></div>
+        <div style="display:block;width:100%" id="top_bike_use"></div>
       </div>
       <div class="column">
         <h4>Bikes Least Used</h4>
         <div  id="bottom_bike_use"></div>
       </div>
-    </div>
+    
     <div class="ui two column grid container" style="width:100%">
       <div class="column">
         <h4>All Bikes</h4>
@@ -115,73 +35,22 @@
       </div>
     </div>
     <div id="bubble"></div>
-    <div class="ui two wide column grid container" style="width:100%">
+    <div class="ui two column grid container" style="width:100%">
       <div class="column">
         <h4>Station Activity</h4>
         <div style="display:block;" id="station_activity"></div>
       </div>
-    </div>
-    <div>
-    <div class="ui two wide column grid container" style="width:100%">
       <div class="column">
         <h4>Weather</h4>
         <div style="display:block;" id="weather"></div>
       </div>
     </div>
-    </div>
-    
-  </div>
-
-  <div class="ui inverted vertical footer segment">
-    <div class="ui center aligned container">
-      <div class="ui stackable inverted divided grid">
-        <div class="three wide column">
-          <h4 class="ui inverted header">Group 1</h4>
-          <div class="ui inverted link list">
-            <a href="#" class="item">Link One</a>
-            <a href="#" class="item">Link Two</a>
-            <a href="#" class="item">Link Three</a>
-            <a href="#" class="item">Link Four</a>
-          </div>
-        </div>
-        <div class="three wide column">
-          <h4 class="ui inverted header">Group 2</h4>
-          <div class="ui inverted link list">
-            <a href="#" class="item">Link One</a>
-            <a href="#" class="item">Link Two</a>
-            <a href="#" class="item">Link Three</a>
-            <a href="#" class="item">Link Four</a>
-          </div>
-        </div>
-        <div class="three wide column">
-          <h4 class="ui inverted header">Group 3</h4>
-          <div class="ui inverted link list">
-            <a href="#" class="item">Link One</a>
-            <a href="#" class="item">Link Two</a>
-            <a href="#" class="item">Link Three</a>
-            <a href="#" class="item">Link Four</a>
-          </div>
-        </div>
-        <div class="seven wide column">
-          <h4 class="ui inverted header">Footer Header</h4>
-          <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
-        </div>
-      </div>
-      <div class="ui inverted section divider"></div>
-      <img src="bower_components/semantic-ui/examples/assets/images/logo.png" class="ui centered mini image">
-      <div class="ui horizontal inverted small divided link list">
-        <a class="item" href="#">Site Map</a>
-        <a class="item" href="#">Contact Us</a>
-        <a class="item" href="#">Terms and Conditions</a>
-        <a class="item" href="#">Privacy Policy</a>
-      </div>
-    </div>
-  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="./bower_components/semantic-ui/dist/semantic.min.js"></script>
   <script src="./bower_components/underscore/underscore-min.js"></script>
-  <script src="d3.geo.til.js"></script>
-  <script src="./statistics.js"></script>
+  <script src="./js/d3.geo.til.js"></script>
+  <script src="./js/statistics.js"></script>
+  <script src="./js/bike_bar_charts.js"></script>
+  <script src="./js/bike_bubble_chart.js"></script>
 </body>
 </html>
