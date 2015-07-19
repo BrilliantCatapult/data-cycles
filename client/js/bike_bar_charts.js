@@ -44,7 +44,7 @@ var setupCharts = function(id, query, group){
 
   d3.json(query, function(data) {
      
-    data = data.aggregations.rides_per_bike.buckets;
+    data = data.aggregations.filter_by_date.rides_per_bike.buckets;
     // group data if group parameter provided
     if(group){
       g=[];
@@ -140,22 +140,22 @@ var setupCharts = function(id, query, group){
 
 
 
-var init = function(){
+var init = function(start_date, end_date){
   overallSetup();
-  setupCharts("top_bike_use", "/api/bikes?size=10&order=desc");
-  setupCharts("bottom_bike_use", "/api/bikes?size=10&order=asc");
-  setupCharts("all_bike_use", "/api/bikes?order=desc", 70);
+  setupCharts("top_bike_use", "/api/bikes?size=10&order=desc&start_date="+start_date+"&end_date="+end_date);
+  setupCharts("bottom_bike_use", "/api/bikes?size=10&order=asc&start_date="+start_date+"&end_date="+end_date);
+  setupCharts("all_bike_use", "/api/bikes?order=desc&start_date="+start_date+"&end_date="+end_date, 70);
 
   //most and least used bikes!
-  d3.json("/api/bikes?size=1&order=desc", function(data) {
-    d3.select("#most").text("Bike #"+data.aggregations.rides_per_bike.buckets[0].key+", "+data.aggregations.rides_per_bike.buckets[0].doc_count);
+  d3.json("/api/bikes?size=1&order=desc&start_date="+start_date+"&end_date="+end_date, function(data) {
+    d3.select("#most").text("Bike #"+data.aggregations.filter_by_date.rides_per_bike.buckets[0].key+", "+data.aggregations.filter_by_date.rides_per_bike.buckets[0].doc_count);
   });
 
-  d3.json("/api/bikes?size=1&order=asc", function(data) {
-    d3.select("#least").text("Bike #"+data.aggregations.rides_per_bike.buckets[0].key+", "+data.aggregations.rides_per_bike.buckets[0].doc_count);
+  d3.json("/api/bikes?size=1&order=asc&start_date="+start_date+"&end_date="+end_date, function(data) {
+    d3.select("#least").text("Bike #"+data.aggregations.filter_by_date.rides_per_bike.buckets[0].key+", "+data.aggregations.filter_by_date.rides_per_bike.buckets[0].doc_count);
   });
 };
 
-init();
+init("12/18/2013 00:00","12/19/2013 00:00");
 
 })();

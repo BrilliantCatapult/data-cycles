@@ -20,18 +20,18 @@ var setupChart = function(){
   }
 };
 
-var createBubbleChart = function(element){
+var createBubbleChart = function(element, start_date, end_date){
 
-  var margin = [20, 30, 10, 20];
+  var margin = [20, 30, 20, 20];
   var width = d3.select("#"+element).node().offsetWidth + margin[1] + margin[3];
-  var height = 200 - margin[0] - margin[2];
+  var height = 200 + margin[0] + margin[2];
 
 
   var x = d3.scale.linear()
       .range([0, width - 2*margin[1] - 2*margin[3]]);
 
   var y = d3.scale.linear()
-      .range([height, 0]);
+      .range([height - 2*margin[0] - 2*margin[2], 0]);
 
   var color = d3.scale.linear()
     .domain([0, 500, 1000])
@@ -48,14 +48,14 @@ var createBubbleChart = function(element){
   var svg = d3.select("#"+element).append("svg")
       .attr("id", element+"_svg")
       .attr("width", width )
-      .attr("height", height + margin[3] + margin[0])
+      .attr("height", height)
     .append("g")
-      .attr("transform", "translate(" + margin[1] + "," + margin[0] + ")");
+      .attr("transform", "translate(" + margin[3] + "," + margin[0] + ")");
 
-  d3.json("/api/bikes?order=desc", function(error, data) {
+  d3.json("/api/bikes?order=desc&start_date="+start_date+"&end_date="+end_date, function(error, data) {
     if (error) throw error;
     
-    data = data.aggregations.rides_per_bike.buckets;
+    data = data.aggregations.filter_by_date.rides_per_bike.buckets;
 
     var rScale = d3.scale.linear()
        .domain([0, d3.max(data, function(d) { return d.doc_count; })])
@@ -67,7 +67,7 @@ var createBubbleChart = function(element){
     svg.append("g")
         .attr("class", "x axis")
         .style("opacity", 0)
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + (height- 2*margin[0] - 2*margin[2]) + ")")
         .call(xAxis)
       .append("text")
         .attr("class", "label")
@@ -93,8 +93,8 @@ var createBubbleChart = function(element){
       .enter().append("circle")
         .attr("class", "dot")
         .attr("r", function(d) { return rScale(d.doc_count); })
-        .attr("cx", function(d) { return x(Math.random()*700); })
-        .attr("cy", function(d) { return y(Math.random()*1000); })
+        .attr("cx", function(d) { return x(Math.random()*data.length); })
+        .attr("cy", function(d) { return y(Math.random()*d3.max(data, function(d) { return d.doc_count; })); })
         .style("fill", function(d) { return color(d.doc_count); })
         .on("mouseover", function(d) {
             tooltip.transition()
@@ -149,8 +149,8 @@ var createBubbleChart = function(element){
       .transition()
       .duration(2000)
       .attr("r", function(d) { return rScale(d.doc_count); })
-      .attr("cx", function(d) { return x(Math.random()*700); })
-      .attr("cy", function(d) { return y(Math.random()*1000); });
+      .attr("cx", function(d) { return x(Math.random()*data.length); })
+      .attr("cy", function(d) { return y(Math.random()*d3.max(data, function(d) { return d.doc_count; })); })  
     };
 
     var sort_time = function(){
@@ -213,8 +213,12 @@ var createBubbleChart = function(element){
   });
 };
 
-setupChart();
-createBubbleChart("bubble");
+var init = function(start_date, end_date){
+  setupChart();
+  createBubbleChart("bubble", start_date, end_date);
+};
+
+init("12/18/2013 00:00","12/19/2013 00:00");
 
 })();
 

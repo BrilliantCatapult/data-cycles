@@ -107,7 +107,7 @@ var createWeatherChart = function(start_date, end_date){
           .attr("height", height)                                    
           .attr("x", 0) 
           .attr("y", 0)
-          .attr("id", "mouse-tracker")
+          .attr("class", "mouse-tracker")
           .style("fill", "white");
 
       var city = svg.selectAll(".city")
@@ -256,7 +256,7 @@ var createWeatherChart = function(start_date, end_date){
             }); // (return (11.25/2 =) 5.625) + i * (5.625) // position tooltips       
 
      // Add mouseover events for hover line.
-     d3.select("#mouse-tracker") // select chart plot background rect #mouse-tracker
+     svg.select(".mouse-tracker") // select chart plot background rect #mouse-tracker
      .on("mousemove", mousemove) // on mousemove activate mousemove function defined below
      .on("mouseout", function() {
          hoverDate
@@ -307,8 +307,12 @@ var createWeatherChart = function(start_date, end_date){
 
       x.range([0, width]);
 
+      
       xAxis = d3.svg.axis()
           .scale(x)
+          .orient("bottom")
+          .ticks(d3.time.hour)
+          .tickFormat(d3.time.format("%I %p"));
       
       line
         .x(function(d) { return x(d.date); })
@@ -337,7 +341,9 @@ var createWeatherChart = function(start_date, end_date){
 
        city.select('rect')
        .attr("x", width + (margin.right/3) - 15) ;
-            
+      
+      city.select("text")
+       .attr("x", width + (margin.right/3));
      };
 
      d3.select(window).on('resize.'+element, function(){
@@ -349,7 +355,7 @@ var createWeatherChart = function(start_date, end_date){
   // want to display for this day.
   // all station activity and show the weather.
   // so station activity across the day.
-  d3.json('/api/weather', function(error, data){ //start_date=12/12/2013&end_date=12/13/2013
+  d3.json('/api/weather?start_date='+start_date.split(" ")[0]+'&end_date='+end_date.split(" ")[0], function(error, data){ //start_date=12/12/2013&end_date=12/13/2013
     d3.select("#weather").html(data.aggregations.mean_temp.value);
   });
 
@@ -375,11 +381,11 @@ var createWeatherChart = function(start_date, end_date){
 };
 
 
-var init = function(){
+var init = function(start_date, end_date){
   setupChart();
-  createWeatherChart("12/12/2013 00:00", "12/13/2013 00:00");
+  createWeatherChart(start_date, end_date);
 };
 
-init();
+init("05/06/2014 00:00", "05/07/2014 00:00");
 
 })();
