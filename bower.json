@@ -15,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "semantic-ui": "~2.0.3",
     "underscore": "~1.8.3"
   }
 }
