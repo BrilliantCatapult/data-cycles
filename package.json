@@ -25,6 +25,7 @@
     "jsdoc": "^3.3.2"
   },
   "devDependencies": {
+    "dotenv": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-jasmine": "^2.0.1",

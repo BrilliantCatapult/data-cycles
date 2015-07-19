@@ -9,11 +9,15 @@ CODE FOR BUBBLE CHART
 var tooltip;
 
 var setupChart = function(){
-    tooltip = d3.select("body").append("div");
-    tooltip.attr("class", "tooltip top-right");
-    // tooltip.append("div").attr("class", "tooltip-arrow");
-    tooltip.append("div").attr("class", "tooltip-inner");
-    tooltip.style("opacity", 0);
+    if(d3.select(".tooltip").empty()){
+      tooltip = d3.select("body").append("div");
+      tooltip.attr("class", "tooltip top-right");
+      // tooltip.append("div").attr("class", "tooltip-arrow");
+      tooltip.append("div").attr("class", "tooltip-inner");
+      tooltip.style("opacity", 0);
+    } else {
+    tooltip = d3.select(".tooltip");
+  }
 };
 
 var createBubbleChart = function(element){
@@ -168,7 +172,7 @@ var createBubbleChart = function(element){
       .attr("cy", function(d) { return y(d.doc_count) });
     };
 
-    $('#sort_all').on("click", function($event){
+    d3.select('#sort_all').on("click", function($event){
       if(svg.select(".y.axis").style("opacity") ===  "1"){
           shuffle();
       } else {
@@ -202,7 +206,7 @@ var createBubbleChart = function(element){
       
     };
 
-    $(window).on('resize', function(){
+    d3.select(window).on('resize.one', function(){
       redraw();
     });
 
