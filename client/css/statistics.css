@@ -167,6 +167,9 @@
   stroke: black;
 }
 
+text {
+  font-size: 10px;
+}
 /*body {
   background-color: #FFFFFF;
 }

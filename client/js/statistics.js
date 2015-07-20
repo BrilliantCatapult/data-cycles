@@ -1,24 +1,37 @@
 /*
 CODE FOR Weather VS Activity CHART
-
 */
 
-var createWeatherChart = function(start_date, end_date){
-  var parseData = function(data) {
-    //want format
-    //[{date: value, station1: value, station2: value, .....}, {date:value2, ...}]
-    return data;
-  };
+(function(){
 
-  var plotData = function(data){
-    var maxY;
+var tooltip;
+
+var setupChart = function(){
+  if(d3.select(".tooltip").empty()){
+    tooltip = d3.select("body").append("div");
+    tooltip.attr("class", "tooltip top-right");
+    // tooltip.append("div").attr("class", "tooltip-arrow");
+    tooltip.append("div").attr("class", "tooltip-inner");
+    tooltip.style("opacity", 0);
+  } else {
+    tooltip = d3.select(".tooltip");
+  }
+};
+
+var createWeatherChart = function(start_date, end_date){
+
+  var plotData = function(data, element){
+    
+
     var bisectDate = d3.bisector(function(d) {
        return d.date; 
      }).left;
 
+    var maxY;
+
     var margin = {top: 20, right: 180, bottom: 30, left: 50},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+        width = d3.select("#"+element).node().offsetWidth - margin.left - margin.right,
+        height = 500 + margin.top + margin.bottom;
 
     var parseDate = d3.time.format("%m/%d/%Y %H:%M").parse;
 
@@ -36,7 +49,6 @@ var createWeatherChart = function(start_date, end_date){
         .ticks(d3.time.hour, 1)
         .tickFormat(d3.time.format("%I %p"));
 
-
     var yAxis = d3.svg.axis()
         .scale(y)
         .orient("left");
@@ -45,9 +57,9 @@ var createWeatherChart = function(start_date, end_date){
         .interpolate("basis")
         .x(function(d) { return x(d.date); })
         .y(function(d) { return y(d.activity); })
-        //.defined(function(d) { return d.date; });
 
-    var svg = d3.select("#station_activity").append("svg")
+    var svg = d3.select("#"+element).append("svg")
+        .attr("id", element+"_svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -64,6 +76,7 @@ var createWeatherChart = function(start_date, end_date){
           }),
           visible: true
         };
+
       });
 
       x.domain([parseDate(start_date), parseDate(end_date)]);
@@ -94,7 +107,7 @@ var createWeatherChart = function(start_date, end_date){
           .attr("height", height)                                    
           .attr("x", 0) 
           .attr("y", 0)
-          .attr("id", "mouse-tracker")
+          .attr("class", "mouse-tracker")
           .style("fill", "white");
 
       var city = svg.selectAll(".city")
@@ -201,7 +214,7 @@ var createWeatherChart = function(start_date, end_date){
          d3.select("#line-" + d.name)
            .transition()
            .style("stroke-width", 1.5);
-       })
+       });
        
    city.append("text")
        .attr("x", width + (margin.right/3)) 
@@ -243,7 +256,7 @@ var createWeatherChart = function(start_date, end_date){
             }); // (return (11.25/2 =) 5.625) + i * (5.625) // position tooltips       
 
      // Add mouseover events for hover line.
-     d3.select("#mouse-tracker") // select chart plot background rect #mouse-tracker
+     svg.select(".mouse-tracker") // select chart plot background rect #mouse-tracker
      .on("mousemove", mousemove) // on mousemove activate mousemove function defined below
      .on("mouseout", function() {
          hoverDate
@@ -257,10 +270,6 @@ var createWeatherChart = function(start_date, end_date){
          var mouse_x = d3.mouse(this)[0]; // Finding mouse x position on rect
          var graph_x = x.invert(mouse_x); // 
 
-         //var mouse_y = d3.mouse(this)[1]; // Finding mouse y position on rect
-         //var graph_y = yScale.invert(mouse_y);
-         //console.log(graph_x);
-         
          var format = d3.time.format('%b %Y'); // Format hover date text to show three letter month and full year
          
          hoverDate.text(format(graph_x)); // scale mouse position to xScale date and format it to show month and year
@@ -270,32 +279,13 @@ var createWeatherChart = function(start_date, end_date){
              .attr("x2", mouse_x)
              .style("opacity", 1); // Making line visible
 
-         // Legend tooltips // http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
-         //console.log(x.invert(d3.mouse(this)[0]));
          var x0 = x.invert(d3.mouse(this)[0]); /* d3.mouse(this)[0] returns the x position on the screen of the mouse. xScale.invert function is reversing the process that we use to map the domain (date) to range (position on screen). So it takes the position on the screen and converts it into an equivalent date! */
-         
-         // i = bisectDate(activity, x0, 1), // use our bisectDate function that we declared earlier to find the index of our data array that is close to the mouse cursor
-         
-         // /*It takes our data array and the date corresponding to the position of or mouse cursor and returns the index number of the data array which has a date that is higher than the cursor position.*/
-         // d0 = activity[i - 1],
-         // d1 = activity[i],
-         // d0 is the combination of date and rating that is in the data array at the index to the left of the cursor and d1 is the combination of date and close that is in the data array at the index to the right of the cursor. In other words we now have two variables that know the value and date above and below the date that corresponds to the position of the cursor.
-         // d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-         // /*The final line in this segment declares a new array d that is represents the date and close combination that is closest to the cursor. It is using the magic JavaScript short hand for an if statement that is essentially saying if the distance between the mouse cursor and the date and close combination on the left is greater than the distance between the mouse cursor and the date and close combination on the right then d is an array of the date and close on the right of the cursor (d1). Otherwise d is an array of the date and close on the left of the cursor (d0).*/
-         //  console.log("I ISSSSS ", i);
-         //d is now the data row for the date closest to the mouse position
-
+  
          focus
          .selectAll("text").text(function(d){
-            //because you didn't explictly set any data on the <text>
-            //elements, each one inherits the data from the focus <g>
-            //  console.log(d.values);
             i = bisectDate(d.values, x0, 0); // use our bisectDate function that we declared earlier to find the index of our data array that is close to the mouse cursor
-            //console.log("i isssss ", i);
-            /*It takes our data array and the date corresponding to the position of or mouse cursor and returns the index number of the data array which has a date that is higher than the cursor position.*/
             d0 = d.values[i - 1];
             d1 = d.values[i];
-            /*d0 is the combination of date and rating that is in the data array at the index to the left of the cursor and d1 is the combination of date and close that is in the data array at the index to the right of the cursor. In other words we now have two variables that know the value and date above and below the date that corresponds to the position of the cursor.*/
             if(d1 && d0)
               d = x0 - d0.date > d1.date - x0 ? d1 : d0;
             else if(d0)
@@ -308,72 +298,94 @@ var createWeatherChart = function(start_date, end_date){
          });
      }; 
 
-  };
+     var redraw = function(){
+      console.log("redrawing.")
 
-  var plotActivity = function(data){
-    data = parseData(data);
-    plotData(data);
+      width = d3.select("#"+element).node().offsetWidth - margin.left - margin.right,
+      height = 500 + margin.top + margin.bottom;
+
+
+      x.range([0, width]);
+
+      
+      xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom")
+          .ticks(d3.time.hour)
+          .tickFormat(d3.time.format("%I %p"));
+      
+      line
+        .x(function(d) { return x(d.date); })
+
+      d3.select("#"+element+"_svg")
+        .attr("width", width + margin.left + margin.right)
+      
+      svg.select(".x.axis")
+          .call(xAxis);
+
+
+      svg.select("rect")
+          .attr("width", width)
+ 
+      city.select(".line")
+          .attr("d", function(d) { 
+            return d.visible ? line(d.values) : null; // If array key "visible" = true then draw line, if not then don't 
+          })
+
+      hoverDate.select(".hover-text")
+                .attr("x", width - 150) // hover date text position                
+
+
+      focus.select(".tooltip2")
+            .attr("x", width + 20) // position tooltips  
+
+       city.select('rect')
+       .attr("x", width + (margin.right/3) - 15) ;
+      
+      city.select("text")
+       .attr("x", width + (margin.right/3));
+     };
+
+     d3.select(window).on('resize.'+element, function(){
+      redraw();
+     });
+
   };
 
   // want to display for this day.
   // all station activity and show the weather.
   // so station activity across the day.
-  d3.json('/api/weather', function(error, data){ //start_date=12/12/2013&end_date=12/13/2013
-    //console.log(data);
-    //this is the average weather from start to end date
-    // also get humidity and all that.
-    $("#weather").html(data.aggregations.mean_temp.value);
+  d3.json('/api/weather?start_date='+start_date.split(" ")[0]+'&end_date='+end_date.split(" ")[0], function(error, data){ //start_date=12/12/2013&end_date=12/13/2013
+    d3.select("#weather").html(data.aggregations.mean_temp.value);
+  });
 
-  });  
-
-  // get dates with activity first - grouped by hour
-  // d3.xhr('/api/trip/date_activity')
-  //     .header("Content-Type", "application/json")
-  //     .post(
-  //         JSON.stringify({start_date: "12/12/2013 00:00", end_date: "12/13/2013 00:00"}),
-  //         function(err, rawData){
-  //             //var data = JSON.parse(rawData);
-  //             var array = JSON.parse(rawData.response).aggregations.activity_per_hour.buckets;
-  //         }
-  //     );
-  // currently one day, grouped by hours of day.
   d3.xhr('/api/trip/station_activity')
       .header("Content-Type", "application/json")
       .post(
           JSON.stringify({start_date: start_date, end_date: end_date}),
           function(err, rawData){
-              //var data = JSON.parse(rawData);
               var array = JSON.parse(rawData.response).aggregations.activity_per_station.buckets;
-              // d3.xhr('/api/trip/station_activity')
-              //     .header("Content-Type", "application/json")
-              //     .post(
-              //         JSON.stringify({field: "end_terminal", start_date: "12/12/2013 00:00", end_date: "12/13/2013 00:00"}),
-              //         function(err, rawData){
-              //             //var data = JSON.parse(rawData);
-              //             var array2 = JSON.parse(rawData.response).aggregations.activity_per_station.buckets;
-              //             // want to concatenate results here
-              //             console.log("array2", array2);
-                          console.log("array1", array);
-                          // now combine array1 and 2 into one. (add counts of duplocate stations.)
-                          // then plot (xaxis is time)??
-                          // yaxis is activity.
-                          // but time not there now.. it is sum across all day.
-                          // or maybe group by date then station??
-                          
+                  plotData(array, "station_activity"); 
+              }
+  );
 
-                          //plotting activity as start terminal only first
-                          plotActivity(array); 
-
-                      }
-                 // );        
-          //}
-      );
-  // now want a line chart, one line for each station. x-axis spans time. y-axis activity
+  d3.xhr('/api/trip/station_activity')
+      .header("Content-Type", "application/json")
+      .post(
+          JSON.stringify({start_date: start_date, end_date: end_date, field: "end_terminal"}),
+          function(err, rawData){
+              var array = JSON.parse(rawData.response).aggregations.activity_per_station.buckets;
+                  plotData(array, "station_activity_end"); 
+              }
+  );
 };
 
-createWeatherChart("12/12/2013 00:00", "12/13/2013 00:00");
 
+var init = function(start_date, end_date){
+  setupChart();
+  createWeatherChart(start_date, end_date);
+};
 
+init("05/06/2014 00:00", "05/07/2014 00:00");
 
-
-
+})();
