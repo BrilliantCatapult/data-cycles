@@ -221,13 +221,15 @@ nav {
   display: block;
 }
 
-nav a, nav span {
+nav a,
+nav span {
   float: left;
   text-decoration: none;
   color: grey;
   padding: 0.75em 1.5em;
   background-color: #EBEBEB;
 }
+
 nav a:hover {
   color: white;
   background-color: #F8772E;
@@ -348,4 +350,35 @@ nav .active {
   opacity: 0.25;
   cursor: default;
   background-color: #F8772E;
+}
+
+/*.tooltips {
+  position: relative;
+  display: inline;
+}*/
+
+.tooltip {
+  position: absolute;
+  width: 140px;
+  color: #FFFFFF;
+  background: #000000;
+  visibility: hidden;
+  border-radius: 0px;
+  visibility: visible;
+  opacity: 1;
+  z-index: 999;
+  padding: 16px;
+}
+
+.tooltip:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #000000;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
 }

@@ -52,21 +52,38 @@ var drawRoutes = function (data) {
     .selectAll("path")
     .data(data.features)
     .enter()
-    .append("svg:g")
-    .attr("class", "route")
     .append("svg:path")
     .attr({
+      class: "route", 
+      id: function(d){
+        "route-" + d.properties.id, 
       d: path, 
       "fill-opacity": 0
     });
 
-  bikes = animations.selectAll(".route")
+  bikes = animations.append("svg:g")
+    .classed("bikes", true)
+    .selectAll("circle")
+    .data(data.features)
     .append("circle")
     .attr({
-      r: 3, 
+      r: 8, 
       fill: '#f33', 
-      class: "hide bike"
-    });
+      class: "hide bike",
+      id: function(d){
+        "route-" + d.properties.id;
+      }
+    })
+    .on("mouseover", function(d) { var position = this.getBoundingClientRect(); console.log("position", position);
+      return tooltip.attr({
+          left: position.left, 
+          bottom: position.bottom
+        })
+        .classed("hide", false); 
+
+      })
+    // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+    .on("mouseout", function(){ return tooltip.classed("hide", false); });
 
   renderZoom();
 };
@@ -279,29 +296,29 @@ var renderZoom = function () {
     });
 };
 
-var moveBike = function(d, context) {
+var moveBike = function(d, el) {
   var startTime = timeToMilliSeconds(d.properties.startTime);
   var endTime = timeToMilliSeconds(d.properties.endTime);
 
   if (realtime - startTime > 0 && endTime - realtime > 0) {
-    if (d3.select(context).classed("hide")) {
-      d3.select(context).classed("hide", false);
+    if (d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", false);
       if (play) {
         makeRings(d.properties.startTerminal, "red");
       }
     }
-    var path = d3.select(context.parentNode).select("path").node();
+    var path = d3.select(el.parentNode).select("path").node();
     var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
     return "translate(" + [p.x, p.y] + ")";
   } else {
-    if (!d3.select(context).classed("hide")) {
-      d3.select(context).classed("hide", true);
+    if (!d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", true);
       if (play) {
         makeRings(d.properties.endTerminal, "green");
       }
     }
   } 
-} 
+};
 
 var mousemoved = function () {
   info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
@@ -425,6 +442,8 @@ var handle = slider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "handle")
   .classed("hide", true);
+
+var tooltip = d3.select(".tooltip");
 
 var timerdisplay = d3.select("#timer");
 
