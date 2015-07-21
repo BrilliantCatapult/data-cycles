@@ -101,8 +101,8 @@ var buildRedis = function(startDate, endDate) {
 
         for (var i = 0; i < path.length; i++) {
           for (var objKey in path[i].lowest_score_top_hits.hits.hits[0]["_source"]) {
-            esHash[path[i]["key"] + ":" + startDate] = esHash[path[i]["key"] + ":" + startDate] || {};
-            esHash[path[i]["key"] + ":" + startDate][objKey] = path[i].lowest_score_top_hits.hits.hits[0]["_source"][objKey];
+            esHash[path[i]["key"] + ":" + startDate.format("YYYY/MM/DD")] = esHash[path[i]["key"] + ":" + startDate.format("YYYY/MM/DD")] || {};
+            esHash[path[i]["key"] + ":" + startDate.format("YYYY/MM/DD")][objKey] = path[i].lowest_score_top_hits.hits.hits[0]["_source"][objKey];
             multi.hmset("stations", path[i]["key"], path[i]["key"], redis.print);
           }
         };
