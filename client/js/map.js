@@ -341,6 +341,8 @@ function updateWindow(){
   height = Math.max(500, window.innerHeight);
 };
 
+updateWindow();
+
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
 var colorscale = d3.scale.linear()
@@ -448,5 +450,4 @@ button.on("click", function () {
   } 
 });
 
-updateWindow();
 window.onresize = updateWindow;
