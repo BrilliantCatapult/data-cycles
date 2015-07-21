@@ -7,7 +7,7 @@ var day = 24 * hour;
 var dbJson;
 var play = false;
 var realtime;
-var circles = [];
+var bikes = [];
 var animduration = 10 * minute;
 var timer, timermemo = 0.313 * animduration;
 var playmemo;
@@ -41,11 +41,11 @@ var makeRings = function (id, color) {
     });
 };
 
-var drawRoutes = function (routes) {
+var drawRoutes = function (data) {
   var routes = animations.append("svg:g")
     .classed("routes", true)
     .selectAll("path")
-    .data(routes.features)
+    .data(data.features)
     .enter()
     .append("svg:g")
     .attr("class", "route")
@@ -53,11 +53,79 @@ var drawRoutes = function (routes) {
     .attr("d", path)
     .attr("fill-opacity", 0);
 
-  circles = animations.selectAll(".route")
+  bikes = animations.selectAll(".route")
     .append("circle")
     .attr("r", 3)
     .attr("fill", '#f33')
     .classed("hide", true);
+
+  renderZoom();
+};
+
+var drawDocks = function (data) {
+  var c = d3.scale.linear()
+    .domain([0, 27])
+    .range([0, 1]);
+
+  var docks = animations.append("g")
+    .classed("docks hide", true)
+    .selectAll("g")
+    .data(data.features)
+    .enter()
+    .append("g")
+    .attr({
+      id: function (d) { return "dock-" + d.properties.id }, 
+      class: "dock"
+    });
+
+  docks.append("circle")
+    .attr({
+      cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      r: "3px"
+    });
+    // .attr("fill", function (d) {
+    //   return colorscale(c(d.properties.places))
+    // });
+
+  docks.append("rect")
+    .attr({
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      width: "8px", 
+      transform: function (d) { return "translate(" + -4 + "," + -(d.properties.places + 6) + ")"; }, 
+      height: function (d) { return d.properties.places + 2 ; }
+    });
+
+  docks.append("rect")
+    .attr({
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      width: "6px", 
+      transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
+      height: function (d) { return d.properties.places; }, 
+      fill: "orange"
+    });
+
+  var rings = animations.append("g")
+    .classed("rings", true)
+    .selectAll("circle")
+    .data(data.features)
+    .enter()
+    .append("circle")
+    .attr({
+      id: function (d) { return "ring-" + d.properties.id },
+      fill: "none",
+      "stroke-width": "1px",
+      r: "5px",
+      cx: function (d) {
+        return projection(d.geometry.coordinates)[0]
+      }, 
+      cy: function (d) {
+        return projection(d.geometry.coordinates)[1]
+      }
+    })
+    .classed("ring hide", true);
 
   renderZoom();
 };
@@ -110,16 +178,16 @@ var renderFrame = function(e) {
   setTimer(timer); 
   setHandlePosition(timer);
 
-  for (var i = 0; i < circles[0].length; i++) {
-    d3.select(circles[0][i])
+  for (var i = 0; i < bikes[0].length; i++) {
+    d3.select(bikes[0][i])
       .attr("transform", function (d) {
         var thePath = d3.select(this.parentNode).select("path").node();
         var startTime = timeToMilliSeconds(d.properties.startTime);
         var endTime = timeToMilliSeconds(d.properties.endTime);
 
         if (realtime - startTime > 0 && endTime - realtime > 0) {
-          if (d3.select(circles[0][i]).classed("hide")) {
-            d3.select(circles[0][i]).classed("hide", false);
+          if (d3.select(bikes[0][i]).classed("hide")) {
+            d3.select(bikes[0][i]).classed("hide", false);
             if (play) {
               makeRings(d.properties.startTerminal, "red");
             }
@@ -127,8 +195,8 @@ var renderFrame = function(e) {
           var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
           return "translate(" + [p.x, p.y] + ")";
         } else {
-          if (!d3.select(circles[0][i]).classed("hide")) {
-            d3.select(circles[0][i]).classed("hide", true);
+          if (!d3.select(bikes[0][i]).classed("hide")) {
+            d3.select(bikes[0][i]).classed("hide", true);
             if (play) {
               makeRings(d.properties.endTerminal, "green");
             }
@@ -184,21 +252,19 @@ var renderZoom = function () {
       });
     });
 
-  animations.selectAll(".dock")
-    .attr("cx", function (d) {
-      return projection(d.coord)[0];
-    }).attr("cy", function (d) {
-      return projection(d.coord)[1];
+  animations.selectAll(".dock circle")
+    .attr({
+      cx: function (d) { return projection(d.geometry.coordinates)[0]; },
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
   
   animations.selectAll(".route path")
     .attr("d", path);
 
   animations.selectAll(".ring")
-    .attr("cx", function (d) {
-      return projection(d.coord)[0]
-    }).attr("cy", function (d) {
-      return projection(d.coord)[1]
+    .attr({
+      cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
   animations.selectAll(".route circle")
@@ -243,7 +309,7 @@ var formatLocation = function (p, k) {
 var loaded = function () {
   button.attr('disabled', null);
   handle.classed("hide", false);
-  animations.selectAll(".dock").classed("hide", false);
+  animations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
   button.html("Play");
@@ -348,9 +414,11 @@ d3.json("/api/timeline", function (error, json) {
   if (error) {
     console.log("error", error);
   }
-  dbJson = parseDBJson(json);
-  console.log("successsssss--------->", dbJson);
-  drawRoutes(dbJson);
+  bikesJson = buildBikesJson(json);
+  docksJson = buildDocksJson(json);
+  console.log("successsssss--------->", bikesJson);
+  drawRoutes(bikesJson);
+  drawDocks(docksJson);
   loaded();
 });
 
@@ -359,57 +427,6 @@ button.on("click", function () {
   if (play) {
     d3.timer(animate);
   } 
-});
-
-d3.json("../json/docks.json", function (error, terminals) {
-  if (error) throw error;
-
-  var c = d3.scale.linear()
-    .domain([0, 27])
-    .range([0, 1]);
-
-  var docks = animations.append("g")
-    .classed("docks", true)
-    .selectAll("circle")
-    .data(terminals.features)
-    .enter()
-    .append("circle")
-    .attr("id", function (d) {
-      return "dock-" + d.dock
-    })
-    .attr("class", "dock")
-    .attr("cx", function (d) {
-      return projection(d.coord)[0];
-    }).attr("cy", function (d) {
-      return projection(d.coord)[1];
-    }).attr("r", "5px").attr("fill", function (d) {
-      return colorscale(c(d.amt))
-    })
-    .classed("hide", true);
-
-  var rings = animations.append("g")
-    .classed("rings", true)
-    .selectAll("circle")
-    .data(terminals.features)
-    .enter()
-    .append("circle")
-    .attr("id", function (d) {
-      return "ring-" + d.dock
-    })
-    .attr({
-      "fill": "none",
-      "stroke-width": "1px",
-      "r": "5px",
-    })
-    .classed("ring hide", true)
-    .attr("cx", function (d) {
-      return projection(d.coord)[0]
-    })
-    .attr("cy", function (d) {
-      return projection(d.coord)[1]
-    });
-
-  renderZoom();
 });
 
 window.onresize = updateWindow;
