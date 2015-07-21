@@ -5,18 +5,92 @@ var addDockActivity = function(type, id, time) {
 
   // if add 
   
-}
+};
 
-var buildDocksJson = function (json) {
+var calcDockHash = function(){
+  var tripHash = {};
+  var mins = 0;
+  var hours = 0;
+  
+  for (var i = 0; i < 1440; i++){
+      var time = countTime(hours, mins);
+      hours = time[0];
+      mins = time[1];
+      time = time.join(":");
+      tripHash[time] = {"starting_trips": [], "ending_trips": []};
+  };
+
+  return tripHash;
+
+  // for (var i = 0; i < dbJson.features.length; i++){
+  //   var startTime = dbJson.features[i]["properties"]["startTime"];
+  //   var endTime = dbJson.features[i]["properties"]["endTime"];
+  //   var splitStartTime = startTime.split(":");
+  //   var splitEndTime = endTime.split(":");
+  //   hours = splitStartTime[0];
+  //   mins = splitStartTime[1];
+
+  //   tripHash[startTime]["startingTrips"].push(i);
+
+  //   // console.log(splitStartTime, splitEndTime);
+  //   // console.log("hours and mins ", hours, mins);
+
+  //   for (var h = splitStartTime[0], m = splitStartTime[1]; m < splitEndTime[1] && h <= splitEndTime[0]; h = hours, m = mins) {
+  //     tempTime = h + ":" + m;
+  //     // console.log("tempTime", tempTime);
+  //     // var tempTime = countTime().join(":");
+  //     // console.log(tempTime);
+  //     tripHash[tempTime]["currentTrips"].push(i);
+  //     mins = countTime()[1];
+  //     // console.log("new hours and mins ", hours, mins);
+  //   }
+  // }
+  // mins = 0;
+  // hours = 0;
+
+  // console.log(tripHash);
+};
+
+
+
+var countTime = function(hours, mins){
+  var countHours, countMins;
+  mins++
+  if (mins === 60) {
+    hours++;
+    mins = 0;
+    if (hours === 24){
+      hours = 0;
+    }
+  }
+
+  countHours = hours;
+
+  if (mins < 10) {
+    countMins = "0" + mins;
+  }
+  else {
+    countMins = ""+ mins;
+  }
+  return [countHours, countMins];
+};
+
+var buildDocksHash = function (json) {
   var hits = json.hits.total;
+  var dockHash = calcDockHash();
+
   for (var i = 0; i < hits; i++) {
     var trip = json.hits.hits[i]["_source"];
-    var startTime = trip["start_date"].split(" ")[1];
-    var endTime = trip["end_date"].split(" ")[1];
-    addDockActivity("add", trip["start_terminal"], startTime);
-    addDockActivity("remove", trip["end_terminal"], endTime);
+    var startTime = trip.start_date.split(" ")[1];
+    var endTime = trip.end_date.split(" ")[1];
+    
+    dockHash[startTime].starting_trips.push(trip.start_terminal);
+    
+    if (trip.start_date.split(" ")[0] === trip.end_date.split(" ")[0]){
+      dockHash[endTime].ending_trips.push(trip.end_terminal);
+    }
   }
-  return docksJson;
+  return dockHash;
 };
 
 var buildBikesJson = function (json) {
