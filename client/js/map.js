@@ -8,7 +8,8 @@ var dbJson;
 var play = false;
 var realtime;
 var bikes = [];
-var animduration = 10 * minute;
+var docks = [];
+var animduration = 15 * minute;
 var timer, timermemo = 0.313 * animduration;
 var playmemo;
 
@@ -37,7 +38,11 @@ var makeRings = function (id, color) {
     .duration(800)
     .attr("r", "20px")
     .each("end", function () {
-      d3.select(this).classed("hide", true).attr("r", "5px");
+      d3.select(this)
+        .attr({
+          r: "5px", 
+          class: "hide ring"
+        });
     });
 };
 
@@ -50,14 +55,18 @@ var drawRoutes = function (data) {
     .append("svg:g")
     .attr("class", "route")
     .append("svg:path")
-    .attr("d", path)
-    .attr("fill-opacity", 0);
+    .attr({
+      d: path, 
+      "fill-opacity": 0
+    });
 
   bikes = animations.selectAll(".route")
     .append("circle")
-    .attr("r", 3)
-    .attr("fill", '#f33')
-    .classed("hide", true);
+    .attr({
+      r: 3, 
+      fill: '#f33', 
+      class: "hide bike"
+    });
 
   renderZoom();
 };
@@ -67,7 +76,7 @@ var drawDocks = function (data) {
     .domain([0, 27])
     .range([0, 1]);
 
-  var docks = animations.append("g")
+  docks = animations.append("g")
     .classed("docks hide", true)
     .selectAll("g")
     .data(data.features)
@@ -90,6 +99,7 @@ var drawDocks = function (data) {
 
   docks.append("rect")
     .attr({
+      class: "gauge-bg",
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
       width: "8px", 
@@ -99,6 +109,7 @@ var drawDocks = function (data) {
 
   docks.append("rect")
     .attr({
+      class: "gauge-qty",
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
       width: "6px", 
@@ -108,32 +119,26 @@ var drawDocks = function (data) {
     });
 
   var rings = animations.append("g")
-    .classed("rings", true)
+    .attr({class: "rings"})
     .selectAll("circle")
     .data(data.features)
     .enter()
     .append("circle")
     .attr({
       id: function (d) { return "ring-" + d.properties.id },
+      class: "ring hide", 
       fill: "none",
       "stroke-width": "1px",
       r: "5px",
-      cx: function (d) {
-        return projection(d.geometry.coordinates)[0]
-      }, 
-      cy: function (d) {
-        return projection(d.geometry.coordinates)[1]
-      }
-    })
-    .classed("ring hide", true);
+      cx: function (d) { return projection(d.geometry.coordinates)[0] }, 
+      cy: function (d) { return projection(d.geometry.coordinates)[1] }
+    });
 
   renderZoom();
 };
 
 var setHandlePosition = function(t){
-  handle.attr("transform", function (d) {
-    return "translate(" + animscale(t) + ")";
-  });
+  handle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
 };
 
 var setTimer = function(t) {
@@ -180,28 +185,15 @@ var renderFrame = function(e) {
 
   for (var i = 0; i < bikes[0].length; i++) {
     d3.select(bikes[0][i])
-      .attr("transform", function (d) {
-        var thePath = d3.select(this.parentNode).select("path").node();
-        var startTime = timeToMilliSeconds(d.properties.startTime);
-        var endTime = timeToMilliSeconds(d.properties.endTime);
-
-        if (realtime - startTime > 0 && endTime - realtime > 0) {
-          if (d3.select(bikes[0][i]).classed("hide")) {
-            d3.select(bikes[0][i]).classed("hide", false);
-            if (play) {
-              makeRings(d.properties.startTerminal, "red");
-            }
-          }
-          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-          return "translate(" + [p.x, p.y] + ")";
-        } else {
-          if (!d3.select(bikes[0][i]).classed("hide")) {
-            d3.select(bikes[0][i]).classed("hide", true);
-            if (play) {
-              makeRings(d.properties.endTerminal, "green");
-            }
-          }
-        }
+      .attr("transform", function (d) { return moveBike(d, this); });
+  }
+  // console.log("docks[0]", docks[0]);
+  for (var i = 0; i < docks[0].length; i++) {
+    // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
+    d3.select(docks[0][i]).select(".gauge-qty")
+      .attr({
+        transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
+        height: function (d) { return d.properties.places; }
       });
   }
 };
@@ -246,9 +238,11 @@ var renderZoom = function () {
         svgTile.selectAll("path")
           .data(json.features.sort(function (a, b) {
             return a.properties.sort_key - b.properties.sort_key;
-          })).enter().append("path").attr("class", function (d) {
-            return d.properties.kind;
-          }).attr("d", tilePath);
+          }))
+          .enter()
+          .append("path")
+          .attr("class", function (d) { return d.properties.kind; })
+          .attr("d", tilePath);
       });
     });
 
@@ -256,6 +250,18 @@ var renderZoom = function () {
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; },
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
+    });
+
+  animations.selectAll(".gauge-qty")
+    .attr({
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }
+    });
+
+  animations.selectAll(".gauge-bg")
+    .attr({
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
   
   animations.selectAll(".route path")
@@ -267,20 +273,35 @@ var renderZoom = function () {
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  animations.selectAll(".route circle")
+  animations.selectAll(".bike")
     .attr({
-      "transform": function(d) {
-        var thePath = d3.select(this.parentNode).select("path").node();
-        var startTime = timeToMilliSeconds(d.properties.startTime);
-        var endTime = timeToMilliSeconds(d.properties.endTime);
-
-        if (realtime - startTime > 0 && endTime - realtime > 0) {
-          var p = thePath.getPointAtLength(thePath.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-          return "translate(" + [p.x, p.y] + ")";
-        } 
-      }
+      "transform": function(d) { return moveBike(d, this); }
     });
 };
+
+var moveBike = function(d, context) {
+  var startTime = timeToMilliSeconds(d.properties.startTime);
+  var endTime = timeToMilliSeconds(d.properties.endTime);
+
+  if (realtime - startTime > 0 && endTime - realtime > 0) {
+    if (d3.select(context).classed("hide")) {
+      d3.select(context).classed("hide", false);
+      if (play) {
+        makeRings(d.properties.startTerminal, "red");
+      }
+    }
+    var path = d3.select(context.parentNode).select("path").node();
+    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+    return "translate(" + [p.x, p.y] + ")";
+  } else {
+    if (!d3.select(context).classed("hide")) {
+      d3.select(context).classed("hide", true);
+      if (play) {
+        makeRings(d.properties.endTerminal, "green");
+      }
+    }
+  } 
+} 
 
 var mousemoved = function () {
   info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
@@ -319,8 +340,6 @@ function updateWindow(){
   width = document.getElementById("map").clientWidth;
   height = Math.max(500, window.innerHeight);
 };
-
-updateWindow();
 
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
@@ -429,4 +448,5 @@ button.on("click", function () {
   } 
 });
 
+updateWindow();
 window.onresize = updateWindow;
