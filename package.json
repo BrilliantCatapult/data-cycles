@@ -22,7 +22,9 @@
     "dotenv": "^1.2.0",
     "elasticsearch": "^5.0.0",
     "express": "^4.13.1",
-    "jsdoc": "^3.3.2"
+    "jsdoc": "^3.3.2",
+    "moment": "^2.10.3",
+    "redis": "^0.12.1"
   },
   "devDependencies": {
     "dotenv": "^1.2.0",
