@@ -321,4 +321,45 @@ _search?search_type=count
     }
 }
 
-    
+
+
+// sort by day and hour for jack
+{
+    "aggs": {
+        "station_filter": {
+            "filter": {
+                            "range": {
+                                "station_id": {
+                                    "gte": "41",
+                                    "lte": "82"
+                                }
+                            }
+                      
+                    },
+            "aggs": {
+                "station_group": {
+                    "terms": {
+                        "field": "station_id"
+                    },
+                    "aggs": {
+                        "by_date": {
+                          "date_histogram": {
+                            "field": "time",
+                            "interval": "day"
+                          },
+                          "aggs": {
+                            "by_hour": {
+                              "date_histogram": {
+                                "field": "time",
+                                "interval": "hour"
+                              }
+                            }
+                          }
+                        }
+                       
+                    }
+                }
+            }
+        }
+    }
+}   

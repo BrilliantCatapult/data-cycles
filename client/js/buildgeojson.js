@@ -1,22 +1,59 @@
-var addDockActivity = function(type, id, time) {
-  // type is 'add' or 'remove'
-  // id of dock
-  // time in this format 0:00
-
-  // if add 
+var calcDockHash = function(){
+  var tripHash = {};
+  var mins = 0;
+  var hours = 0;
   
-}
+  for (var i = 0; i < 1440; i++){
+      var time = countTime(hours, mins);
+      hours = time[0];
+      mins = time[1];
+      time = time.join(":");
+      tripHash[time] = {"starting_trips": [], "ending_trips": []};
+  };
 
-var buildDocksJson = function (json) {
+  return tripHash;
+};
+
+
+
+var countTime = function(hours, mins){
+  var countHours, countMins;
+  mins++
+  if (mins === 60) {
+    hours++;
+    mins = 0;
+    if (hours === 24){
+      hours = 0;
+    }
+  }
+
+  countHours = hours;
+
+  if (mins < 10) {
+    countMins = "0" + mins;
+  }
+  else {
+    countMins = ""+ mins;
+  }
+  return [countHours, countMins];
+};
+
+var buildDocksHash = function (json) {
   var hits = json.hits.total;
+  var dockHash = calcDockHash();
+
   for (var i = 0; i < hits; i++) {
     var trip = json.hits.hits[i]["_source"];
-    var startTime = trip["start_date"].split(" ")[1];
-    var endTime = trip["end_date"].split(" ")[1];
-    addDockActivity("add", trip["start_terminal"], startTime);
-    addDockActivity("remove", trip["end_terminal"], endTime);
+    var startTime = trip.start_date.split(" ")[1];
+    var endTime = trip.end_date.split(" ")[1];
+    
+    dockHash[startTime].starting_trips.push(trip.start_terminal);
+    
+    if (trip.start_date.split(" ")[0] === trip.end_date.split(" ")[0]){
+      dockHash[endTime].ending_trips.push(trip.end_terminal);
+    }
   }
-  return docksJson;
+  return dockHash;
 };
 
 var buildBikesJson = function (json) {
@@ -37,14 +74,14 @@ var buildBikesJson = function (json) {
     var startTime = tempStart[1];
     var endDate = tempEnd[0];
     var endTime = tempEnd[1];
-    var bikeJson = buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID);
+    var bikeJson = buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, i);
     if (bikeJson) {
       bikesJson.features.push(bikeJson);
     }
   };
   return bikesJson;
 };
-var buildBikeJson = function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, id) {
+var buildBikeJson = function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, tripID) {
   var coordinates = bikeRoutes[startTerminal + "-" + endTerminal];
   var geoJson = null;
   if (!coordinates) {
@@ -61,7 +98,8 @@ var buildBikeJson = function (duration, startTerminal, startDate, startTime, end
       "type": "Feature",
       "properties": {
         "duration": duration,
-        "bikeID": id,
+        "tripID": tripID,
+        "bikeID": bikeID,
         "startDate": startDate,
         "startTime": startTime,
         "endDate": endDate,
