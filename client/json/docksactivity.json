@@ -1,10 +1,27 @@
 {
   "type": "DockCollection",
   "features": [{
-    "dock": 41,
+    "id": 41,
     "loc": "Clay at Battery",
     "coord": [-122.39997, 37.795001],
-    "amt": 15
+    "total": 15, 
+    "activity": [
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+      { "time": "0:00", "amount": 12 }, 
+
+
+    ]
   }, {
     "dock": 42,
     "loc": "Davis at Jackson",
