@@ -82,7 +82,7 @@ var buildRedis = function(startDate, endDate) {
         
 
         for (var key in esHash){
-          multi.hmset(key, esHash[key], redis.print);
+          multi.hmset(key, esHash[key]);
         };
 
         multi.exec(function(err, replies){
