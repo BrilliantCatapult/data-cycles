@@ -7,6 +7,7 @@ module.exports = function (app, express) {
   var weatherRouter = express.Router();
   var tripRouter = express.Router();
   var timelineRouter = express.Router();
+  var redisRouter = express.Router();
 
   app.use(express.static('client/'));
 
@@ -19,6 +20,7 @@ module.exports = function (app, express) {
   app.use('/api/weather', weatherRouter);
   app.use('/api/trip', tripRouter);
   app.use('/api/timeline', timelineRouter);
+  app.use('/api/redis', redisRouter);
   app.use(helpers.errorLogger);
   app.use(helpers.errorHandler);
 
@@ -26,6 +28,7 @@ module.exports = function (app, express) {
   require('../routes/weatherRoute.js')(weatherRouter);
   require('../routes/tripRoute.js')(tripRouter);
   require('../routes/timelineRoute.js')(timelineRouter);
+  require('../routes/redisRoute.js')(redisRouter);
 
   // client.ping({
   //   // ping usually has a 3000ms timeout 
