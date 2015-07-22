@@ -47,7 +47,7 @@ var makeRings = function (id, color) {
 };
 
 var drawRoutes = function (data) {
-  var routes = animations.append("svg:g")
+  var routes = svgAnimations.append("svg:g")
     .classed("routes", true)
     .selectAll("path")
     .data(data.features)
@@ -56,34 +56,58 @@ var drawRoutes = function (data) {
     .attr({
       class: "route", 
       id: function(d){
-        "route-" + d.properties.id, 
+        return "route-" + d.properties.id
+      }, 
       d: path, 
       "fill-opacity": 0
     });
 
-  bikes = animations.append("svg:g")
+  bikes = svgAnimations.append("svg:g")
     .classed("bikes", true)
     .selectAll("circle")
     .data(data.features)
+    .enter()
     .append("circle")
     .attr({
       r: 8, 
       fill: '#f33', 
       class: "hide bike",
-      id: function(d){
-        "route-" + d.properties.id;
+      id: function(d) {
+        return "bike-" + d.properties.id
       }
     })
-    .on("mouseover", function(d) { var position = this.getBoundingClientRect(); console.log("position", position);
+    .on("mouseover", function(d) { 
+
+      var position = this.getBoundingClientRect(); 
+      var svgAnimationsPosition = document.getElementById("map").getBoundingClientRect();
+      var left = position.left - svgAnimationsPosition.left - 76;
+      var top = position.top - svgAnimationsPosition.top - 80;
+      var results = [];
+      var id = d.properties.bikeID;
+      for (var i = 0; i < bikesJson.features.length; i++) {
+        if (bikesJson.features[i].properties.bikeID == id) {
+          console.log(id);
+          var r = {
+            "startTime": bikesJson.features[i].properties.startTime, 
+            "startTerminal": bikesJson.features[i].properties.startTerminal, 
+            "endTime": bikesJson.features[i].properties.endTime, 
+            "endTerminal": bikesJson.features[i].properties.endTerminal, 
+            "id": bikesJson.features[i].properties.bikeID  
+          }
+          results.push(r);
+        }
+      }
+      console.log(results);
       return tooltip.attr({
-          left: position.left, 
-          bottom: position.bottom
+          style: "left:" + left + "px;top:" + top + "px;"
         })
-        .classed("hide", false); 
+        .classed("hide", false)
+        .html(results); 
 
       })
+
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-    .on("mouseout", function(){ return tooltip.classed("hide", false); });
+    .on("mouseout", function(){ return tooltip.classed("hide", true); });
 
   renderZoom();
 };
@@ -93,7 +117,7 @@ var drawDocks = function (data) {
     .domain([0, 27])
     .range([0, 1]);
 
-  docks = animations.append("g")
+  docks = svgAnimations.append("g")
     .classed("docks hide", true)
     .selectAll("g")
     .data(data.features)
@@ -135,7 +159,7 @@ var drawDocks = function (data) {
       fill: "orange"
     });
 
-  var rings = animations.append("g")
+  var rings = svgAnimations.append("g")
     .attr({class: "rings"})
     .selectAll("circle")
     .data(data.features)
@@ -263,34 +287,34 @@ var renderZoom = function () {
       });
     });
 
-  animations.selectAll(".dock circle")
+  svgAnimations.selectAll(".dock circle")
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; },
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  animations.selectAll(".gauge-qty")
+  svgAnimations.selectAll(".gauge-qty")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  animations.selectAll(".gauge-bg")
+  svgAnimations.selectAll(".gauge-bg")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
   
-  animations.selectAll(".route path")
+  svgAnimations.selectAll(".route")
     .attr("d", path);
 
-  animations.selectAll(".ring")
+  svgAnimations.selectAll(".ring")
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  animations.selectAll(".bike")
+  svgAnimations.selectAll(".bike")
     .attr({
       "transform": function(d) { return moveBike(d, this); }
     });
@@ -307,7 +331,7 @@ var moveBike = function(d, el) {
         makeRings(d.properties.startTerminal, "red");
       }
     }
-    var path = d3.select(el.parentNode).select("path").node();
+    var path = d3.select("#route-" + d.properties.id).node();
     var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
     return "translate(" + [p.x, p.y] + ")";
   } else {
@@ -347,7 +371,7 @@ var formatLocation = function (p, k) {
 var loaded = function () {
   button.attr('disabled', null);
   handle.classed("hide", false);
-  animations.select(".docks").classed("hide", false);
+  svgAnimations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
   button.html("Play");
@@ -417,8 +441,8 @@ var map = d3.select("#map")
 var tilesLayer = map.append("div")
   .attr("id", "tileslayer");
 
-var animations = map.append("svg:svg")
-  .attr("id", 'bikeAnimations')
+var svgAnimations = map.append("svg:svg")
+  .attr("id", 'animations')
   .style("width", width + "px")
   .style("height", height - 50 + "px")
   .call(zoom);
@@ -443,7 +467,7 @@ var handle = slider.append("polygon")
   .attr("id", "handle")
   .classed("hide", true);
 
-var tooltip = d3.select(".tooltip");
+var tooltip = d3.select(".map-tooltip");
 
 var timerdisplay = d3.select("#timer");
 
@@ -455,7 +479,8 @@ d3.json("/api/timeline", function (error, json) {
     console.log("error", error);
   }
   bikesJson = buildBikesJson(json);
-  docksJson = buildDocksJson(json);
+  var docksHash = buildDocksHash(json);
+  console.log("successsssss--------->", docksHash);
   console.log("successsssss--------->", bikesJson);
   drawRoutes(bikesJson);
   drawDocks(docksJson);

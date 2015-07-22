@@ -98,7 +98,7 @@ var buildBikeJson = function (duration, startTerminal, startDate, startTime, end
       "type": "Feature",
       "properties": {
         "duration": duration,
-        "tripID": tripID,
+        "id": tripID,
         "bikeID": bikeID,
         "startDate": startDate,
         "startTime": startTime,
