@@ -4,3 +4,4 @@ node_modules
 client/bower_components
 .env
 dist
+dump.rdb
