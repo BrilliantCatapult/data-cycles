@@ -5,7 +5,7 @@ var url = require('url');
 
 if (process.env.REDIS_URL){
   var redisURL = url.parse(process.env.REDIS_URL);
-  // var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
+  var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
   redisClient.auth(redisURL.auth.split(":")[1]);
 }
 else {
