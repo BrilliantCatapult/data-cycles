@@ -29,7 +29,7 @@ var timeToMilliSeconds = function (string) {
   return values[0] * hour + values[1] * minute;
 };
 
-var makeRings = function (id, color) {
+var animateRing = function (id, color) {
   d3.select("#ring-" + id)
     .classed("hide", false)
     .attr("stroke", color)
@@ -44,6 +44,20 @@ var makeRings = function (id, color) {
           class: "hide ring"
         });
     });
+};
+
+var showRing = function (id, color) {
+  d3.select("#ring-" + id)
+    .attr({
+      r: "5px", 
+      class: "hide ring"
+    })
+    .classed("hide", false)
+    .attr("stroke", color)
+    .transition()
+    .ease("elastic")
+    .duration(800)
+    .attr("r", "20px");
 };
 
 var drawRoutes = function (data) {
@@ -72,44 +86,91 @@ var drawRoutes = function (data) {
       r: 8, 
       fill: '#f33', 
       class: "hide bike",
-      id: function(d) {
-        return "bike-" + d.properties.id
-      }
+      id: function(d) { return "bike-" + d.properties.id }
     })
-    .on("mouseover", function(d) { 
-
-      var position = this.getBoundingClientRect(); 
-      var svgAnimationsPosition = document.getElementById("map").getBoundingClientRect();
-      var left = position.left - svgAnimationsPosition.left - 76;
-      var top = position.top - svgAnimationsPosition.top - 80;
-      var results = [];
-      var id = d.properties.bikeID;
-      for (var i = 0; i < bikesJson.features.length; i++) {
-        if (bikesJson.features[i].properties.bikeID == id) {
-          console.log(id);
-          var r = {
-            "startTime": bikesJson.features[i].properties.startTime, 
-            "startTerminal": bikesJson.features[i].properties.startTerminal, 
-            "endTime": bikesJson.features[i].properties.endTime, 
-            "endTerminal": bikesJson.features[i].properties.endTerminal, 
-            "id": bikesJson.features[i].properties.bikeID  
-          }
-          results.push(r);
-        }
-      }
-      console.log(results);
-      return tooltip.attr({
-          style: "left:" + left + "px;top:" + top + "px;"
-        })
-        .classed("hide", false)
-        .html(results); 
-
-      })
+    .on("mouseover", function(d) { showBikeRoute(d, this); })
 
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-    .on("mouseout", function(){ return tooltip.classed("hide", true); });
+    .on("mouseout", function(){ hideBikesRoute(); });
 
   renderZoom();
+};
+
+var hideBikesRoute = function() {
+  tooltip.classed("hide", true);
+  d3.selectAll(".route")
+    .transition()
+    .attr({
+      "stroke-opacity": 0
+    });
+  d3.selectAll(".ring")
+    .attr({
+      class: "hide ring"
+    });
+}
+
+var showBikeRoute = function (d, bike) {
+  var position = bike.getBoundingClientRect(); 
+  var svgAnimationsPosition = document.getElementById("map").getBoundingClientRect();
+  var left = position.left - svgAnimationsPosition.left - 76;
+  var top = position.top - svgAnimationsPosition.top - 80;
+  var results = [];
+  var id = d.properties.bikeID;
+  for (var i = 0; i < bikesJson.features.length; i++) {
+    if (bikesJson.features[i].properties.bikeID == id) {
+      results.push(bikesJson.features[i]);
+    }
+  }
+  animateBikeRoute(results);
+  tooltip.attr({
+      style: "left:" + left + "px;top:" + top + "px;"
+    })
+    .classed("hide", false)
+    .html(id);
+
+}
+
+var animateBikeRoute = function(routeFeatures) {
+  var routeIdsArray = [];
+  var startRingIdsArray = [];
+  var endRingIdsArray = [];
+  var speed = 1;
+  var delay = 0;
+  var delays = [delay];
+  for (var i = 0; i < routeFeatures.length; i++) {
+    routeIdsArray.push("#route-" + routeFeatures[i].properties.id); 
+    startRingIdsArray.push(routeFeatures[i].properties.startTerminal);
+    endRingIdsArray.push(routeFeatures[i].properties.endTerminal);
+    delay += routeFeatures[i].properties.duration/speed;
+    delays.push(delay);
+  }
+  
+  d3.selectAll(routeIdsArray.toString()).attr({
+      "stroke-width": 2, 
+      "stroke-linejoin": "round",
+      "stroke": "blue", 
+      "stroke-opacity": 1, 
+      "stroke-linecap": "round"
+    })
+    .attr("stroke-dasharray", function(d, i) {
+      console.log(d);
+      var totalLength = d3.select(this).node().getTotalLength();
+      return totalLength + " " + totalLength; 
+    })
+    .attr("stroke-dashoffset", function() { 
+      var totalLength = d3.select(this).node().getTotalLength();
+      return totalLength; 
+    })
+    .transition()
+    .delay(function(d, i) { return delays[i]; })
+    .duration(function(d, i) { 
+      showRing(startRingIdsArray[i], "orange");
+      showRing(endRingIdsArray[i], "blue");
+      return d.properties.duration/speed; })
+    .ease("linear")
+    .attr("stroke-dashoffset", 0);
+
+    
 };
 
 var drawDocks = function (data) {
@@ -323,12 +384,11 @@ var renderZoom = function () {
 var moveBike = function(d, el) {
   var startTime = timeToMilliSeconds(d.properties.startTime);
   var endTime = timeToMilliSeconds(d.properties.endTime);
-
   if (realtime - startTime > 0 && endTime - realtime > 0) {
     if (d3.select(el).classed("hide")) {
       d3.select(el).classed("hide", false);
       if (play) {
-        makeRings(d.properties.startTerminal, "red");
+        animateRing(d.properties.startTerminal, "red");
       }
     }
     var path = d3.select("#route-" + d.properties.id).node();
@@ -338,7 +398,7 @@ var moveBike = function(d, el) {
     if (!d3.select(el).classed("hide")) {
       d3.select(el).classed("hide", true);
       if (play) {
-        makeRings(d.properties.endTerminal, "green");
+        animateRing(d.properties.endTerminal, "green");
       }
     }
   } 
