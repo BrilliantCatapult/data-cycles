@@ -1,5 +1,6 @@
 var formatDate = d3.time.format("%b%d %Y");
 var serverDate = d3.time.format("%-m/%d/%Y 00:00");
+var docksDate = d3.time.format("%Y/%m/%d")
 
 // parameters
 var margin = {
@@ -95,9 +96,22 @@ function brushed() {
         if (error) {
           console.log("error", error);
         }
-        console.log("successsssss--------->", json);
-        dbJson = parseDBJson(json);
+        console.log("elastic successsssss--------->", json);
+        var tripJson = json;
+        // var builtJson = buildBikesJson(json);
+        // console.log(builtJson);
+
+        d3.json("/api/redis?start_date=" + docksDate(value), function(error, json) {
+          if (error) {
+            console.log("error", error);
+          }
+          console.log("redis successsssss--------->", json);
+          dockJson = buildDocksHash(tripJson, json);
+
+          console.log("ohhhh yeahhhhh ----->", dockJson);
+        });
       });
+      
     }
   }
 
