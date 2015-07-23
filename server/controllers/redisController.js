@@ -4,14 +4,20 @@ var stations = [41,42,45,46,47,48,49,50,51,53,54,55,56,57,58,59,60,61,62,63,64,6
 
 module.exports = {
   get: function (req, res, next) {
+    var start_date = req.query.start_date || "2013/12/18";
     var multi = redisClient.multi();
-
+    console.log(start_date);
     for (var i = 0; i < stations.length; i++){
-      multi.hgetall(stations[i] + ":2013/12/18")
+      multi.hgetall(stations[i] + ":" + start_date)
     };
 
     multi.exec(function(err, replies) {
-      res.json(replies);
+      if (err) {
+        console.log(err)
+      }
+      else {
+        res.json(replies);
+      }
     })
 
   },
