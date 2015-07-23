@@ -292,12 +292,51 @@ var renderFrame = function(e) {
   // console.log("docks[0]", docks[0]);
   for (var i = 0; i < docks[0].length; i++) {
     // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
-    d3.select(docks[0][i]).select(".gauge-qty")
-      .attr({
-        transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
-        height: function (d) { return d.properties.places; }
-      });
+    setDockLevel(docks[0][i]);
   }
+};
+
+var setDockLevel = function (dock) {
+  var currentQty = 0;
+  
+  d3.select(dock).select(".gauge-qty")
+      .attr({
+        transform: function (d) { 
+          for (var i = 0; i < d.properties.activity.length; i++) {
+            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+            if (changeTime < realtime) {
+              currentQty = d.properties.activity[i].bikes_available;
+            }
+          }
+          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+        }, 
+        height: function (d) { return currentQty; }
+      });
+  
+
+};
+
+var moveBike = function(d, el) {
+  var startTime = timeToMilliSeconds(d.properties.startTime);
+  var endTime = timeToMilliSeconds(d.properties.endTime);
+  if (realtime - startTime > 0 && endTime - realtime > 0) {
+    if (d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", false);
+      if (play) {
+        animateRing(d.properties.startTerminal, "red");
+      }
+    }
+    var path = d3.select("#route-" + d.properties.id).node();
+    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+    return "translate(" + [p.x, p.y] + ")";
+  } else {
+    if (!d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", true);
+      if (play) {
+        animateRing(d.properties.endTerminal, "green");
+      }
+    }
+  } 
 };
 
 var renderZoom = function () {
@@ -379,29 +418,6 @@ var renderZoom = function () {
     .attr({
       "transform": function(d) { return moveBike(d, this); }
     });
-};
-
-var moveBike = function(d, el) {
-  var startTime = timeToMilliSeconds(d.properties.startTime);
-  var endTime = timeToMilliSeconds(d.properties.endTime);
-  if (realtime - startTime > 0 && endTime - realtime > 0) {
-    if (d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", false);
-      if (play) {
-        animateRing(d.properties.startTerminal, "red");
-      }
-    }
-    var path = d3.select("#route-" + d.properties.id).node();
-    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-    return "translate(" + [p.x, p.y] + ")";
-  } else {
-    if (!d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", true);
-      if (play) {
-        animateRing(d.properties.endTerminal, "green");
-      }
-    }
-  } 
 };
 
 var mousemoved = function () {
