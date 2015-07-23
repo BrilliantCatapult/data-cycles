@@ -99,7 +99,7 @@ var buildDocksHash = function (tripJson, dockInit) {
       }
     }
   };
-  return docks;
+  return docks.docksJson;
 };
 
 var buildBikesJson = function (json) {

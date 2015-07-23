@@ -539,12 +539,21 @@ d3.json("/api/timeline", function (error, json) {
     console.log("error", error);
   }
   bikesJson = buildBikesJson(json);
-  var docksHash = buildDocksHash(json);
-  console.log("successsssss--------->", docksHash);
-  console.log("successsssss--------->", bikesJson);
-  drawRoutes(bikesJson);
-  drawDocks(docksJson);
-  loaded();
+  // var docksHash = buildDocksHash(json);
+  d3.json("/api/redis?start_date=2013/12/18", function(error, docksJson) {
+    if (error) {
+      console.log("error", error);
+    }
+    docksHash = buildDocksHash(json, docksJson);
+    console.log("redis successsssss--------->", docksHash);
+    drawRoutes(bikesJson);
+    drawDocks(docksHash);
+    // console.log("successsssss--------->", docksHash);
+    console.log("successsssss--------->", bikesJson);
+    loaded();
+
+  });
+  
 });
 
 button.on("click", function () {
