@@ -1,57 +1,50 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title></title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="js/buildgeojson.js"></script>
   <script src="json/bikeRoutesjson.js"></script>
   <script src="json/docksPositionjson.js"></script>
-  <link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
   <style>
-  	body {
-      background-color: #393939;
-      font-size: 14px;
-      font-family: 'Raleway', sans-serif;
-    }
 
-    p {
-      color: white;
-      margin: 50px;
-    }
+  
+  .axis {
+    fill: gray;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .axis .halo {
+    stroke: gray;
+    stroke-width: 4px;
+    stroke-linecap: round;
+  }
+  
+  .slider .handle path {
+    stroke: black;
+    stroke-width: 3px;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
 
-    a {
-      color: #4FDEF2;
-    }
-
-    .axis {
-      fill: gray;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-    }
-
-    .axis .halo {
-      stroke: gray;
-      stroke-width: 4px;
-      stroke-linecap: round;
-    }
-
-    .slider .handle path {
-      stroke: white;
-      stroke-width: 3px;
-      stroke-linecap: round;
-      pointer-events: none;
-    }
-
-    .slider .handle text {
-      fill: white;
-      text-align: center;
-      font-size: 18px;
-    }
+  .handle {
+    cursor: pointer;
+  }
+  
+  .slider .handle text {
+    fill: black;
+    text-align: center;
+    font-size: 18px;
+  }
   </style>
 </head>
+
 <body>
-<script src="js/calendar.js"></script>
+  <span id="calendar"></span>
+  <script src="js/calendar.js"></script>
 </body>
+
 </html>
