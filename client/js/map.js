@@ -29,7 +29,7 @@ var timeToMilliSeconds = function (string) {
   return values[0] * hour + values[1] * minute;
 };
 
-var makeRings = function (id, color) {
+var animateRing = function (id, color) {
   d3.select("#ring-" + id)
     .classed("hide", false)
     .attr("stroke", color)
@@ -44,6 +44,20 @@ var makeRings = function (id, color) {
           class: "hide ring"
         });
     });
+};
+
+var drawRing = function (id, color) {
+  d3.select(id)
+    .attr({
+      r: "5px", 
+      class: "hide ring"
+    })
+    .classed("hide", false)
+    .attr("stroke", color)
+    .transition()
+    .ease("elastic")
+    .duration(800)
+    .attr("r", "20px");
 };
 
 var drawRoutes = function (data) {
@@ -72,44 +86,153 @@ var drawRoutes = function (data) {
       r: 8, 
       fill: '#f33', 
       class: "hide bike",
-      id: function(d) {
-        return "bike-" + d.properties.id
-      }
+      id: function(d) { return "bike-" + d.properties.id }
     })
-    .on("mouseover", function(d) { 
-
-      var position = this.getBoundingClientRect(); 
-      var svgAnimationsPosition = document.getElementById("map").getBoundingClientRect();
-      var left = position.left - svgAnimationsPosition.left - 76;
-      var top = position.top - svgAnimationsPosition.top - 80;
-      var results = [];
-      var id = d.properties.bikeID;
-      for (var i = 0; i < bikesJson.features.length; i++) {
-        if (bikesJson.features[i].properties.bikeID == id) {
-          console.log(id);
-          var r = {
-            "startTime": bikesJson.features[i].properties.startTime, 
-            "startTerminal": bikesJson.features[i].properties.startTerminal, 
-            "endTime": bikesJson.features[i].properties.endTime, 
-            "endTerminal": bikesJson.features[i].properties.endTerminal, 
-            "id": bikesJson.features[i].properties.bikeID  
-          }
-          results.push(r);
-        }
-      }
-      console.log(results);
-      return tooltip.attr({
-          style: "left:" + left + "px;top:" + top + "px;"
-        })
-        .classed("hide", false)
-        .html(results); 
-
-      })
+    .on("mouseover", function(d) { showBikeRoute(d, this); })
 
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-    .on("mouseout", function(){ return tooltip.classed("hide", true); });
+    .on("mouseout", function(){ hideBikesRoute(); });
 
   renderZoom();
+};
+
+var hideBikesRoute = function() {
+  tooltip.classed("hide", true);
+  d3.selectAll(".route")
+    .transition()
+    .attr({
+      "stroke-opacity": 0
+    });
+  d3.selectAll(".ring")
+    .attr({
+      class: "hide ring"
+    });
+  routesinfo.html("");
+  routesInfolines.html("");
+}
+
+var showBikeRoute = function (d, bike) {
+
+  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
+  var position = bike.getBoundingClientRect(); 
+  var left = position.left - svgAnimationsPosition.left - 76;
+  var top = position.top - svgAnimationsPosition.top - 80;
+  var trips = [];
+  var id = d.properties.bikeID;
+  var speed = 1;
+  var delay = 0;
+  var delays = [delay];
+
+  for (var i = 0; i < bikesJson.features.length; i++) {
+    if (bikesJson.features[i].properties.bikeID == id) {
+      delay += bikesJson.features[i].properties.duration/speed;
+      bikesJson.features[i].properties.delay = delay;
+      trips.push(bikesJson.features[i].properties);
+    }
+  }
+
+  animateBikeRoute(trips);
+  // tooltip.attr({
+  //     style: "left:" + left + "px;top:" + top + "px;"
+  //   })
+  //   .classed("hide", false)
+  //   .html(id);
+
+}
+
+var animateBikeRoute = function(trips) {
+  var routeIdsArray = [];
+  var startRingIdsArray = [];
+  var endRingIdsArray = [];
+  var speed = 1;
+  var delay = 0;
+  var delays = [delay];
+  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
+
+  for (var i = 0; i < trips.length; i++) {
+    routeIdsArray.push("#route-" + trips[i].id); 
+    startRingIdsArray.push("#ring-" + trips[i].startTerminal);
+    endRingIdsArray.push("#ring-" + trips[i].endTerminal);
+    delay += trips[i].duration/speed;
+    delays.push(delay);
+
+    var routeInfoBlocPosition;
+
+    var routeInfoBloc = routesinfo.append("div")
+      .attr({
+        class: function() {
+          return "route-info-bloc";
+        }
+      })
+      .html("<p>" + (i * 2 + 1) + ". " + trips[i].startTime + ": " + trips[i].startStation + "</p><p>" + (i * 2 + 2) + ". " + trips[i].endTime + ": " + trips[i].endStation + "<p>");
+
+    var dock = d3.select("#dock-" + trips[i].endTerminal);
+    var infoBlocPosition = routeInfoBloc.node().getBoundingClientRect();
+    var startDockPosition = dock.node().getBoundingClientRect();
+    var endDockPosition = dock.node().getBoundingClientRect();
+    // array of coordinates of the lines between the bloc and their relative docks
+
+    routesInfolines.append("line")          // attach a line
+    .style("stroke", "red")  // colour the line
+    .attr({
+      "x1": startDockPosition.right - svgAnimationsPosition.left,   
+      "y1": startDockPosition.top - svgAnimationsPosition.top,      
+      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,     
+      "y2": infoBlocPosition.top + 10 - svgAnimationsPosition.top
+    });
+
+    routesInfolines.append("line")          // attach a line
+    .style("stroke", "blue")  // colour the line
+    .attr({
+      "x1": endDockPosition.right - svgAnimationsPosition.left,   
+      "y1": endDockPosition.bottom - svgAnimationsPosition.top,   
+      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,   
+      "y2": infoBlocPosition.bottom - 10 - svgAnimationsPosition.top
+    });
+
+    var stepNumber = routesStepNumber.append("g")
+      .attr({"class": "step-number"});
+
+
+    // stepNumber.append("circle")
+    //   .attr({
+    //     r: 5,
+    //     fill: "black",
+    //     cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+    //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+    //   });
+
+    // stepNumber.append("text")
+    //     .attr("dx", function(d){return -10})
+    //     .text(i * 2 + 1);
+
+  }
+  
+  d3.selectAll(routeIdsArray.toString()).attr({
+      "stroke-width": 2, 
+      "stroke-linejoin": "round",
+      "stroke": "blue", 
+      "stroke-opacity": 1, 
+      "stroke-linecap": "round"
+    })
+    .attr("stroke-dasharray", function(d, i) {
+      var totalLength = d3.select(this).node().getTotalLength();
+      return totalLength + " " + totalLength; 
+    })
+    .attr("stroke-dashoffset", function() { 
+      var totalLength = d3.select(this).node().getTotalLength();
+      return totalLength; 
+    })
+    .transition()
+    .delay(function(d, i) { return delays[i]; })
+    .duration(function(d, i) { 
+      drawRing(startRingIdsArray[i], "orange");
+      drawRing(endRingIdsArray[i], "blue");
+      return d.properties.duration/speed; })
+    .ease("linear")
+    .attr("stroke-dashoffset", 0);
+
+    
 };
 
 var drawDocks = function (data) {
@@ -231,12 +354,51 @@ var renderFrame = function(e) {
   // console.log("docks[0]", docks[0]);
   for (var i = 0; i < docks[0].length; i++) {
     // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
-    d3.select(docks[0][i]).select(".gauge-qty")
-      .attr({
-        transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
-        height: function (d) { return d.properties.places; }
-      });
+    setDockLevel(docks[0][i]);
   }
+};
+
+var setDockLevel = function (dock) {
+  var currentQty = 0;
+  
+  d3.select(dock).select(".gauge-qty")
+      .attr({
+        transform: function (d) { 
+          for (var i = 0; i < d.properties.activity.length; i++) {
+            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+            if (changeTime < realtime) {
+              currentQty = d.properties.activity[i].bikes_available;
+            }
+          }
+          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+        }, 
+        height: function (d) { return currentQty; }
+      });
+  
+
+};
+
+var moveBike = function(d, el) {
+  var startTime = timeToMilliSeconds(d.properties.startTime);
+  var endTime = timeToMilliSeconds(d.properties.endTime);
+  if (realtime - startTime > 0 && endTime - realtime > 0) {
+    if (d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", false);
+      if (play) {
+        animateRing(d.properties.startTerminal, "red");
+      }
+    }
+    var path = d3.select("#route-" + d.properties.id).node();
+    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+    return "translate(" + [p.x, p.y] + ")";
+  } else {
+    if (!d3.select(el).classed("hide")) {
+      d3.select(el).classed("hide", true);
+      if (play) {
+        animateRing(d.properties.endTerminal, "green");
+      }
+    }
+  } 
 };
 
 var renderZoom = function () {
@@ -318,30 +480,6 @@ var renderZoom = function () {
     .attr({
       "transform": function(d) { return moveBike(d, this); }
     });
-};
-
-var moveBike = function(d, el) {
-  var startTime = timeToMilliSeconds(d.properties.startTime);
-  var endTime = timeToMilliSeconds(d.properties.endTime);
-
-  if (realtime - startTime > 0 && endTime - realtime > 0) {
-    if (d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", false);
-      if (play) {
-        makeRings(d.properties.startTerminal, "red");
-      }
-    }
-    var path = d3.select("#route-" + d.properties.id).node();
-    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-    return "translate(" + [p.x, p.y] + ")";
-  } else {
-    if (!d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", true);
-      if (play) {
-        makeRings(d.properties.endTerminal, "green");
-      }
-    }
-  } 
 };
 
 var mousemoved = function () {
@@ -438,6 +576,8 @@ var map = d3.select("#map")
   .call(zoom)
   .on("mousemove", mousemoved);
 
+var routesinfo = d3.select("#routes-info");
+
 var tilesLayer = map.append("div")
   .attr("id", "tileslayer");
 
@@ -446,6 +586,12 @@ var svgAnimations = map.append("svg:svg")
   .style("width", width + "px")
   .style("height", height - 50 + "px")
   .call(zoom);
+
+var routesInfolines = svgAnimations.append("g")
+  .attr("id", 'routes-info-lines')
+
+var routesStepNumber = svgAnimations.append("g")
+  .attr("id", 'routes-step-number')
 
 var info = map.append("div")
   .attr("class", "info");
@@ -479,12 +625,21 @@ d3.json("/api/timeline", function (error, json) {
     console.log("error", error);
   }
   bikesJson = buildBikesJson(json);
-  var docksHash = buildDocksHash(json);
-  console.log("successsssss--------->", docksHash);
-  console.log("successsssss--------->", bikesJson);
-  drawRoutes(bikesJson);
-  drawDocks(docksJson);
-  loaded();
+  // var docksHash = buildDocksHash(json);
+  d3.json("/api/redis?start_date=2013/12/18", function(error, docksJson) {
+    if (error) {
+      console.log("error", error);
+    }
+    docksHash = buildDocksHash(json, docksJson);
+    console.log("redis successsssss--------->", docksHash);
+    drawRoutes(bikesJson);
+    drawDocks(docksHash);
+    // console.log("successsssss--------->", docksHash);
+    console.log("successsssss--------->", bikesJson);
+    loaded();
+
+  });
+  
 });
 
 button.on("click", function () {

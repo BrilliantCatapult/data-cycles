@@ -99,7 +99,7 @@ var buildDocksHash = function (tripJson, dockInit) {
       }
     }
   };
-  return docks;
+  return docks.docksJson;
 };
 
 var buildBikesJson = function (json) {
@@ -109,10 +109,12 @@ var buildBikesJson = function (json) {
     "features": []
   };
   for (var i = 0; i < hits; i++) {
-    var trip = json.hits.hits[i]["_source"];
+    var trip = json.hits.hits[i]["_source"];  
     var duration = trip["trip_duration"];
     var startTerminal = trip["start_terminal"];
+    var startStation = trip["start_station"];
     var endTerminal = trip["end_terminal"];
+    var endStation = trip["end_station"];
     var bikeID = trip["bike_id"];
     var tempStart = trip["start_date"].split(" ");
     var tempEnd = trip["end_date"].split(" ");
@@ -120,14 +122,14 @@ var buildBikesJson = function (json) {
     var startTime = tempStart[1];
     var endDate = tempEnd[0];
     var endTime = tempEnd[1];
-    var bikeJson = buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, i);
+    var bikeJson = buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, i, startStation, endStation);
     if (bikeJson) {
       bikesJson.features.push(bikeJson);
     }
   };
   return bikesJson;
 };
-var buildBikeJson = function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, tripID) {
+var buildBikeJson = function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, tripID, startStation, endStation) {
   var coordinates = bikeRoutes[startTerminal + "-" + endTerminal];
   var geoJson = null;
   if (!coordinates) {
@@ -151,7 +153,9 @@ var buildBikeJson = function (duration, startTerminal, startDate, startTime, end
         "endDate": endDate,
         "endTime": endTime,
         "startTerminal": startTerminal,
-        "endTerminal": endTerminal
+        "endTerminal": endTerminal, 
+        "startStation": startStation, 
+        "endStation": endStation
       },
       "geometry": {
         "type": "LineString",
