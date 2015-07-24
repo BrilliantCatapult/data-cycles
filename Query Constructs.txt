@@ -322,7 +322,6 @@ _search?search_type=count
 }
 
 
-
 // sort by day and hour for jack
 {
     "aggs": {
@@ -363,3 +362,54 @@ _search?search_type=count
         }
     }
 }   
+
+// query for ML
+{
+
+        "aggs": {
+            "station_group": {
+                 "filter" : {
+                     "range" : {
+                        "station_id" : {
+                          "gte": 41,
+                          "lte": 82
+                        }
+                     }
+                 },
+                "aggs": {
+                    "group_yay": {
+                      "terms": {
+                          "field": "station_id",
+                          "size": 100
+                    },
+                    "aggs":{
+                    "by_date": {
+                      "date_histogram": {
+                        "field": "time",
+                        "interval": "day"
+                      },
+                      "aggs": {
+                        "by_hour": {
+                          "date_histogram": {
+                            "field": "time",
+                            "interval": "hour"
+                          },
+                          "aggs":{
+                            "avg_bikes": {
+                                  "avg": {
+                                      "field": "bikes_available"
+                                  }
+                            }
+                          }
+                        }
+                      }
+                   }
+                    }
+                }
+            }
+         }
+    }//,
+     //   "size": 1000
+}
+
+
