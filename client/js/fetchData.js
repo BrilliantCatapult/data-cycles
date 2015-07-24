@@ -1,14 +1,11 @@
 var serverDate = d3.time.format("%-m/%d/%Y 00:00");
 var docksDate = d3.time.format("%Y/%m/%d");
+var firstLoad = false;
 
 
 var fetchNewDate = function(start_date, end_date){
-  if (!start_date) {
-    start_date = "2013/12/18"
-  }
-  if (!end_date) {
-    end_date = "2013/12/19"
-  }
+  start_date = start_date || "2013/12/18";
+  end_date = end_date || "2013/12/19";
   
   d3.json("/api/timeline/calendar?start_date=" + serverDate(start_date) + "&end_date=" + serverDate(end_date), function(error, tripJson) {
     if (error) {
@@ -27,7 +24,11 @@ var fetchNewDate = function(start_date, end_date){
       console.log("redis successsssss--------->", docksHash);
       drawRoutes(bikesJson);
       drawDocks(docksHash);
-      // loaded();
+
+      if (!firstLoad) {
+        loaded();
+        firstLoad = true;
+      }
     });
   });
 }

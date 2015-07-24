@@ -231,14 +231,19 @@ var animateBikeRoute = function(trips) {
       return d.properties.duration/speed; })
     .ease("linear")
     .attr("stroke-dashoffset", 0);
+};
 
-    
+var unload = function () {
+  console.log("unload");
+  button.attr("disabled", true);
+  svgAnimations.selectAll("g").remove();
+  button.html("Loading…");
 };
 
 var drawDocks = function (data) {
-  var c = d3.scale.linear()
-    .domain([0, 27])
-    .range([0, 1]);
+  // var c = d3.scale.linear()
+  //   .domain([0, 27])
+  //   .range([0, 1]);
 
   docks = svgAnimations.append("g")
     .classed("docks hide", true)
@@ -507,13 +512,15 @@ var formatLocation = function (p, k) {
 };
 
 var loaded = function () {
-  button.attr('disabled', null);
+  button.attr("disabled", null);
   handle.classed("hide", false);
   svgAnimations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
   button.html("Play");
 };
+
+
 
 function updateWindow(){
   width = document.getElementById("map").clientWidth;
