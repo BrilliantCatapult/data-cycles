@@ -1,6 +1,6 @@
 var formatDate = d3.time.format("%b%d %Y");
 var serverDate = d3.time.format("%-m/%d/%Y 00:00");
-var docksDate = d3.time.format("%Y/%m/%d")
+var docksDate = d3.time.format("%Y/%m/%d");
 
 // parameters
 var width = 500;
@@ -78,42 +78,20 @@ calendarSlider
   .call(calendarBrush.event)
 
 function brushed() {
-  var value = calendarBrush.extent()[0];
+  var start_date = calendarBrush.extent()[0];
   if (d3.event.sourceEvent) { // not a programmatic event
-    value = calendarTimeScale.invert(d3.mouse(this)[0]);
-    calendarBrush.extent([value, value]);
+    start_date = calendarTimeScale.invert(d3.mouse(this)[0]);
+    calendarBrush.extent([start_date, start_date]);
     
     if (d3.event.sourceEvent.type === 'mouseup') {
       console.log("mouseup");
-      var value2 = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
+      var end_date = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
 
-      d3.json("/api/timeline/slider?start_date=" + serverDate(value) + "&end_date=" + serverDate(value2), function(error, json) {
-        if (error) {
-          console.log("error", error);
-        }
-        console.log("elastic successsssss--------->", json);
-        // var tripJson = json;
-        bikesJson = buildBikesJson(json);
-        // console.log(builtJson);
-
-        d3.json("/api/redis?start_date=" + docksDate(value), function(error, docksJson) {
-          if (error) {
-            console.log("error", error);
-          }
-          console.log("redis successsssss--------->", json);
-          docksHash = buildDocksHash(json, docksJson);
-          console.log("redis successsssss--------->", docksHash);
-          drawRoutes(bikesJson);
-          drawDocks(docksHash);
-          // console.log("successsssss--------->", docksHash);
-          console.log("successsssss--------->", bikesJson);
-          // loaded();
-        });
-      });
+      fetchNewDate(start_date, end_date);
       
     }
   }
 
-  calendarHandle.attr("transform", "translate(" + calendarTimeScale(value) + ",0)");
-  calendarHandle.select('text').text(formatDate(value));
+  calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
+  calendarHandle.select('text').text(formatDate(start_date));
 }
