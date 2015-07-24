@@ -115,11 +115,11 @@ module.exports = {
     });
   },
 
-  slider: function(req, res, next){
+  calendar: function(req, res, next){
     var date = req.query.date;
     var order = req.query.order;
-    var start_date = req.query.start_date || "12/10/2013 00:00";
-    var end_date = req.query.end_date || "12/11/2013 00:00";
+    var start_date = req.query.start_date || "12/18/2013 00:00";
+    var end_date = req.query.end_date || "12/19/2013 00:00";
 
     var size = req.query.size || 700;
     elasticClient.search({
