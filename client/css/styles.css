@@ -289,17 +289,17 @@ nav .active {
 
 .tile path {
   fill: none;
-  stroke: grey;
+  stroke: silver;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
 .tile .major_road {
-  stroke: #776;
+  stroke: silver;
 }
 
 .tile .minor_road {
-  stroke: #ccb;
+  stroke: #aaa;
 }
 
 .tile .highway {
@@ -393,4 +393,17 @@ nav .active {
   border-top: 8px solid #000000;
   border-right: 8px solid transparent;
   border-left: 8px solid transparent;
+}
+
+#routes-info {
+  position: absolute;
+  width: 200px;
+  right: 0;
+  top: 0;
+  font-size: 0.75em;
+}
+.route-info-bloc {
+  background-color: black;
+  padding: 1px 10px;
+  margin-bottom: 20px;
 }

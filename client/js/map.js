@@ -46,8 +46,8 @@ var animateRing = function (id, color) {
     });
 };
 
-var showRing = function (id, color) {
-  d3.select("#ring-" + id)
+var drawRing = function (id, color) {
+  d3.select(id)
     .attr({
       r: "5px", 
       class: "hide ring"
@@ -107,42 +107,105 @@ var hideBikesRoute = function() {
     .attr({
       class: "hide ring"
     });
+  routesinfo.html("");
+  routesInfolines.html("");
 }
 
 var showBikeRoute = function (d, bike) {
+
+  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
   var position = bike.getBoundingClientRect(); 
-  var svgAnimationsPosition = document.getElementById("map").getBoundingClientRect();
   var left = position.left - svgAnimationsPosition.left - 76;
   var top = position.top - svgAnimationsPosition.top - 80;
-  var results = [];
+  var trips = [];
   var id = d.properties.bikeID;
+  var speed = 1;
+  var delay = 0;
+  var delays = [delay];
+
   for (var i = 0; i < bikesJson.features.length; i++) {
     if (bikesJson.features[i].properties.bikeID == id) {
-      results.push(bikesJson.features[i]);
+      delay += bikesJson.features[i].properties.duration/speed;
+      bikesJson.features[i].properties.delay = delay;
+      trips.push(bikesJson.features[i].properties);
     }
   }
-  animateBikeRoute(results);
-  tooltip.attr({
-      style: "left:" + left + "px;top:" + top + "px;"
-    })
-    .classed("hide", false)
-    .html(id);
+
+  animateBikeRoute(trips);
+  // tooltip.attr({
+  //     style: "left:" + left + "px;top:" + top + "px;"
+  //   })
+  //   .classed("hide", false)
+  //   .html(id);
 
 }
 
-var animateBikeRoute = function(routeFeatures) {
+var animateBikeRoute = function(trips) {
   var routeIdsArray = [];
   var startRingIdsArray = [];
   var endRingIdsArray = [];
   var speed = 1;
   var delay = 0;
   var delays = [delay];
-  for (var i = 0; i < routeFeatures.length; i++) {
-    routeIdsArray.push("#route-" + routeFeatures[i].properties.id); 
-    startRingIdsArray.push(routeFeatures[i].properties.startTerminal);
-    endRingIdsArray.push(routeFeatures[i].properties.endTerminal);
-    delay += routeFeatures[i].properties.duration/speed;
+  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
+
+  for (var i = 0; i < trips.length; i++) {
+    routeIdsArray.push("#route-" + trips[i].id); 
+    startRingIdsArray.push("#ring-" + trips[i].startTerminal);
+    endRingIdsArray.push("#ring-" + trips[i].endTerminal);
+    delay += trips[i].duration/speed;
     delays.push(delay);
+
+    var routeInfoBlocPosition;
+
+    var routeInfoBloc = routesinfo.append("div")
+      .attr({
+        class: function() {
+          return "route-info-bloc";
+        }
+      })
+      .html("<p>" + (i * 2 + 1) + ". " + trips[i].startTime + ": " + trips[i].startStation + "</p><p>" + (i * 2 + 2) + ". " + trips[i].endTime + ": " + trips[i].endStation + "<p>");
+
+    var dock = d3.select("#dock-" + trips[i].endTerminal);
+    var infoBlocPosition = routeInfoBloc.node().getBoundingClientRect();
+    var startDockPosition = dock.node().getBoundingClientRect();
+    var endDockPosition = dock.node().getBoundingClientRect();
+    // array of coordinates of the lines between the bloc and their relative docks
+
+    routesInfolines.append("line")          // attach a line
+    .style("stroke", "red")  // colour the line
+    .attr({
+      "x1": startDockPosition.right - svgAnimationsPosition.left,   
+      "y1": startDockPosition.top - svgAnimationsPosition.top,      
+      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,     
+      "y2": infoBlocPosition.top + 10 - svgAnimationsPosition.top
+    });
+
+    routesInfolines.append("line")          // attach a line
+    .style("stroke", "blue")  // colour the line
+    .attr({
+      "x1": endDockPosition.right - svgAnimationsPosition.left,   
+      "y1": endDockPosition.bottom - svgAnimationsPosition.top,   
+      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,   
+      "y2": infoBlocPosition.bottom - 10 - svgAnimationsPosition.top
+    });
+
+    var stepNumber = routesStepNumber.append("g")
+      .attr({"class": "step-number"});
+
+
+    // stepNumber.append("circle")
+    //   .attr({
+    //     r: 5,
+    //     fill: "black",
+    //     cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+    //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+    //   });
+
+    // stepNumber.append("text")
+    //     .attr("dx", function(d){return -10})
+    //     .text(i * 2 + 1);
+
   }
   
   d3.selectAll(routeIdsArray.toString()).attr({
@@ -153,7 +216,6 @@ var animateBikeRoute = function(routeFeatures) {
       "stroke-linecap": "round"
     })
     .attr("stroke-dasharray", function(d, i) {
-      console.log(d);
       var totalLength = d3.select(this).node().getTotalLength();
       return totalLength + " " + totalLength; 
     })
@@ -164,8 +226,8 @@ var animateBikeRoute = function(routeFeatures) {
     .transition()
     .delay(function(d, i) { return delays[i]; })
     .duration(function(d, i) { 
-      showRing(startRingIdsArray[i], "orange");
-      showRing(endRingIdsArray[i], "blue");
+      drawRing(startRingIdsArray[i], "orange");
+      drawRing(endRingIdsArray[i], "blue");
       return d.properties.duration/speed; })
     .ease("linear")
     .attr("stroke-dashoffset", 0);
@@ -514,6 +576,8 @@ var map = d3.select("#map")
   .call(zoom)
   .on("mousemove", mousemoved);
 
+var routesinfo = d3.select("#routes-info");
+
 var tilesLayer = map.append("div")
   .attr("id", "tileslayer");
 
@@ -522,6 +586,12 @@ var svgAnimations = map.append("svg:svg")
   .style("width", width + "px")
   .style("height", height - 50 + "px")
   .call(zoom);
+
+var routesInfolines = svgAnimations.append("g")
+  .attr("id", 'routes-info-lines')
+
+var routesStepNumber = svgAnimations.append("g")
+  .attr("id", 'routes-step-number')
 
 var info = map.append("div")
   .attr("class", "info");
