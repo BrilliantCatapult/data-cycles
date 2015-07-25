@@ -1,3 +1,8 @@
+var d3geotile = require('d3.geo.tile')();
+var helperFunctions = require('./buildgeojson');
+
+var map = function(){
+
 var width, height;
 var second = 1000;
 var minute = 60 * second;
@@ -625,6 +630,29 @@ var timerdisplay = d3.select("#time");
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
 
+d3.json("/api/timeline", function (error, json) {
+  if (error) {
+    console.log("error", error);
+  }
+  console.log(helperFunctions.buildBikesJson);
+  bikesJson = helperFunctions.buildBikesJson(json);
+  // var docksHash = buildDocksHash(json);
+  d3.json("/api/redis?start_date=2013/12/18", function(error, docksJson) {
+    if (error) {
+      console.log("error", error);
+    }
+    docksHash = helperFunctions.buildDocksHash(json, docksJson);
+    console.log("redis successsssss--------->", docksHash);
+    drawRoutes(bikesJson);
+    drawDocks(docksHash);
+    // console.log("successsssss--------->", docksHash);
+    console.log("successsssss--------->", bikesJson);
+    loaded();
+
+  });
+  
+});
+
 button.on("click", function () {
   play = !play;
   if (play) {
@@ -633,3 +661,7 @@ button.on("click", function () {
 });
 
 window.onresize = updateWindow;
+
+};
+
+module.exports = map;

@@ -63474,3 +63474,5 @@ var bikeRoutes = {
     }
   }
 };
+
+module.exports = bikeRoutes;
