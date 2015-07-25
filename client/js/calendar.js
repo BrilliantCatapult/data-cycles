@@ -95,3 +95,5 @@ function brushed() {
   calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
   calendarHandle.select('text').text(formatDate(start_date));
 }
+
+fetchNewDate();
