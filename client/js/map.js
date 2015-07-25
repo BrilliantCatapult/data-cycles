@@ -7,11 +7,12 @@ var day = 24 * hour;
 var dbJson;
 var play = false;
 var realtime;
+var bikesJson;
 var bikes = [];
 var docks = [];
 var animduration = 15 * minute;
 var timer, timermemo = 0.313 * animduration;
-var playmemo;
+var playmemo = false;
 
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
 
@@ -69,9 +70,7 @@ var drawRoutes = function (data) {
     .append("svg:path")
     .attr({
       class: "route", 
-      id: function(d){
-        return "route-" + d.properties.id
-      }, 
+      id: function(d){ return "route-" + d.properties.id }, 
       d: path, 
       "fill-opacity": 0
     });
@@ -89,9 +88,8 @@ var drawRoutes = function (data) {
       id: function(d) { return "bike-" + d.properties.id }
     })
     .on("mouseover", function(d) { showBikeRoute(d, this); })
-
-    // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
     .on("mouseout", function(){ hideBikesRoute(); });
+    // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
 
   renderZoom();
 };
@@ -122,7 +120,7 @@ var showBikeRoute = function (d, bike) {
   var speed = 1;
   var delay = 0;
   var delays = [delay];
-
+  console.log(bikes);
   for (var i = 0; i < bikesJson.features.length; i++) {
     if (bikesJson.features[i].properties.bikeID == id) {
       delay += bikesJson.features[i].properties.duration/speed;
@@ -327,6 +325,8 @@ var brushend = function() {
   if(playmemo) {
     play = true;
     d3.timer(animate);
+  } else {
+    button.html("Play");
   }
 };
 
@@ -510,7 +510,7 @@ var loaded = function () {
   svgAnimations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
-  button.html("Play");
+  brushend();
 };
 
 var unload = function () {
@@ -542,7 +542,7 @@ var animscale = d3.scale.linear()
   .domain([0, animduration])
   .range([0, width]);
 
-var brush = d3.svg.brush()
+var brushAction = d3.svg.brush()
   .x(animscale)
   .extent([0, 0])
   .on("brushstart", brushstart)
@@ -601,51 +601,29 @@ var routesStepNumber = svgAnimations.append("g")
 var info = map.append("div")
   .attr("class", "info");
 
-var svgTimeline = d3.select("#timeline")
+var timelineSvg = d3.select("#timeline")
   .append("svg")
   .attr("width", width);
 
-var slider = svgTimeline.append("g")
+var slider = timelineSvg.append("g")
   .attr("transform", "translate(0,20)")
   .call(axis)
-  .call(brush);
-
-var button = d3.select("#playbutton")
-  .attr('disabled', true);
+  .call(brushAction);
 
 var handle = slider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "handle")
   .classed("hide", true);
 
+var button = d3.select("#playbutton")
+  .attr('disabled', true);
+
 var tooltip = d3.select(".map-tooltip");
 
-var timerdisplay = d3.select("#timer");
+var timerdisplay = d3.select("#time");
 
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
-
-d3.json("/api/timeline", function (error, json) {
-  if (error) {
-    console.log("error", error);
-  }
-  bikesJson = buildBikesJson(json);
-  // var docksHash = buildDocksHash(json);
-  d3.json("/api/redis?start_date=2013/12/18", function(error, docksJson) {
-    if (error) {
-      console.log("error", error);
-    }
-    docksHash = buildDocksHash(json, docksJson);
-    console.log("redis successsssss--------->", docksHash);
-    drawRoutes(bikesJson);
-    drawDocks(docksHash);
-    // console.log("successsssss--------->", docksHash);
-    console.log("successsssss--------->", bikesJson);
-    loaded();
-
-  });
-  
-});
 
 button.on("click", function () {
   play = !play;

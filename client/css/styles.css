@@ -256,12 +256,12 @@ nav .active {
   float: right;
 }
 
-#handle {
+#handle, #calendarhandle {
   fill: red;
   cursor: pointer;
 }
 
-#timeline svg {
+#timeline svg, #calendar svg {
   height: 40px;
   font-size: 0.5em;
 }
@@ -408,7 +408,7 @@ nav .active {
   margin-bottom: 20px;
 }
 
-.axis {
+/*.axis {
     fill: gray;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -436,4 +436,4 @@ nav .active {
     fill: black;
     text-align: center;
     font-size: 18px;
-  }
+  }*/

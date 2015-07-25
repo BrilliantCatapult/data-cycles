@@ -1,6 +1,3 @@
-var firstLoad = false;
-
-
 var fetchNewDate = function(start_date, end_date){
   var serverDate = d3.time.format("%-m/%d/%Y 00:00");
   var docksDate = d3.time.format("%Y/%m/%d");
@@ -15,7 +12,7 @@ var fetchNewDate = function(start_date, end_date){
       console.log("error", error);
     }
     console.log(tripJson);
-    var bikesJson = buildBikesJson(tripJson);
+    bikesJson = buildBikesJson(tripJson);
     console.log("elastic successsssss--------->", bikesJson);
 
     d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {
@@ -28,10 +25,7 @@ var fetchNewDate = function(start_date, end_date){
       drawRoutes(bikesJson);
       drawDocks(docksHash);
 
-      if (!firstLoad) {
-        loaded();
-        firstLoad = true;
-      }
+      loaded();
     });
   });
 }

@@ -3,9 +3,10 @@ var serverDate = d3.time.format("%-m/%d/%Y 00:00");
 var docksDate = d3.time.format("%Y/%m/%d");
 
 // parameters
-var width = 500;
+width = document.getElementById("map").clientWidth;
 var height = 100;
 
+var datedisplay = d3.select("#day");
 
 // scale function
 var calendarTimeScale = d3.time.scale()
@@ -13,75 +14,68 @@ var calendarTimeScale = d3.time.scale()
   .range([0, width - 100])
   .clamp(true);
 
+var calendarAxis = d3.svg.axis()
+  .scale(calendarTimeScale)
+  .tickFormat(d3.time.format("%m"))
+  .orient("top")
+  // .tickSize(0)
+  // .tickPadding(12)
+  // .tickValues([calendarTimeScale.domain()[0], calendarTimeScale.domain()[1]]);
 
 // initial value
-// var startValue = calendarTimeScale(new Date('2012-03-02'));
 var startingValue = new Date('2013-12-19');
 
-//////////
-
-// defines calendarBrush
-var calendarBrush = d3.svg.brush()
+// defines calendarBrushAction
+var calendarBrushAction = d3.svg.brush()
   .x(calendarTimeScale)
   .extent([startingValue, startingValue])
-  .on("brush", brushed);
+  .on("brushstart", brushstart)
+  .on("brush", calendarBrushing);
 
-var calendarSvg = d3.select("#calendar").append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .append("g")
-  // classic transform to position g
-  .attr("transform", "translate(50,0)");
-
-calendarSvg.append("g")
-  .attr("class", "x axis")
-// put in middle of screen
-  .attr("transform", "translate(0," + height / 2 + ")")
-// inroduce axis
-  .call(d3.svg.axis()
-  .scale(calendarTimeScale)
-  .orient("bottom")
-  .tickFormat(function(d) {
-    return formatDate(d);
-  })
-  .tickSize(0)
-  .tickPadding(12)
-  .tickValues([calendarTimeScale.domain()[0], calendarTimeScale.domain()[1]]))
-  .select(".domain")
-  .select(function() {
-    return this.parentNode.appendChild(this.cloneNode(true));
-  })
-  .attr("class", "halo");
+var calendarSvg = d3.select("#calendar")
+  .append("svg")
+  .attr("width", width);
 
 var calendarSlider = calendarSvg.append("g")
-  .attr("class", "calendarSlider")
-  .call(calendarBrush);
+  .attr("transform", "translate(0,20)")
+  .call(calendarAxis)
+  .call(calendarBrushAction);
 
-calendarSlider.selectAll(".extent,.resize")
-  .remove();
+// calendarSvg.append("g")
+//   .attr("class", "x axis")
+// // put in middle of screen
+//   .attr("transform", "translate(0," + height / 2 + ")")
+// // inroduce axis
+  
+//   .select(".domain")
+//   .select(function() {
+//     return this.parentNode.appendChild(this.cloneNode(true));
+//   })
+//   .attr("class", "halo");
 
-calendarSlider.select(".background")
-  .attr("height", height);
+var calendarHandle = calendarSlider.append("polygon")
+  .attr("points", "-15,20 0,0 15,20")
+  .attr("id", "calendarhandle");
 
-var calendarHandle = calendarSlider.append("g")
-  .attr("class", "handle");
+// calendarHandle.append("path")
+//   .attr("transform", "translate(0," + height / 2 + ")")
+//   .attr("d", "M 0 -20 V 20");
 
-calendarHandle.append("path")
-  .attr("transform", "translate(0," + height / 2 + ")")
-  .attr("d", "M 0 -20 V 20");
+// calendarHandle.append('text')
+//   .text(startingValue)
+//   .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
 
-calendarHandle.append('text')
-  .text(startingValue)
-  .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
+datedisplay.html(startingValue);
 
 calendarSlider
-  .call(calendarBrush.event)
+  .call(calendarBrushAction.event)
 
-function brushed() {
-  var start_date = calendarBrush.extent()[0];
+function calendarBrushing() {
+  var start_date = calendarBrushAction.extent()[0];
+  unload();
   if (d3.event.sourceEvent) { // not a programmatic event
     start_date = calendarTimeScale.invert(d3.mouse(this)[0]);
-    calendarBrush.extent([start_date, start_date]);
+    calendarBrushAction.extent([start_date, start_date]);
     
     if (d3.event.sourceEvent.type === 'mouseup') {
       console.log("mouseup");
@@ -93,7 +87,8 @@ function brushed() {
   }
 
   calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
-  calendarHandle.select('text').text(formatDate(start_date));
+  // calendarHandle.select('text').text(formatDate(start_date));
+  datedisplay.html(formatDate(start_date));
 }
 
 fetchNewDate();
