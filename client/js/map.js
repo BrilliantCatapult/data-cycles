@@ -233,13 +233,6 @@ var animateBikeRoute = function(trips) {
     .attr("stroke-dashoffset", 0);
 };
 
-var unload = function () {
-  console.log("unload");
-  button.attr("disabled", true);
-  svgAnimations.selectAll("g").remove();
-  button.html("Loading…");
-};
-
 var drawDocks = function (data) {
   // var c = d3.scale.linear()
   //   .domain([0, 27])
@@ -520,7 +513,12 @@ var loaded = function () {
   button.html("Play");
 };
 
-
+var unload = function () {
+  console.log("unload");
+  button.attr("disabled", true);
+  svgAnimations.selectAll("g").remove();
+  button.html("Loading…");
+};
 
 function updateWindow(){
   width = document.getElementById("map").clientWidth;
