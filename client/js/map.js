@@ -1,7 +1,9 @@
 var d3geotile = require('d3.geo.tile')();
 var helperFunctions = require('./buildgeojson');
-
-var map = function(){
+var formatDate = d3.time.format("%b%d %Y");
+var serverDate = d3.time.format("%-m/%d/%Y 00:00");
+var docksDate = d3.time.format("%Y/%m/%d");
+var fetchNewDate = require('./fetchData');
 
 var width, height;
 var second = 1000;
@@ -18,8 +20,42 @@ var docks = [];
 var animduration = 15 * minute;
 var timer, timermemo = 0.313 * animduration;
 var playmemo = false;
-
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
+
+var map = function(){
+
+
+  var fetchNewDate = function(start_date, end_date){
+    var serverDate = d3.time.format("%-m/%d/%Y 00:00");
+    var docksDate = d3.time.format("%Y/%m/%d");
+    var tripStartDate = start_date ? serverDate(start_date) : "12/18/2013 00:00";
+    var tripEndDate = end_date ? serverDate(end_date) : "12/19/2013 00:00";
+    var dockStartDate = start_date ? docksDate(start_date) : "2013/12/18";
+
+    d3.json("/api/timeline/calendar?start_date=" + tripStartDate + "&end_date=" + tripEndDate, function(error, tripJson) {
+      if (error) {
+        console.log("error", error);
+      }
+      console.log(tripJson);
+      bikesJson = helperFunctions.buildBikesJson(tripJson);
+      console.log("elastic successsssss--------->", bikesJson);
+
+      d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {
+        if (error) {
+          console.log("error", error);
+        }
+
+        var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
+        console.log("redis successsssss--------->", docksHash);
+        
+        drawRoutes(bikesJson);
+        drawDocks(docksHash);
+
+        loaded();
+      });
+    });
+  };
+
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
@@ -630,28 +666,6 @@ var timerdisplay = d3.select("#time");
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
 
-d3.json("/api/timeline", function (error, json) {
-  if (error) {
-    console.log("error", error);
-  }
-  console.log(helperFunctions.buildBikesJson);
-  bikesJson = helperFunctions.buildBikesJson(json);
-  // var docksHash = buildDocksHash(json);
-  d3.json("/api/redis?start_date=2013/12/18", function(error, docksJson) {
-    if (error) {
-      console.log("error", error);
-    }
-    docksHash = helperFunctions.buildDocksHash(json, docksJson);
-    console.log("redis successsssss--------->", docksHash);
-    drawRoutes(bikesJson);
-    drawDocks(docksHash);
-    // console.log("successsssss--------->", docksHash);
-    console.log("successsssss--------->", bikesJson);
-    loaded();
-
-  });
-  
-});
 
 button.on("click", function () {
   play = !play;
@@ -662,6 +676,99 @@ button.on("click", function () {
 
 window.onresize = updateWindow;
 
-};
+
+// CALENDAR
+
+//width = document.getElementById("map").clientWidth;
+var height = 100;
+
+var datedisplay = d3.select("#day");
+
+// scale function
+var calendarTimeScale = d3.time.scale()
+  .domain([new Date('2013-08-29'), new Date('2014-09-01')])
+  .range([0, width - 100])
+  .clamp(true);
+
+var calendarAxis = d3.svg.axis()
+  .scale(calendarTimeScale)
+  .tickFormat(d3.time.format("%m"))
+  .orient("top")
+  // .tickSize(0)
+  // .tickPadding(12)
+  // .tickValues([calendarTimeScale.domain()[0], calendarTimeScale.domain()[1]]);
+
+// initial value
+var startingValue = new Date('2013-12-19');
+
+// defines calendarBrushAction
+var calendarBrushAction = d3.svg.brush()
+  .x(calendarTimeScale)
+  .extent([startingValue, startingValue])
+  .on("brushstart", brushstart)
+  .on("brush", calendarBrushing);
+
+var calendarSvg = d3.select("#calendar")
+  .append("svg")
+  .attr("width", width);
+
+var calendarSlider = calendarSvg.append("g")
+  .attr("transform", "translate(0,20)")
+  .call(calendarAxis)
+  .call(calendarBrushAction);
+
+// calendarSvg.append("g")
+//   .attr("class", "x axis")
+// // put in middle of screen
+//   .attr("transform", "translate(0," + height / 2 + ")")
+// // inroduce axis
+  
+//   .select(".domain")
+//   .select(function() {
+//     return this.parentNode.appendChild(this.cloneNode(true));
+//   })
+//   .attr("class", "halo");
+
+var calendarHandle = calendarSlider.append("polygon")
+  .attr("points", "-15,20 0,0 15,20")
+  .attr("id", "calendarhandle");
+
+// calendarHandle.append("path")
+//   .attr("transform", "translate(0," + height / 2 + ")")
+//   .attr("d", "M 0 -20 V 20");
+
+// calendarHandle.append('text')
+//   .text(startingValue)
+//   .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
+
+datedisplay.html(startingValue);
+
+calendarSlider
+  .call(calendarBrushAction.event)
+
+function calendarBrushing() {
+  var start_date = calendarBrushAction.extent()[0];
+  unload();
+  if (d3.event.sourceEvent) { // not a programmatic event
+    start_date = calendarTimeScale.invert(d3.mouse(this)[0]);
+    calendarBrushAction.extent([start_date, start_date]);
+    
+    if (d3.event.sourceEvent.type === 'mouseup') {
+      console.log("mouseup");
+      var end_date = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
+
+      fetchNewDate(start_date, end_date);
+      
+    }
+  }
+
+  calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
+  // calendarHandle.select('text').text(formatDate(start_date));
+  datedisplay.html(formatDate(start_date));
+}
+
+fetchNewDate();
+
+}
 
 module.exports = map;

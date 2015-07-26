@@ -27,7 +27,7 @@
       return gulp.src('client/**/*.js')
           .pipe(jshint())
           .pipe(jshint.reporter('default'));
-  });
+  }); 
 
   // Compile Our Sass
   // gulp.task('sass', function() {
@@ -82,6 +82,7 @@
             path: './client/build/',
             filename: 'bundle.js'
           },
+          devtool: 'source-map',
           module: {
             loaders: [
               {

@@ -1,5 +1,4 @@
 var WebAPIUtils = require('./utils/WebAPIUtils.js');
-var ExampleData = require('./d3Data');
 var React = require('react');
 
 
@@ -19,14 +18,14 @@ var App = React.createClass({
   render () {
     return (
       <div>
-        <div class="container">
-            <h1>Data Cycles</h1>
-            <h3>Bay Area Bike Share data visualization</h3>
-            <nav class="menu right">
+        <div className="container">
+            <nav className="menu right">
               <Link to="map" params={{userId: 1}}>Map</Link>
               <Link to="statistics" params={{userId: 1}}>Statistics</Link>
               <Link to="predictions" params={{userId: 1}}>Predications</Link>
             </nav>
+            <h1>Data Cycles</h1>
+            <h3>Bay Area Bike Share data visualization</h3>
          </div>
         <RouteHandler/>
       </div>

@@ -1,28 +1,30 @@
 var React = require('react');
-var MapLogic = require('../map.js')
+var MapLogic = require('../map.js');
+// var CalendarLogic = require('../calendar.js');
 
 var MapPage = React.createClass({
   componentDidMount: function(){
     MapLogic();
+    // CalendarLogic();
   },
   render: function () {
 
     return (
     <div>
-       <div id="controls" class="container">
-           <button id="playbutton" class="btn btn-m">Loading</button>
-           <span class="right l"><span id="day"></span>, <span id="time"></span></span>
+       <div id="controls" className="container">
+           <button id="playbutton" className="btn btn-m">Loading</button>
+           <span className="right l"><span id="day"></span>, <span id="time"></span></span>
          </div>
-         <div id="calendar" class="container"></div>
-         <div id="timeline" class="container"></div>
+         <div id="calendar" className="container"></div>
+         <div id="timeline" className="container"></div>
          
-         <div id="map" class="container">
-           <span class="map-tooltip hide">Tooltip</span>
+         <div id="map" className="container">
+           <span className="map-tooltip hide">Tooltip</span>
            <div id="routes-info"></div>
          </div>
      </div>
     );
-  }
+  } 
 
 });
 
