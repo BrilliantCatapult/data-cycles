@@ -424,3 +424,5 @@ var Docks = function(){
     }]
   };
 };
+
+module.exports = Docks;

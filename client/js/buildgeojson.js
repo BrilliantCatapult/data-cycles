@@ -1,10 +1,14 @@
-var calcDockHash = function(){
+var bikeRoutes = require('../json/bikeRoutesJson');
+var Docks = require('../json/docksPositionJson')
+module.exports = {
+
+calcDockHash: function(){
   var tripHash = {};
   var mins = 0;
   var hours = 0;
   
   for (var i = 0; i < 1440; i++){
-      var time = countTime(hours, mins);
+      var time = this.countTime(hours, mins);
       hours = time[0];
       mins = time[1];
       time = time.join(":");
@@ -12,11 +16,11 @@ var calcDockHash = function(){
   };
 
   return tripHash;
-};
+},
 
 
 
-var countTime = function(hours, mins){
+countTime: function(hours, mins){
   var countHours, countMins;
   mins++
   if (mins === 60) {
@@ -36,11 +40,11 @@ var countTime = function(hours, mins){
     countMins = ""+ mins;
   }
   return [countHours, countMins];
-};
+},
 
-var buildDocksHash = function (tripJson, dockInit) {
+buildDocksHash: function (tripJson, dockInit) {
   var hits = tripJson.hits.total;
-  var dockHash = calcDockHash();
+  var dockHash = this.calcDockHash();
   var docks = new Docks();
 
   for (var i = 0; i < hits; i++) {
@@ -100,9 +104,9 @@ var buildDocksHash = function (tripJson, dockInit) {
     }
   };
   return docks.docksJson;
-};
+},
 
-var buildBikesJson = function (json) {
+buildBikesJson: function (json) {
   var hits = json.hits.total;
   var bikesJson = {
     "type": "FeatureCollection",
@@ -122,14 +126,14 @@ var buildBikesJson = function (json) {
     var startTime = tempStart[1];
     var endDate = tempEnd[0];
     var endTime = tempEnd[1];
-    var bikeJson = buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, i, startStation, endStation);
+    var bikeJson = this.buildBikeJson(duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, i, startStation, endStation);
     if (bikeJson) {
       bikesJson.features.push(bikeJson);
     }
   };
   return bikesJson;
-};
-var buildBikeJson = function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, tripID, startStation, endStation) {
+},
+buildBikeJson: function (duration, startTerminal, startDate, startTime, endTerminal, endDate, endTime, bikeID, tripID, startStation, endStation) {
   var coordinates = bikeRoutes[startTerminal + "-" + endTerminal];
   var geoJson = null;
   if (!coordinates) {
@@ -164,4 +168,6 @@ var buildBikeJson = function (duration, startTerminal, startDate, startTime, end
     };
   } else console.log('coords not found', startTerminal, " and ", endTerminal)
   return geoJson;
-};
+}
+
+}

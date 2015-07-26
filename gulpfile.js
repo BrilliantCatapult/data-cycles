@@ -11,6 +11,11 @@
   var rename = require('gulp-rename');
   var shell = require('gulp-shell'); 
   var jasmine = require('gulp-jasmine');
+  var gulp = require('gulp');
+  var webpack = require('webpack');
+  var WebpackDevServer = require('webpack-dev-server');
+  var watch = require('gulp-watch');
+
    
   gulp.task('test', function () {
       return gulp.src('spec/test.js')
@@ -22,7 +27,7 @@
       return gulp.src('client/**/*.js')
           .pipe(jshint())
           .pipe(jshint.reporter('default'));
-  });
+  }); 
 
   // Compile Our Sass
   // gulp.task('sass', function() {
@@ -62,5 +67,47 @@
       //gulp.watch('scss/*.scss', ['sass']);
   });
 
+
+  gulp.task("monitor-client", function(callback) {
+      gulp.watch('client/js/**/*.js', ['webpack']);
+      gulp.watch('client/js/**/*.jsx', ['webpack']);
+  });
+
+  gulp.task("webpack", function(callback) {
+    console.log("rnning.")
+      // run webpack
+      webpack({
+          entry: './client/js/app.jsx',
+          output: {
+            path: './client/build/',
+            filename: 'bundle.js'
+          },
+          devtool: 'source-map',
+          module: {
+            loaders: [
+              {
+                test: /\.jsx$/,
+                loader: 'jsx-loader?insertPragma=React.DOM&harmony'
+              }
+            ]
+          },
+          resolve: {
+            extensions: ['', '.js', '.jsx']
+          }
+      }, function(err, stats) {
+          if(err) throw new gutil.PluginError("webpack", err);
+          // gutil.log("[webpack]", stats.toString({
+          //     // output options
+          // }));
+          callback();
+      });
+  });
+
+
   // Default Task
   gulp.task('default', ['test', 'scripts']);
+
+
+  gulp.task('dev', ['monitor-client']);
+
+
