@@ -1,15 +1,27 @@
 require('dotenv').load();
-var redisClient = require('./server/config/redis');
+// var redisClient = require('./server/config/redis');
 var elasticClient = require('./server/config/elasticsearch');
 var time = require('moment');
+var redis = require('redis');
+
+// var redisURL = process.env.REDIS_URL ? url.parse(process.env.REDIS_URL) : url.parse(process.env.redis);
+// var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
+var redisClient = redis.createClient();
+// redisClient.auth(redisURL.auth.split(":")[1]);
+
+redisClient.on('connect', function(){
+  console.log('connected to redis! :D -- local Edition')
+});
 
 var esResponse;
 var esHash = {};
 var startDate = "2013/08/29";
 var endDate = "2013/08/30";
+var startBikeDate = "8/29/2013";
+var endBikeDate = "8/30/2013";
 // console.log(elasticClient);
 
-var buildRedis = function(startDate, endDate) {
+var buildDockData = function(startDate, endDate) {
   if (endDate === "2014/09/01") {
     killConnection();
     return;
@@ -93,7 +105,7 @@ var buildRedis = function(startDate, endDate) {
         startDate = endDate.format("YYYY/MM/DD");
         endDate.add(1, 'd');
 
-        buildRedis(startDate, endDate.format("YYYY/MM/DD"));
+        buildDockData(startDate, endDate.format("YYYY/MM/DD"));
 
         // res.json(resp);
       }, function (err) {
@@ -102,9 +114,90 @@ var buildRedis = function(startDate, endDate) {
       });
 };
 
+var buildBikeData = function(startDate, endDate) {
+  if (endDate === "9/1/2014") {
+    killConnection();
+    return;
+
+  }
+  startDate = time(startDate, "M/D/YYYY");
+  endDate = time(endDate, "M/D/YYYY");
+  console.log(startDate, endDate)
+  // console.log(startDate, endDate);
+  elasticClient.search({
+        index: 'bikeshare',
+      type: 'trip',
+      body: {
+        "sort": {
+          "start_date": "asc"  
+        },
+        "filter": {
+            "bool": {
+                "must": {
+                    "and": [
+                        {
+                          "range" : {
+                              "start_date": {
+                                  "gte": startDate.format("M/D/YYYY") + " 00:00",
+                                  "lte": endDate.format("M/D/YYYY") + " 00:00"
+                              }
+                          }
+                      },
+                        {
+                            "range": {
+                                "start_terminal": {
+                                    "gte": "41",
+                                    "lte": "82"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "size": 2000
+      }
+    }).then(function (resp) {
+        esResponse = resp;
+        var path = esResponse.hits.hits
+        var multi = redisClient.multi();
+        var bikeHash = {};
+
+        for (var i = 0; i < path.length; i++) {
+          for (var objKey in path[i]["_source"]) {
+            bikeHash["trip:" + i + ":" + startDate.format("M/D/YYYY")] = bikeHash["trip:" + i + ":" + startDate.format("M/D/YYYY")] || {};
+            bikeHash["trip:" + i + ":" + startDate.format("M/D/YYYY")][objKey] = path[i]["_source"][objKey];
+          }
+        };
+        
+        multi.hmset("tripTotals", startDate.format("M/D/YYYY"), esResponse.hits.total);
+        
+
+        for (var key in bikeHash){
+          multi.hmset(key, bikeHash[key]);
+        };
+
+        multi.exec(function(err, replies){
+          console.log(replies);
+        });
+
+        
+        startDate = endDate.format("M/D/YYYY");
+        endDate.add(1, 'd');
+
+        buildBikeData(startDate, endDate.format("M/D/YYYY"));
+
+        res.json(resp);
+      }, function (err) {
+        res.json({"message": "oh no"})
+        console.trace(err.message);
+      });
+};
+
 // redisClient.on('connect', function() {
 //   console.log("inside buildRedis");
-  buildRedis(startDate, endDate);
+  // buildDockData(startDate, endDate);
+  buildBikeData(startBikeDate, endBikeDate)
 // })
 
 
