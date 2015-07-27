@@ -9,6 +9,7 @@ module.exports = function (app, express) {
   var timelineRouter = express.Router();
   var redisRouter = express.Router();
   var mlRouter = express.Router();
+  var loaderioRouter = express.Router();
 
   app.use(express.static('client/'));
 
@@ -23,6 +24,8 @@ module.exports = function (app, express) {
   app.use('/api/timeline', timelineRouter);
   app.use('/api/redis', redisRouter);
   app.use('/api/ml', mlRouter);
+  app.use('/loaderio-a45c17137e179e372517a4677fbdb1e5', loaderioRouter);
+
   app.use(helpers.errorLogger);
   app.use(helpers.errorHandler);
 
@@ -32,6 +35,9 @@ module.exports = function (app, express) {
   require('../routes/timelineRoute.js')(timelineRouter);
   require('../routes/redisRoute.js')(redisRouter);
   require('../routes/mlRoutes.js')(mlRouter);
+  require('../routes/loaderioRoute.js') (loaderioRouter);
+
+
   // client.ping({
   //   // ping usually has a 3000ms timeout 
   //   requestTimeout: Infinity,
