@@ -42,7 +42,7 @@ var map = function(){
       d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {
         if (error) {
           console.log("error", error);
-        }
+        } 
         var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
         console.log("redis successsssss--------->", docksHash);  
         drawRoutes(bikesJson);

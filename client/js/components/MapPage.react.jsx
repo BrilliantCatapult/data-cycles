@@ -1,5 +1,6 @@
 var React = require('react');
 var MapLogic = require('../map.js');
+var Layout = require('./Layout.react.jsx');
 // var CalendarLogic = require('../calendar.js');
 
 var MapPage = React.createClass({
@@ -11,6 +12,7 @@ var MapPage = React.createClass({
 
     return (
     <div>
+      <Layout />
        <div id="controls" className="container">
            <button id="playbutton" className="btn btn-m">Loading</button>
            <span id="speed"></span>

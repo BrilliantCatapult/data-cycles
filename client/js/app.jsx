@@ -16,29 +16,24 @@ var Predictions = require('./components/Predictions.react');
 var App = React.createClass({
   render () {
     return (
-      <div>
-        <div className="container">
-            <nav className="menu right">
-              <Link to="map" params={{userId: 1}}>Map</Link>
-              <Link to="statistics" params={{userId: 1}}>Statistics</Link>
-              <Link to="predictions" params={{userId: 1}}>Predications</Link>
-            </nav>
-            <h1>Data Cycles</h1>
-            <h3>Bay Area Bike Share data visualization</h3>
-         </div>
+      <div> 
         <RouteHandler/>
       </div>
     )
   }
-});
+}); 
 
 
 // declare our routes and their hierarchy
 var routes = (
   <Route handler={App} location="history">
-    <Route name="statistics" path="statistics" handler={Statistics}/>
-    <Route name="map" path="map" handler={MapPage}/>
-    <Route name="predictions" path="predictions" handler={Predictions}/>
+    <Route name="map_base" path="/" handler={MapPage}/>
+    <Route name="statistics_date" path="/statistics/:date" handler={Statistics}/>
+    <Route name="statistics" path="/statistics" handler={Statistics}/>
+    <Route name="map_datetime" path="/map/:date/:time" handler={MapPage}/>
+    <Route name="map_date" path="/map/:date" handler={MapPage}/>
+    <Route name="map" path="/map" handler={MapPage}/>
+    <Route name="predictions" path="predictions/" handler={Predictions}/>
   </Route>
 );
 
