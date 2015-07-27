@@ -35618,7 +35618,7 @@
 
 	var d3geotile = __webpack_require__(228)();
 	var helperFunctions = __webpack_require__(229);
-	var formatDate = d3.time.format("%b%d %Y");
+	var formatDate = d3.time.format("%Y.%m.%d");
 	var serverDate = d3.time.format("%-m/%d/%Y 00:00");
 	var docksDate = d3.time.format("%Y/%m/%d");
 	var fetchNewDate = __webpack_require__(232);
@@ -35641,11 +35641,7 @@
 	var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
 	
 	var map = function(){
-	
-	
 	  var fetchNewDate = function(start_date, end_date){
-	    var serverDate = d3.time.format("%-m/%d/%Y 00:00");
-	    var docksDate = d3.time.format("%Y/%m/%d");
 	    var tripStartDate = start_date ? serverDate(start_date) : "12/18/2013 00:00";
 	    var tripEndDate = end_date ? serverDate(end_date) : "12/19/2013 00:00";
 	    var dockStartDate = start_date ? docksDate(start_date) : "2013/12/18";
@@ -35654,7 +35650,6 @@
 	      if (error) {
 	        console.log("error", error);
 	      }
-	      console.log(tripJson);
 	      bikesJson = helperFunctions.buildBikesJson(tripJson);
 	      console.log("elastic successsssss--------->", bikesJson);
 	
@@ -36305,16 +36300,13 @@
 	// scale function
 	var calendarTimeScale = d3.time.scale()
 	  .domain([new Date('2013-08-29'), new Date('2014-09-01')])
-	  .range([0, width - 100])
+	  .range([0, width])
 	  .clamp(true);
 	
 	var calendarAxis = d3.svg.axis()
 	  .scale(calendarTimeScale)
-	  .tickFormat(d3.time.format("%m"))
-	  .orient("top")
-	  // .tickSize(0)
-	  // .tickPadding(12)
-	  // .tickValues([calendarTimeScale.domain()[0], calendarTimeScale.domain()[1]]);
+	  .tickFormat(d3.time.format("%B"))
+	  .orient("top");
 	
 	// initial value
 	var startingValue = new Date('2013-12-19');
@@ -36332,32 +36324,22 @@
 	
 	var calendarSlider = calendarSvg.append("g")
 	  .attr("transform", "translate(0,20)")
-	  .call(calendarAxis)
-	  .call(calendarBrushAction);
+	  .attr("class", "calendar-axis")
+	  .call(calendarAxis); 
 	
-	// calendarSvg.append("g")
-	//   .attr("class", "x axis")
-	// // put in middle of screen
-	//   .attr("transform", "translate(0," + height / 2 + ")")
-	// // inroduce axis
-	  
-	//   .select(".domain")
-	//   .select(function() {
-	//     return this.parentNode.appendChild(this.cloneNode(true));
-	//   })
-	//   .attr("class", "halo");
+	calendarSlider.selectAll(".calendar-axis .tick text")
+	    .attr("x", 5)
+	    .attr("dy", null)
+	    .style("text-anchor", "start");
+	
+	calendarSlider.selectAll(".calendar-axis .tick line")
+	    .attr("y2", "-18");
+	
+	calendarSlider.call(calendarBrushAction);
 	
 	var calendarHandle = calendarSlider.append("polygon")
 	  .attr("points", "-15,20 0,0 15,20")
 	  .attr("id", "calendarhandle");
-	
-	// calendarHandle.append("path")
-	//   .attr("transform", "translate(0," + height / 2 + ")")
-	//   .attr("d", "M 0 -20 V 20");
-	
-	// calendarHandle.append('text')
-	//   .text(startingValue)
-	//   .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
 	
 	datedisplay.html(startingValue);
 	

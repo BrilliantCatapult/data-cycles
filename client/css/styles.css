@@ -408,6 +408,10 @@ nav .active {
   margin-bottom: 20px;
 }
 
+.calendar-axis .tick line {
+  stroke: #000;
+}
+
 /*.axis {
     fill: gray;
     -webkit-user-select: none;
