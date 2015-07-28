@@ -53,11 +53,11 @@ var map = function(start_date, end_date, view){
   //realtime = Moment(start_date).format("HH:mm");
   //console.log("dateeeeeee ", dateStartValue);
   var timer, timermemo = timeToMilliSeconds(time) * animduration / day;
-
+ 
   var fetchNewDate = function(){
 
     dateStartValue = Moment(start_date).format("YYYY/MM/DD");
-    serverStartValue = Moment(start_date).format("MM/DD/YYYY");
+    serverStartValue = Moment(start_date).format("M/D/YYYY");
     serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
     time = Moment(start_date).format("HH:mm");
     //console.log("dateeeeeee ", dateStartValue);
