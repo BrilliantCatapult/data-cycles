@@ -46,23 +46,24 @@ var map = function(start_date, end_date, view){
   // REMOVE END DATA CALCULATE HERE INSTEAD
   
   var dateStartValue = Moment(start_date).format("YYYY/MM/DD");
-  var serverStartValue = Moment(start_date).format("MM/DD/YYYY HH:mm");
+  var serverStartValue = Moment(start_date).format("MM/DD/YYYY");
   var serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
   var time = Moment(start_date).format("HH:mm");
   
   //realtime = Moment(start_date).format("HH:mm");
   //console.log("dateeeeeee ", dateStartValue);
   var timer, timermemo = timeToMilliSeconds(time) * animduration / day;
-
+ 
   var fetchNewDate = function(){
 
     dateStartValue = Moment(start_date).format("YYYY/MM/DD");
-    serverStartValue = Moment(start_date).format("MM/DD/YYYY HH:mm");
+    serverStartValue = Moment(start_date).format("M/D/YYYY");
     serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
     time = Moment(start_date).format("HH:mm");
     //console.log("dateeeeeee ", dateStartValue);
     //console.log("TIME IS ", time)
     timer, timermemo = timeToMilliSeconds(time) * animduration / day;
+
 
     //console.log("start_date in fetch ", start_date);
     //console.log("end_date in fetch ", end_date);
@@ -73,10 +74,12 @@ var map = function(start_date, end_date, view){
     var tripEndDate =  serverEndValue; //: //USE END DATE HERE "12/19/2013 00:00";
     var dockStartDate =  dateStartValue; //: //dateStartValue BUT DIFFERENT FORMAT "2013/12/18";
 
-    d3.json("/api/timeline/calendar?start_date=" + tripStartDate + "&end_date=" + tripEndDate, function(error, tripJson) {
+
+    d3.json("/api/redis/trips?start_date=" + tripStartDate, function(error, tripJson) {
       if (error) {
         console.log("error", error);
       }
+
       bikesJson = helperFunctions.buildBikesJson(tripJson);
       console.log("elastic successsssss--------->", bikesJson);
       d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {

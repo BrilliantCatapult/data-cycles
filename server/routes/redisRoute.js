@@ -6,6 +6,6 @@ var redisController = require('../controllers/redisController.js');
 module.exports = function (app) {
 
   app.get('/', redisController.get);
-  app.post('/', redisController.post);
+  app.get('/trips', redisController.trips);
 
 };
