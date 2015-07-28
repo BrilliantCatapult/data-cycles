@@ -33,8 +33,8 @@ var LineChart = React.createClass({
       width: this.props.width,
       height: this.props.height,
       activity: [],//data.activity
-      start_date: "05/06/2014 00:00",
-      end_date: "05/07/2014 00:00"
+      start_date: this.props.start_date,
+      end_date: this.props.end_date
     };
   },
   getDefaultProps: function(){
@@ -69,6 +69,10 @@ var LineChart = React.createClass({
     //D3ServerAction.readyToReceiveLine(this.props.id);
     //Utils.getServerData(this.props.id);
     
+  },
+  componentWillUnmount: function(){
+    LineChartStore.removeChangeListener(this._onChange);
+    window.removeEventListener("resize",this.updateDimensions);
   },
   componentDidMount: function(){
     this.setupChart();

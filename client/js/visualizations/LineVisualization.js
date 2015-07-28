@@ -21,8 +21,6 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
         .interpolate("cardinal")
         .x(function(d) { return x(d.date); })
         .y(function(d) { 
-          console.log("activity" + d.activity + "is "+ y(d.activity))
-          console.log("and x is ", d.date);
           return y(d.activity); 
         })
    
