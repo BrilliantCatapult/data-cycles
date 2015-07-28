@@ -1,9 +1,13 @@
 var d3geotile = require('d3.geo.tile')();
 var helperFunctions = require('./buildgeojson');
-var formatDate = d3.time.format("%Y.%m.%d");
-var serverDate = d3.time.format("%-m/%d/%Y 00:00");
-var docksDate = d3.time.format("%Y/%m/%d");
 var fetchNewDate = require('./fetchData');
+var dateStartValue = '2013-12-19';
+var dateMinValue = '2013-08-29';
+var dateMaxValue = '2014-09-01';
+
+var dateFormat = d3.time.format("%Y.%m.%d");
+var dateServerFormat = d3.time.format("%-m/%d/%Y 00:00");
+var dateDocksFormat = d3.time.format("%Y/%m/%d");
 
 var width, height;
 var second = 1000;
@@ -24,9 +28,9 @@ var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", 
 
 var map = function(){
   var fetchNewDate = function(start_date, end_date){
-    var tripStartDate = start_date ? serverDate(start_date) : "12/18/2013 00:00";
-    var tripEndDate = end_date ? serverDate(end_date) : "12/19/2013 00:00";
-    var dockStartDate = start_date ? docksDate(start_date) : "2013/12/18";
+    var tripStartDate = start_date ? dateServerFormat(start_date) : "12/18/2013 00:00";
+    var tripEndDate = end_date ? dateServerFormat(end_date) : "12/19/2013 00:00";
+    var dockStartDate = start_date ? dateDocksFormat(start_date) : "2013/12/18";
 
     d3.json("/api/timeline/calendar?start_date=" + tripStartDate + "&end_date=" + tripEndDate, function(error, tripJson) {
       if (error) {
@@ -34,23 +38,18 @@ var map = function(){
       }
       bikesJson = helperFunctions.buildBikesJson(tripJson);
       console.log("elastic successsssss--------->", bikesJson);
-
       d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {
         if (error) {
           console.log("error", error);
         }
-
         var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
-        console.log("redis successsssss--------->", docksHash);
-        
+        console.log("redis successsssss--------->", docksHash);  
         drawRoutes(bikesJson);
         drawDocks(docksHash);
-
         loaded();
       });
     });
   };
-
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
@@ -146,7 +145,6 @@ var hideBikesRoute = function() {
 }
 
 var showBikeRoute = function (d, bike) {
-
   var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
   var position = bike.getBoundingClientRect(); 
   var left = position.left - svgAnimationsPosition.left - 76;
@@ -396,18 +394,18 @@ var setDockLevel = function (dock) {
   var currentQty = 0;
   
   d3.select(dock).select(".gauge-qty")
-      .attr({
-        transform: function (d) { 
-          for (var i = 0; i < d.properties.activity.length; i++) {
-            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
-            if (changeTime < realtime) {
-              currentQty = d.properties.activity[i].bikes_available;
-            }
+    .attr({
+      transform: function (d) { 
+        for (var i = 0; i < d.properties.activity.length; i++) {
+          var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+          if (changeTime < realtime) {
+            currentQty = d.properties.activity[i].bikes_available;
           }
-          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
-        }, 
-        height: function (d) { return currentQty; }
-      });
+        }
+        return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+      }, 
+      height: function (d) { return currentQty; }
+    });
   
 
 };
@@ -671,17 +669,24 @@ button.on("click", function () {
 
 window.onresize = updateWindow;
 
+// speed slider
 
-// CALENDAR
+// var speedMax = "1";
+// var speedMin = "20";
+// var speedDef = "10";
 
-//width = document.getElementById("map").clientWidth;
-var height = 100;
+// var speedSliderDisplay = d3.select("#speed");
 
-var datedisplay = d3.select("#day");
+// var speedScale = d3.scale()
+//   .domain
 
-// scale function
+
+// calendar
+
+var dateDisplay = d3.select("#date");
+
 var calendarTimeScale = d3.time.scale()
-  .domain([new Date('2013-08-29'), new Date('2014-09-01')])
+  .domain([new Date(dateMinValue), new Date(dateMaxValue)])
   .range([0, width])
   .clamp(true);
 
@@ -690,13 +695,9 @@ var calendarAxis = d3.svg.axis()
   .tickFormat(d3.time.format("%B"))
   .orient("top");
 
-// initial value
-var startingValue = new Date('2013-12-19');
-
-// defines calendarBrushAction
 var calendarBrushAction = d3.svg.brush()
   .x(calendarTimeScale)
-  .extent([startingValue, startingValue])
+  .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
   .on("brush", calendarBrushing);
 
@@ -710,9 +711,9 @@ var calendarSlider = calendarSvg.append("g")
   .call(calendarAxis); 
 
 calendarSlider.selectAll(".calendar-axis .tick text")
-    .attr("x", 5)
-    .attr("dy", null)
-    .style("text-anchor", "start");
+  .attr("x", 5)
+  .attr("dy", null)
+  .style("text-anchor", "start");
 
 calendarSlider.selectAll(".calendar-axis .tick line")
     .attr("y2", "-18");
@@ -723,7 +724,7 @@ var calendarHandle = calendarSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "calendarhandle");
 
-datedisplay.html(startingValue);
+dateDisplay.html(new Date(dateStartValue));
 
 calendarSlider
   .call(calendarBrushAction.event)
@@ -738,15 +739,14 @@ function calendarBrushing() {
     if (d3.event.sourceEvent.type === 'mouseup') {
       console.log("mouseup");
       var end_date = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
-
       fetchNewDate(start_date, end_date);
       
     }
   }
 
   calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
-  // calendarHandle.select('text').text(formatDate(start_date));
-  datedisplay.html(formatDate(start_date));
+  // calendarHandle.select('text').text(dateFormat(start_date));
+  dateDisplay.html(dateFormat(start_date));
 }
 
 fetchNewDate();
