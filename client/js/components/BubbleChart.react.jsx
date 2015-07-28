@@ -23,8 +23,8 @@ var BubbleChart = React.createClass({
       width: this.props.width,
       height: this.props.height,
       sorted: 0,
-      start_date: "12/18/2013 00:00",
-      end_date: "12/19/2013 00:00"
+      start_date: this.props.start_date,
+      end_date: this.props.end_date
     };
   },
   getDefaultProps: function(){

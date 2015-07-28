@@ -6,6 +6,8 @@ var Link = Router.Link;
 var Layout = React.createClass({
   render: function () {
 
+    console.log("LAYOUT START-DATE ", this.props.start_date);
+    
     var divStyle = {
       width: '100%'
     };
@@ -13,13 +15,12 @@ var Layout = React.createClass({
     return (
      <div className="container">
          <nav className="menu right">
-           <Link to="map" params={start_date: this.props.start_date}>Map</Link>
-           <Link to="statistics" params={start_date: this.props.start_date}>Statistics</Link>
+           <Link to="map_datetime" params={{date: this.props.start_date, time: this.props.time}} >Map</Link>
+           <Link to="statistics_date" params={{date: this.props.start_date}} >Statistics</Link>
            <Link to="predictions">Predications</Link>
          </nav>
          <h1>Data Cycles</h1>
          <h3>Bay Area Bike Share data visualization</h3>
-         <h3>PROPS: </h3> 
       </div> 
     );
   },
