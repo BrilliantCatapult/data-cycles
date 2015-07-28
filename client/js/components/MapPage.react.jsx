@@ -13,7 +13,8 @@ var MapPage = React.createClass({
     <div>
        <div id="controls" className="container">
            <button id="playbutton" className="btn btn-m">Loading</button>
-           <span className="right l"><span id="day"></span>, <span id="time"></span></span>
+           <span id="speed"></span>
+           <span className="right l"><span id="date"></span>, <span id="time"></span></span>
          </div>
          <div id="calendar" className="container"></div>
          <div id="timeline" className="container"></div>
