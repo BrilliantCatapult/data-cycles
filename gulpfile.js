@@ -74,7 +74,7 @@
   });
 
   gulp.task("webpack", function(callback) {
-    console.log("rnning.")
+    console.log("running.")
       // run webpack
       webpack({
           entry: './client/js/app.jsx',
