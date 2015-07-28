@@ -70,6 +70,10 @@ var LineChart = React.createClass({
     //Utils.getServerData(this.props.id);
     
   },
+  componentWillUnmount: function(){
+    LineChartStore.removeChangeListener(this._onChange);
+    window.removeEventListener("resize",this.updateDimensions);
+  },
   componentDidMount: function(){
     this.setupChart();
     this.state.colors = D3Utils.calculateColor([0, 100]);

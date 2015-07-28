@@ -59,6 +59,10 @@ var BubbleChart = React.createClass({
     D3ServerAction.readyToReceiveBubble(this.props.id, this.state.start_date, this.state.end_date);
     //Utils.getServerData(this.props.id);
   },
+  componentWillUnmount: function(){
+    BubbleChartStore.removeChangeListener(this._onChange);
+    window.removeEventListener("resize", this.updateDimensions);
+  },
   componentDidMount: function(){
     BubbleChartStore.addChangeListener(this._onChange);
     /**

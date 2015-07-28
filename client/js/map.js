@@ -1,13 +1,11 @@
 var d3geotile = require('d3.geo.tile')();
 var helperFunctions = require('./buildgeojson');
-var fetchNewDate = require('./fetchData');
-var dateStartValue = '2013-12-19';
+//var fetchNewDate = require('./fetchData');
+//var dateFormat = d3.time.format("%Y.%m.%d");
+//var dateServerFormat = d3.time.format("%-m/%d/%Y 00:00");
+var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
 var dateMaxValue = '2014-09-01';
-
-var dateFormat = d3.time.format("%Y.%m.%d");
-var dateServerFormat = d3.time.format("%-m/%d/%Y 00:00");
-var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var Moment = require('moment');
 
 
@@ -18,24 +16,62 @@ var hour = 60 * minute;
 var day = 24 * hour;
 
 var dbJson;
-var play = false;
-var realtime;
+play = false;
+var realtime=0;
 var bikesJson;
 var bikes = [];
 var docks = [];
 var speed = 15;
 var animduration = speed * minute;
 var timer, timermemo = 0.313 * animduration;
-var playmemo = false;
+playmemo = false;
+
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
+updateWindow = function(){
+    console.log("GETTING CALLED");
+    width = document.getElementById("map").clientWidth;
+    height = Math.max(500, window.innerHeight);
+};
+
+var map = function(start_date, end_date, view){
 
 
-var map = function(start_date, end_date){
+
+  var timeToMilliSeconds = function (string) {
+    var values = string.split(":");
+    return values[0] * hour + values[1] * minute;
+  };
+
+  
+  // REMOVE END DATA CALCULATE HERE INSTEAD
+  
+  var dateStartValue = Moment(start_date).format("YYYY/MM/DD");
+  var serverStartValue = Moment(start_date).format("MM/DD/YYYY HH:mm");
+  var serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
+  var time = Moment(start_date).format("HH:mm");
+  
+  //realtime = Moment(start_date).format("HH:mm");
+  //console.log("dateeeeeee ", dateStartValue);
+  var timer, timermemo = timeToMilliSeconds(time) * animduration / day;
 
   var fetchNewDate = function(){
-    var tripStartDate = start_date ? dateServerFormat(start_date) : "12/18/2013 00:00";
-    var tripEndDate = end_date ? dateServerFormat(end_date) : "12/19/2013 00:00";
-    var dockStartDate = start_date ? dateDocksFormat(start_date) : "2013/12/18";
+
+    dateStartValue = Moment(start_date).format("YYYY/MM/DD");
+    serverStartValue = Moment(start_date).format("MM/DD/YYYY HH:mm");
+    serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
+    time = Moment(start_date).format("HH:mm");
+    //console.log("dateeeeeee ", dateStartValue);
+    //console.log("TIME IS ", time)
+    timer, timermemo = timeToMilliSeconds(time) * animduration / day;
+
+    //console.log("start_date in fetch ", start_date);
+    //console.log("end_date in fetch ", end_date);
+
+    dateDisplay.html(dateStartValue);
+    //console.log("ALSO ", dateFormat(start_date));
+    var tripStartDate =  serverStartValue; //: //USE START_DATE HERE "12/18/2013 00:00";
+    var tripEndDate =  serverEndValue; //: //USE END DATE HERE "12/19/2013 00:00";
+    var dockStartDate =  dateStartValue; //: //dateStartValue BUT DIFFERENT FORMAT "2013/12/18";
 
     d3.json("/api/timeline/calendar?start_date=" + tripStartDate + "&end_date=" + tripEndDate, function(error, tripJson) {
       if (error) {
@@ -63,11 +99,6 @@ var formatMilliseconds = function (d) {
     minutes = "0" + minutes;
   }
   return hours + ":" + minutes;
-};
-
-var timeToMilliSeconds = function (string) {
-  var values = string.split(":");
-  return values[0] * hour + values[1] * minute;
 };
 
 var animateRing = function (id, color) {
@@ -344,8 +375,30 @@ var setTimer = function(t) {
   realtime = t * day / animduration;
   var realTimeFormatted = formatMilliseconds(realtime);
   timerdisplay.html(realTimeFormatted);
+
   // console.log("timer", realTimeFormatted, timer);
 }
+
+
+var timeBrushing = function() {
+  if (d3.event.sourceEvent) { 
+    
+    timermemo = animscale.invert(d3.mouse(this)[0]);
+    setHandlePosition(timermemo);
+    renderFrame(0);
+    /*
+    re-render
+    */
+    
+     
+    var mid = Moment(start_date).format("YYYY-MM-DD");
+    var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
+    start_date = day.format("YYYY/MM/DD HH:mm")
+    view.context.router.transitionTo('map_datetime', {date: day.format("DD-MM-YYYY"), time: formatMilliseconds(realtime)});
+    end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
+
+  }
+};
 
 var animate = function (e) {
   if (!play) {
@@ -537,10 +590,7 @@ var unload = function () {
   button.html("Loading…");
 };
 
-function updateWindow(){
-  width = document.getElementById("map").clientWidth;
-  height = Math.max(500, window.innerHeight);
-};
+
 
 updateWindow();
 
@@ -577,13 +627,6 @@ var brushstart = function() {
   play = false;
 };
 
-var timeBrushing = function() {
-  if (d3.event.sourceEvent) { 
-    timermemo = animscale.invert(d3.mouse(this)[0]);
-    setHandlePosition(timermemo);
-    renderFrame(0);
-  }
-};
 
 var brushend = function() {
   if(playmemo) {
@@ -671,7 +714,7 @@ button.on("click", function () {
   } 
 });
 
-window.onresize = updateWindow;
+window.addEventListener('resize', updateWindow);
 
 // speed slider
 
@@ -763,29 +806,47 @@ var calendarHandle = calendarSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "calendarhandle");
 
-dateDisplay.html(new Date(dateStartValue));
+//dateDisplay.html(new Date(dateStartValue));
 
 calendarSlider
   .call(calendarBrush.event)
 
 function calendarBrushing() {
-  var start_date = calendarBrush.extent()[0];
+  var start_date1 = calendarBrush.extent()[0];
   unload();
   if (d3.event.sourceEvent) { // not a programmatic event
-    start_date = calendarTimeScale.invert(d3.mouse(this)[0]);
-    calendarBrush.extent([start_date, start_date]);
-    
+    start_date1 = calendarTimeScale.invert(d3.mouse(this)[0]);
+    calendarBrush.extent([start_date, start_date]);  
     if (d3.event.sourceEvent.type === 'mouseup') {
       console.log("mouseup");
-      var end_date = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
-      fetchNewDate(start_date, end_date);
+      var end_date1 = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
       
+      //console.log
+      // view.setState({
+      //   "start_date": start_date,
+      //   "end_date": end_date
+      // })
+      
+      start_date = Moment(start_date1).format("YYYY-MM-DD");
+      var intermediate_start_date = Moment(start_date1).format("DD-MM-YYYY");
+      //var intermediate_end_date = Moment(end_date1).format("DD-MM-YYYY");
+      time = Moment(start_date1).format()
+      end_date = Moment(end_date1).format("YYYY-MM-DD");
+      //console.log("REAL TIME", formatMilliseconds(realtime));
+      view.context.router.transitionTo('map_datetime', {date: intermediate_start_date, time: formatMilliseconds(realtime)});
+      //console.log("new start date ", start_date);
+      //console.log("new end date ", end_date);
+
+      var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
+      start_date = day.format("YYYY/MM/DD HH:mm")
+      end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
+      fetchNewDate(start_date, end_date);
     }
   }
 
-  calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date) + ",0)");
+  calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date1) + ",0)");
   // calendarHandle.select('text').text(dateFormat(start_date));
-  dateDisplay.html(dateFormat(start_date));
+  
 }
 
 fetchNewDate();

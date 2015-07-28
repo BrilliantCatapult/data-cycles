@@ -2,11 +2,17 @@ var React = require('react');
 var MapLogic = require('../map.js');
 var Layout = require('./Layout.react.jsx');
 var Moment = require('moment');
+var Router = require('react-router');
 // var CalendarLogic = require('../calendar.js');
 formatDate = function(date){
   var day = Moment(date);
   return day.format("DD-MM-YYYY");
 };
+
+formatTime = function(date){
+  var day = Moment(date);
+  return day.format("HH:mm");
+}
 setupDateTime = function(params){
   var dates = {}
   console.log("paras", params);
@@ -23,7 +29,11 @@ setupDateTime = function(params){
 
 var MapPage = React.createClass({
 
+  contextTypes: {
+     router: React.PropTypes.func
+  },
   getInitialState: function(){
+    console.log("in initial stateeeeee");
     var dates = setupDateTime(this.props.params);
 
     return{
@@ -32,8 +42,34 @@ var MapPage = React.createClass({
     }
   }, 
   componentDidMount: function(){
-    MapLogic(this.state.start_date, this.state.end_date);
+    MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
+  },
+  componentWillUpdate: function(newProps){
+
+    var dates = setupDateTime(newProps.params);
+
+    if(this.state.start_date !== dates.start_date){
+      this.setState({
+        start_date: dates.start_date,
+        end_date: dates.end_date
+      });
+      //fetchDate(start_date, end_date);
+    }
+    return false
+  },
+  componentDidUpdate: function(){
+    console.log("STATE")
+    //MapLogic(this.state.start_date, this.state.end_date, this);
+    // CalendarLogic();
+  },
+  componentWillUnmount: function(){
+    console.log("unmounting.")
+    console.log(playmemo);
+    console.log(play);
+    console.log(updateWindow);
+    play = false; // do i need this??
+    window.removeEventListener('resize', updateWindow);
   },
   render: function () {
 
@@ -41,7 +77,7 @@ var MapPage = React.createClass({
 
     return (
     <div>
-      <Layout start_date={formatDate(this.state.start_date)} time="00:00"  />
+      <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
        <div id="controls" className="container">
            <button id="playbutton" className="btn btn-m">Loading</button>
            <span id="speed"></span>

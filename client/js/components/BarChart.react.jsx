@@ -82,6 +82,10 @@ var BarChart = React.createClass({
     this.setupChart();
     this._onChange();
   },
+  componentWillUnmount: function(){
+    BarChartStore.removeChangeListener(this._onChange);
+    window.removeEventListener("resize",this.updateDimensions);
+  },
   setup_scales: function(domains){
 
     var x = d3.scale.linear()

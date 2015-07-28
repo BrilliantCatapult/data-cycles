@@ -26,7 +26,8 @@ var Chart = React.createClass({
 
     return{
       start_date: dates.start_date,
-      end_date: dates.end_date
+      end_date: dates.end_date,
+      time: this.props.params.time
     }
 
   }, 
@@ -38,7 +39,7 @@ var Chart = React.createClass({
 
     return (
       <div>
-        <Layout start_date={formatDate(this.state.start_date)} time="00:00"/>
+        <Layout start_date={formatDate(this.state.start_date)} time={this.state.time}/>
         <div style={divStyle}>
           <BarChart  id='1' start_date={this.state.start_date} end_date={this.state.end_date}/>
         </div> 

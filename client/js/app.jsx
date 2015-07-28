@@ -28,7 +28,7 @@ var App = React.createClass({
 var routes = (
   <Route handler={App} location="history">
     <Route name="map_base" path="/" handler={MapPage}/>
-    <Route name="statistics_date" path="/statistics/:date" handler={Statistics}/>
+    <Route name="statistics_datetime" path="/statistics/:date/:time" handler={Statistics}/>
     <Route name="statistics" path="/statistics" handler={Statistics}/>
     <Route name="map_datetime" path="/map/:date/:time" handler={MapPage}/>
     <Route name="map_date" path="/map/:date" handler={MapPage}/>
