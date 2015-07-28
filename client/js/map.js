@@ -21,7 +21,8 @@ var realtime;
 var bikesJson;
 var bikes = [];
 var docks = [];
-var animduration = 15 * minute;
+var speed = 15;
+var animduration = speed * minute;
 var timer, timermemo = 0.313 * animduration;
 var playmemo = false;
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
@@ -332,7 +333,7 @@ var drawDocks = function (data) {
 };
 
 var setHandlePosition = function(t){
-  handle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
+  timeHandle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
 };
 
 var setTimer = function(t) {
@@ -341,28 +342,6 @@ var setTimer = function(t) {
   timerdisplay.html(realTimeFormatted);
   // console.log("timer", realTimeFormatted, timer);
 }
-
-var brushstart = function() {
-  playmemo = play;
-  play = false;
-};
-
-var brushing = function() {
-  if (d3.event.sourceEvent) { 
-    timermemo = animscale.invert(d3.mouse(this)[0]);
-    setHandlePosition(timermemo);
-    renderFrame(0);
-  }
-};
-
-var brushend = function() {
-  if(playmemo) {
-    play = true;
-    d3.timer(animate);
-  } else {
-    button.html("Play");
-  }
-};
 
 var animate = function (e) {
   if (!play) {
@@ -540,7 +519,7 @@ var formatLocation = function (p, k) {
 
 var loaded = function () {
   button.attr("disabled", null);
-  handle.classed("hide", false);
+  timeHandle.classed("hide", false);
   svgAnimations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
@@ -576,11 +555,11 @@ var animscale = d3.scale.linear()
   .domain([0, animduration])
   .range([0, width]);
 
-var brushAction = d3.svg.brush()
+var timeBrush = d3.svg.brush()
   .x(animscale)
   .extent([0, 0])
   .on("brushstart", brushstart)
-  .on("brush", brushing)
+  .on("brush", timeBrushing)
   .on("brushend", brushend);
 
 var axis = d3.svg.axis()
@@ -588,6 +567,28 @@ var axis = d3.svg.axis()
   .ticks(24)
   .tickFormat(d3.time.format("%H"))
   .orient("top");
+
+var brushstart = function() {
+  playmemo = play;
+  play = false;
+};
+
+var timeBrushing = function() {
+  if (d3.event.sourceEvent) { 
+    timermemo = animscale.invert(d3.mouse(this)[0]);
+    setHandlePosition(timermemo);
+    renderFrame(0);
+  }
+};
+
+var brushend = function() {
+  if(playmemo) {
+    play = true;
+    d3.timer(animate);
+  } else {
+    button.html("Play");
+  }
+};
 
 var tile = d3.geo.tile()
   .size([width, height]);
@@ -642,9 +643,9 @@ var timelineSvg = d3.select("#timeline")
 var slider = timelineSvg.append("g")
   .attr("transform", "translate(0,20)")
   .call(axis)
-  .call(brushAction);
+  .call(timeBrush);
 
-var handle = slider.append("polygon")
+var timeHandle = slider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "handle")
   .classed("hide", true);
@@ -659,7 +660,6 @@ var timerdisplay = d3.select("#time");
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
 
-
 button.on("click", function () {
   play = !play;
   if (play) {
@@ -671,15 +671,50 @@ window.onresize = updateWindow;
 
 // speed slider
 
-// var speedMax = "1";
-// var speedMin = "20";
-// var speedDef = "10";
+var speedMax = "1";
+var speedMin = "20";
+var speedSliderSize = "100";
 
-// var speedSliderDisplay = d3.select("#speed");
+var speedSliderDisplay = d3.select("#speed");
 
-// var speedScale = d3.scale()
-//   .domain
+var speedScale = d3.scale.linear()
+  .domain([speedMin, speedMax])
+  .range([0, speedSliderSize]);
 
+var speedSliderAxis = d3.svg.axis()
+  .scale(speedScale)
+  .orient("top");
+
+var speedSliderBrush = d3.svg.brush()
+  .x(speedScale)
+  .extent([0, 0])
+  .on("brush", speedBrushing);
+
+var speedSvg = d3.select("#speed")
+  .append("svg")
+  .attr("width", speedSliderSize);
+
+var speedSlider = speedSvg.append("g")
+  .attr("transform", "translate(0,20)")
+  .attr("class", "speed-axis")
+  .call(speedSliderAxis)
+  .call(speedSliderBrush); 
+
+var speedHandle = speedSlider.append("polygon")
+  .attr("points", "-15,20 0,0 15,20")
+  .attr("id", "speedhandle");
+
+var speedBrushing = function() {
+  console.log("speedBrushing");
+  if (d3.event.sourceEvent) { 
+    speed = speedScale.invert(d3.mouse(this)[0]);
+    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
+  }
+};
+
+var setSpeedHandle = function() {
+  
+}
 
 // calendar
 
@@ -695,7 +730,7 @@ var calendarAxis = d3.svg.axis()
   .tickFormat(d3.time.format("%B"))
   .orient("top");
 
-var calendarBrushAction = d3.svg.brush()
+var calendarBrush = d3.svg.brush()
   .x(calendarTimeScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
@@ -718,7 +753,7 @@ calendarSlider.selectAll(".calendar-axis .tick text")
 calendarSlider.selectAll(".calendar-axis .tick line")
     .attr("y2", "-18");
 
-calendarSlider.call(calendarBrushAction);
+calendarSlider.call(calendarBrush);
 
 var calendarHandle = calendarSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
@@ -727,14 +762,14 @@ var calendarHandle = calendarSlider.append("polygon")
 dateDisplay.html(new Date(dateStartValue));
 
 calendarSlider
-  .call(calendarBrushAction.event)
+  .call(calendarBrush.event)
 
 function calendarBrushing() {
-  var start_date = calendarBrushAction.extent()[0];
+  var start_date = calendarBrush.extent()[0];
   unload();
   if (d3.event.sourceEvent) { // not a programmatic event
     start_date = calendarTimeScale.invert(d3.mouse(this)[0]);
-    calendarBrushAction.extent([start_date, start_date]);
+    calendarBrush.extent([start_date, start_date]);
     
     if (d3.event.sourceEvent.type === 'mouseup') {
       console.log("mouseup");

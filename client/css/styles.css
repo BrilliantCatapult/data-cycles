@@ -257,7 +257,7 @@ nav .active {
   float: right;
 }
 
-#handle, #calendarhandle {
+#handle, #calendarhandle, #speedhandle {
   fill: red;
   cursor: pointer;
 }
