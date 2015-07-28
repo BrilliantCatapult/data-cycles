@@ -5,3 +5,4 @@ client/bower_components
 .env
 dist
 dump.rdb
+client/build
