@@ -8,6 +8,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="./polyMLA/tenDegPoly.js"></script>
     <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <style>
+          /* tell the SVG path to be a thin blue line without any area fill */
+          path {
+            /*stroke: steelblue;*/
+            stroke-width: 1;
+            fill: none;
+          }
+          
+          .axis {
+            shape-rendering: crispEdges;
+          }
+          .x.axis line {
+            stroke: lightgrey;
+          }
+          .x.axis .minor {
+            stroke-opacity: .5;
+          }
+          .x.axis path {
+            display: none;
+          }
+          .y.axis line, .y.axis path {
+            fill: none;
+            stroke: #000;
+          }
+        </style>
   </head>
   <body>
     <div class="container">
@@ -15,10 +40,19 @@
       <h1>Data Cycles</h1>
       <h3>Bay Area Bike Share data visualization</h3>
     </div>
-    <div class="pred">Input date (MM/DD/YYYY):</div>
-    <form name="frm1" method="get" class="pred" onsubmit="return getData()">
-      <input type="text" name="inp" id="inp">
-      <input type="submit" value="Submit">
-    </form> 
+    <div class="container">
+      <div class="pred">Input date (MM/DD/YYYY):</div>
+      <form name="frm1" method="get" class="pred" onsubmit="return getData()">
+        <input type="text" name="inp" id="inp">
+        <input type="submit" value="Submit">
+      </form>
+      <div class="pred">Input San Francisco Dock:</div>
+      <form name="frm2" method="get" class="pred" onsubmit="return getRegs()">
+        <input type="text" name="inp" id="inp2">
+        <input type="submit" value="Submit">
+      </form>
+
+      <div id="graph" class="aGraph"></div> 
+    </div>
   </body>
 </html>

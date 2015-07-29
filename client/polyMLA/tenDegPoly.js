@@ -1,21 +1,59 @@
-var stations = [41,42,45,46,47,48,49,50,51,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,82];
+var stations = [41, 42, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 82];
 var getData = function() {
     event.stopPropagation();
     event.preventDefault();
-    var input = document.getElementById('inp').value
-    // console.log(input)
-    for(var i = 0; i < stations.length; i++){
-        d3.json("/api/ml/predictions?day=" + input + "&station=" + stations[i], function(error, docks) {
-            if (error) {
-                console.log("error", error);
-            } else {
-                // console.log("dataaaa: "+ JSON.stringify(docks))
-                init(docks);
-            }
-        });
+    var input = document.getElementById('inp').value;
+    var dt = new Date();
+    var m = dt.getMonth() + 1;
+    var d = dt.getDate();
+    var y = dt.getFullYear();
+    var month = +input.slice(0, 2);
+    var day = +input.slice(3, 5);
+    var year = +input.slice(input.length - 4, input.length);
+    if (!Number.isInteger(month) || !Number.isInteger(day) || !Number.isInteger(year)) {
+        console.log("false input")
+    } else if (year <= y && month <= m && day <= d) {
+        console.log("future day please")
+    } else if (month > 12) {
+        console.log("accurate month please")
+    } else if (day > 31) {
+        console.log("accurate day please")
+    } else {
+        for (var i = 0; i < stations.length; i++) {
+            d3.json("/api/ml/predictions?day=" + input + "&station=" + stations[i], function(error, docks) {
+                if (error) {
+                    console.log("error", error);
+                } else {
+                    console.log("dataaaa: "+ JSON.stringify(docks))
+                    init(docks);
+                }
+            });
+        }
     }
 };
 
+var getRegs = function(){
+    event.stopPropagation();
+    event.preventDefault();
+    // var day = document.getElementById('inp1').value; //SOLVE FOR IF THEY DON'T ENTER THIS
+    var input = document.getElementById('inp2').value; 
+    console.log(input)   
+    if(stations.indexOf(+input) === -1){
+        console.log("Not an SF dock")
+    }else{
+        d3.json("/api/ml/predictions?day=" + "12/12/2015" + "&station=" + input, function(error, docks) {
+            if (error) {
+                console.log("error", error);
+            } else {
+                console.log("dataaaa: "+ JSON.stringify(docks))
+                init(docks, true);
+            }
+        });
+    }
+}
+
+
+var max = [0, 0];
 
 var calcHours = function(coef) {
     // console.log("this is coef:"+coef)
@@ -28,11 +66,40 @@ var calcHours = function(coef) {
         }
         result.push(count)
     }
-    // console.log(result)
+    console.log(result)
+    var thisMax = Math.max.apply(null, result);
+    console.log("THIS MAX: " + thisMax, "THIS HOUR: " + result.indexOf(thisMax))
+    if (thisMax > max[1]) {
+        max[1] = thisMax
+        max[0] = result.indexOf(thisMax)
+    }
     return result;
 }
 
-var init = function(docks) {
+var linePoints = [];
+
+var calcLineData = function(coef) {
+    var data = [];
+    var count = 0;
+    for (var j = 0; j <= 23; j += 0.25) {
+        count = 0;
+        for (var i = 0; i < coef.length; i++) {
+            count += (coef[i] * Math.pow(j, i))
+        }
+        data.push({
+            x: j,
+            y: count
+        })
+    }
+    linePoints.push(data);
+    if (linePoints.length === 35) {
+        graph(linePoints);
+        linePoints = [];
+    }
+}
+
+
+var init = function(docks, truthy) {
     var x = [];
     var y = [];
     var count = 0;
@@ -44,28 +111,28 @@ var init = function(docks) {
         count++;
     }
 
-    var calcAvg = function(){
+    var calcAvg = function() {
         var total = 0;
-        for(var i = 0; i < y.length; i++){
-            total+= +(y[i])
+        for (var i = 0; i < y.length; i++) {
+            total += +(y[i])
         }
-        return total/y.length
+        return total / y.length
     }
 
-    var calcSD = function(){
+    var calcSD = function() {
         var total = 0;
         var avg = calcAvg();
-        for(var i = 0; i < y.length; i++){
-            total+= Math.pow((y[i] - avg), 2)
+        for (var i = 0; i < y.length; i++) {
+            total += Math.pow((y[i] - avg), 2)
         }
-        return Math.sqrt(total/y.length)
+        return Math.sqrt(total / y.length)
     }
 
     console.log("S. DEVIATION: " + calcSD());
 
-    var calcSE = function(){
+    var calcSE = function() {
         var sd = calcSD();
-        return sd/(Math.sqrt(y.length))
+        return sd / (Math.sqrt(y.length))
     }
 
     console.log("S. ERROR: " + calcSE());
@@ -158,10 +225,94 @@ var init = function(docks) {
         }
         return x;
     }
+    var calcRegs = function(){
+        var eqs = [];
+        for(var i = 1; i <=10; i++){
+            var A = calcMatrix(i);
+            eqs.push([gauss(A)]);
+        }
+        console.log("THESE ARE EQS: "+eqs);
+    }
+    if(truthy){
+        console.log("regs")
+        calcRegs();
+    }
     var eq = gauss(fourDegMatrix);
     // console.log(eq)
     calcHours(eq)
+        // console.log("MAX: "+max)
+    calcLineData(eq);
+}
+
+var genColor = function(){
+    var x=Math.round(0xffffff * Math.random()).toString(16);
+    var y=(6-x.length);
+    var z="000000";
+    var z1 = z.substring(0,y);
+    return "#" + z1 + x;
 }
 
 
+var graph = function(data) {
+    // console.log(data)
+    /* implementation heavily influenced by http://bl.ocks.org/1166403 */
+    d3.select('#graph').html('');
+    // define dimensions of graph
+    var m = [80, 80, 80, 80]; // margins
+    var w = 1000 - m[1] - m[3]; // width
+    var h = 400 - m[0] - m[2]; // height
 
+    // X scale will fit all values from data[] within pixels 0-w
+    var x = d3.scale.linear().domain([0, 24]).range([0, w]);
+    var y = d3.scale.linear().domain([0, max[1]+2]).range([h, 0]);
+    // // create a line function that can convert data[] into x and y points
+        // Add an SVG element with the desired dimensions and margin.
+    var graph = d3.select("#graph").append("svg:svg")
+        .attr("width", w + m[1] + m[3])
+        .attr("height", h + m[0] + m[2])
+        .append("svg:g")
+        .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+    // create yAxis
+    var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+    // Add the x-axis.
+    graph.append("svg:g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + h + ")")
+        .call(xAxis);
+    // var mapMouseOver = function(d){
+    //     document.body.append(this.innerHTML)
+    // }
+    // var mapMouseOut = function(d){
+    //     console.log("OUT: "+d)
+    // }
+    // create left yAxis
+    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
+    // Add the y-axis to the left
+    graph.append("svg:g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(-25,0)")
+        .call(yAxisLeft);
+    for(var i = 0; i < data.length; i++){
+            var line = i
+            line = d3.svg.line()
+                // assign the X function to plot our line as we wish
+                .interpolate("basis")
+                .x(function(d) {
+                    var xcoord = d.x
+                    // console.log("X: " + xcoord)
+                    return x(xcoord);
+                })
+                .y(function(d) {
+                    var ycoord = d.y
+                    // console.log("Y: " + ycoord)
+                    return y(ycoord);
+                })  
+    graph.append("svg:path")
+        .text("Dock "+stations[i])
+        .style("stroke", genColor())
+        .attr("d", line(data[i]))
+        .attr("id", "poly");
+        // .on("mouseover", mapMouseOver)
+        // .on("mouseout", mapMouseOut);
+    }
+}
