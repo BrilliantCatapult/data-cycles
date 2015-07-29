@@ -15,8 +15,8 @@ var Layout = React.createClass({
     return (
      <div className="container">
          <nav className="menu right">
-           <Link to="map_datetime" params={{date: this.props.start_date, time: this.props.time}} >Map</Link>
-           <Link to="statistics_datetime" params={{date: this.props.start_date, time: this.props.time}} >Statistics</Link>
+           <Link to="map_datetime" params={{date: this.props.start_date || "18-12-2013", time: this.props.time || "00:00"}} >Map</Link>
+           <Link to="statistics_datetime" params={{date: this.props.start_date || "18-12-2013", time: this.props.time || "00:00"}} >Statistics</Link>
            <Link to="predictions">Predications</Link>
          </nav>
          <h1>Data Cycles</h1>
@@ -24,7 +24,7 @@ var Layout = React.createClass({
       </div> 
     );
   },
-
+ 
 });
 
 module.exports = Layout;
