@@ -1,5 +1,6 @@
 var stations = [41, 42, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 82];
-var getData = function() {
+var obj = {}
+obj.getData = function() {
     event.stopPropagation();
     event.preventDefault();
     var input = document.getElementById('inp').value;
@@ -25,14 +26,14 @@ var getData = function() {
                     console.log("error", error);
                 } else {
                     console.log("dataaaa: "+ JSON.stringify(docks))
-                    init(docks);
+                    obj.init(docks);
                 }
             });
         }
     }
 };
 
-var getRegs = function(){
+obj.getRegs = function(){
     event.stopPropagation();
     event.preventDefault();
     var day = document.getElementById('inp').value; //SOLVE FOR IF THEY DON'T ENTER THIS
@@ -46,7 +47,7 @@ var getRegs = function(){
                 console.log("error", error);
             } else {
                 console.log("dataaaa: "+ JSON.stringify(docks))
-                init(docks, true);
+                obj.init(docks, true);
             }
         });
     }
@@ -55,7 +56,7 @@ var getRegs = function(){
 
 var max = [0, 0];
 
-var calcHours = function(coef) {
+obj.calcHours = function(coef) {
     // console.log("this is coef:"+coef)
     var result = [];
     var count = 0;
@@ -78,7 +79,7 @@ var calcHours = function(coef) {
 
 var linePoints = [];
 
-var calcLineData = function(coef) {
+obj.calcLineData = function(coef) {
     var data = [];
     var count = 0;
     for (var j = 0; j <= 23; j += 0.25) {
@@ -93,7 +94,7 @@ var calcLineData = function(coef) {
     }
     linePoints.push(data);
     if (linePoints.length === 35) {
-        graph(linePoints);
+        obj.graph(linePoints);
         linePoints = [];
     }
 }
@@ -117,13 +118,13 @@ var calcRegData = function(coef) {
     console.log(data.length)
     regPoints.push(data);
     if (regPoints.length === 10) {
-        graph(regPoints, true);
+        obj.graph(regPoints, true);
         regPoints = [];
     }
 }
 
 
-var init = function(docks, truthy) {
+obj.init = function(docks, truthy) {
     var x = [];
     var y = [];
     var count = 0;
@@ -261,12 +262,12 @@ var init = function(docks, truthy) {
     }
     var eq = gauss(fourDegMatrix);
     // console.log(eq)
-    calcHours(eq)
+    obj.calcHours(eq)
         // console.log("MAX: "+max)
-    calcLineData(eq);
+    obj.calcLineData(eq);
 }
 
-var genColor = function(){
+obj.genColor = function(){
     var x=Math.round(0xffffff * Math.random()).toString(16);
     var y=(6-x.length);
     var z="000000";
@@ -275,7 +276,7 @@ var genColor = function(){
 }
 
 
-var graph = function(data, truthy) {
+obj.graph = function(data, truthy) {
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
     var id = '';
     if(truthy){
@@ -336,10 +337,12 @@ var graph = function(data, truthy) {
                 })  
     graph.append("svg:path")
         .text("Dock "+stations[i])
-        .style("stroke", genColor())
+        .style("stroke", obj.genColor())
         .attr("d", line(data[i]))
         .attr("id", "poly");
         // .on("mouseover", mapMouseOver)
         // .on("mouseout", mapMouseOut);
-    }
+    }    
 }
+
+module.exports = obj;
