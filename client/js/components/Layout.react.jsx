@@ -5,12 +5,9 @@ var Link = Router.Link;
 
 var Layout = React.createClass({
   componentDidUpdate: function(newProps){
-    console.log("new props", newProps);
   },
   render: function () {
 
-    console.log("LAYOUT START-DATE ", this.props.start_date);
-    
     var divStyle = {
       width: '100%'
     };

@@ -11,8 +11,7 @@ var CHANGE_EVENT = "change";
 var parseDate = d3.time.format("%m/%d/%Y %H:%M").parse;
 
 function _addMessages(data_for, msgs){
-  // will process data first!!!
-  //msgs = JSON.parse(msgs).aggregations.activity_per_station.buckets;
+
   var activity = msgs.map(function(station) {
     return {
       name: station.key,
@@ -26,9 +25,8 @@ function _addMessages(data_for, msgs){
   _messages[data_for] = {
       raw_data: msgs,
       activity: activity
-  }
+  };
 
-  //_messages[data_for].sort(function(a, b) { return b.doc_count - a.doc_count; });
 }
 
 var LineChartStore = assign({}, EventEmitter.prototype, {
@@ -43,7 +41,6 @@ var LineChartStore = assign({}, EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
   getAll: function(id){
-    console.log("MESSAGES ARE ", _messages);
     return _messages[id];
   }
 
@@ -57,9 +54,6 @@ LineChartStore.dispatchToken = D3Dispatcher.register(function(action){
       _addMessages(action.data_for, action.data);
       LineChartStore.emitChange(action.data_for);
       break;
-
-    //case actions.LOAD_DATA:
-
 
     default:
       // do nothing

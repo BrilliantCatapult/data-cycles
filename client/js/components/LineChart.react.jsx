@@ -13,21 +13,13 @@ var CHANGE_EVENT="change";
 var parseDate = d3.time.format("%m/%d/%Y %H:%M").parse;
 
 var getDataFromServer = function(id){
-  // console.log(LineChart.props);
   var data = LineChartStore.getAll(id);
   return data;
-}
-
-
+};
 
 
 var LineChart = React.createClass({
   getInitialState: function(){
-
-    // get data from server.
-    //D3ServerAction.readyToReceive(this.props.id);
-    // var data = getDataFromServer();
-
     return{
       bars: [],//data.raw_data,
       width: this.props.width,
@@ -43,14 +35,10 @@ var LineChart = React.createClass({
       height: '500',
     };
   },
-  // componentWillMount: function(){
-
-  // },
   updateDimensions: function(){
     setTimeout(function(){
       var el = React.findDOMNode(this);
       var d3node = d3.select(el);
-      //console.log("AND HERE ", d3node.node().parentNode.offsetWidth);
       this.setState({width: d3node.node().parentNode.offsetWidth});
     }.bind(this),500);  
   },
@@ -65,10 +53,6 @@ var LineChart = React.createClass({
       .attr("transform", "translate(" + 20 + "," + 20 + ")");
   },
   componentWillMount: function(){
-    //console.log("HERE IN LINE ", this.props.id);
-    //D3ServerAction.readyToReceiveLine(this.props.id);
-    //Utils.getServerData(this.props.id);
-    
   },
   componentWillUnmount: function(){
     LineChartStore.removeChangeListener(this._onChange);
@@ -92,8 +76,6 @@ var LineChart = React.createClass({
     */
     window.addEventListener("resize", this.updateDimensions);
     // need this to re-render after we change the width
-    
-    //this._onChange();
   },
   setup_scales: function(domains){
     var x = d3.time.scale()
@@ -112,9 +94,6 @@ var LineChart = React.createClass({
     var y = d3.scale.linear()
       .range([this.state.height , 0])
       .domain(ydomain);
-    // console.log("MAX Y IS ", ydomain[1]);
-    // console.log("HEIGHT IS ", this.state.height);
-    // console.log("draw at ", y(ydomain[1]));
     this.state.scales = {x: x,y: y};
 
     return {x: x,y: y};
@@ -123,18 +102,17 @@ var LineChart = React.createClass({
     if(this.state.bars){
       this.setupChart();
       var context = this;
-      d3.select('#mouse_tracker').on('mousemove', function(){
-        //console.log("CALLED AGAIN??", this);
+      var el = React.findDOMNode(context);
+      var d3node = d3.select(el);
+      d3node.select('.mouse-tracker').on('mousemove', function(){
         var bisectDate = d3.bisector(function(d) {
            return d.date; 
          }).left;
 
-        var el = React.findDOMNode(context);
-        var d3node = d3.select(el);
         var mouse_x = d3.mouse(this)[0] // Finding mouse x position on rect
         var graph_x = context.state.scales.x.invert(mouse_x); // 
-        var format = d3.time.format('%b %Y'); // Format hover date text to show three letter month and full year
-         /* d3.mouse(this)[0] returns the x position on the screen of the mouse. xScale.invert function is reversing the process that we use to map the domain (date) to range (position on screen). So it takes the position on the screen and converts it into an equivalent date! */
+        var format = d3.time.format('%b %Y');
+       // Format hover date text to show three letter month and full year
         
         d3node
         .selectAll(".tooltip2").text(function(d){
@@ -155,21 +133,16 @@ var LineChart = React.createClass({
     }
   },
   render: function () {
-    console.log("re-rendering")
     var svgStyle = {
       width: this.state.width,
       height: Number(this.state.height) + 50,
     };
     if(this.state.bars && this.state.bars.length > 0){
 
-        //console.log(this.state.activity);
-
         var el = React.findDOMNode(this);
         var d3node = d3.select(el);
-
         var setup = {}//D3Utils.calculatePosition(this.state.width, this.state.height, this.state.bars, "doc_count", "key");
         var scales = this.setup_scales(setup);
-
         
         setup.start_date = this.state.start_date;
         setup.end_date = this.state.end_date;
@@ -182,10 +155,10 @@ var LineChart = React.createClass({
         return (
             <svg style={svgStyle}>            
               <g className="graph">
-                <rect id="mouse_tracker" width={this.state.width} height={this.state.height} x="0" y="0" className="mouse-tracker" style={{fill:'white'}}></rect>
+                <rect className="mouse-tracker" width={this.state.width} height={this.state.height} x="0" y="0" className="mouse-tracker" style={{fill:'white'}}></rect>
                 {{Lines}}
                 <XAxis height={this.state.height} x={this.state.scales.x} orient="bottom"/>
-                <YAxisLine width={this.state.width} y={this.state.scales.y}/>
+                <YAxisLine name={this.props.name} width={this.state.width} y={this.state.scales.y}/>
               </g>
             </svg>
         );
@@ -194,13 +167,13 @@ var LineChart = React.createClass({
     }
   },
   _onChange: function(){
-    //console.log("in change");
     var data = getDataFromServer(this.props.id);
-    //console.log("DATA is ", data);
-    this.setState({
-       bars: data.raw_data,
-       activity: data.activity
-     });
+    if(data){
+      this.setState({
+         bars: data.raw_data,
+         activity: data.activity
+       });
+    }
   },
 
 });

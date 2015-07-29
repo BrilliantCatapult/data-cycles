@@ -15,7 +15,6 @@ BarVisualization.enter = function(selection, domains) {
         .attr("transform", function(d) {
            return "translate(0," + y(d.key) + ")"; 
          });
-
  
     selection.append("rect")
         .attr("width", function(d) { return x(d.doc_count); })
@@ -57,10 +56,5 @@ BarVisualization.update = function(selection, domains, duration)  {
         .attr("text-anchor", "end")
         .text(function(d) { return format(d.doc_count); });
 };
-
-// missing.. should probably do something here..
-// BarVisualization.exit = () => {
-
-// }
 
 module.exports = BarVisualization;

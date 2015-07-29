@@ -1,6 +1,7 @@
 var d3 = require('d3');
 
 module.exports = {
+  
   calculatePosition: function(width, height, data, x_key, y_key){
 
     var min_x = d3.min(data, function(d) { return d[x_key]; })

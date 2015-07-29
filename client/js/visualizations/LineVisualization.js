@@ -10,8 +10,6 @@ function findMaxY(data){  // Define function "findMaxY"
       return d3.max(maxYValues);
   }
 
-  
-
 LineVisualization.enter = function (selection, options, scales, rScale, color, tooltip, activity, width, index, parent, view) {
 
    var x = scales.x;
@@ -68,7 +66,7 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
        .transition()
        .attr("fill", function(d) { return color(d.name); });
 
-     d3.select("#line-" + d.name)
+     selection.select("#line-" + d.name)
        .transition()
        .style("stroke-width", 2.5);  
    })
@@ -80,7 +78,7 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
        .attr("fill", function(d) {
        return d.visible ? color(d.name) : "#F1F1F2";});
 
-     d3.select("#line-" + d.name)
+     selection.select("#line-" + d.name)
        .transition()
        .style("stroke-width", 1.5);
    });

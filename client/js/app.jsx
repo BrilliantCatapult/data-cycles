@@ -2,6 +2,8 @@ var WebAPIUtils = require('./utils/WebAPIUtils.js');
 var React = require('react');
 
 var Router = require('react-router');
+var DefaultRoute = Router.DefaultRoute;
+var Redirect = Router.Redirect;
 var Link = Router.Link;
 //var History = require('react-router/lib/BrowserHistory');
 var Route = Router.Route;
@@ -20,20 +22,18 @@ var App = React.createClass({
         <RouteHandler/>
       </div>
     )
-  }
+  } 
 }); 
 
 
 // declare our routes and their hierarchy
 var routes = (
   <Route handler={App} location="history">
-    <Route name="map_base" path="/" handler={MapPage}/>
     <Route name="statistics_datetime" path="/statistics/:date/:time" handler={Statistics}/>
-    <Route name="statistics" path="/statistics" handler={Statistics}/>
-    <Route name="map_datetime" path="/map/:date/:time" handler={MapPage}/>
-    <Route name="map_date" path="/map/:date" handler={MapPage}/>
-    <Route name="map" path="/map" handler={MapPage}/>
+    <Route name="map_datetime" path="/map/:date/:time" handler={MapPage} ignoreScrollBehavior/>
     <Route name="predictions" path="predictions/" handler={Predictions}/>
+    <Redirect path="/" to="map_datetime" params={{date:"22-12-2013", time:"06:24"}} />
+    <Redirect path="/statistics" to="statistics_datetime" params={{date:"22-12-2013", time:"06:24"}} />
   </Route>
 );
 

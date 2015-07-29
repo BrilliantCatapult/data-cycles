@@ -9,10 +9,8 @@ var actions = Constants.actions;
 var CHANGE_EVENT = "change";
 
 function _addMessages(data_for, msgs){
-  // will process data first!!!
   console.log("MESSAGES ", msgs);
   _messages[data_for] = msgs;
-  //_messages[data_for].sort(function(a, b) { return b.doc_count - a.doc_count; });
 }
 
 var BarChartStore = assign({}, EventEmitter.prototype, {
@@ -40,9 +38,6 @@ BarChartStore.dispatchToken = D3Dispatcher.register(function(action){
       _addMessages(action.data_for, action.data);
       BarChartStore.emitChange(action.data_for);
       break;
-
-    //case actions.LOAD_DATA:
-
 
     default:
       // do nothing

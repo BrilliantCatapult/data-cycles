@@ -9,30 +9,9 @@ var YAxis = require('./YAxis.react');
 var D3ServerAction = require('../actions/D3ServerAction');
 var Moment = require('moment');
 
-// setupDate = function(params){
-//   var dates = {}
-//   console.log("paras", params);
-//   if(params.start_date){
-//     var day = Moment(params.start_date, "DD-MM-YYYY");
-//     dates.start_date = day.startOf("day").format("MM/DD/YYYY HH:mm")
-//     dates.end_date = day.endOf("day").format("MM/DD/YYYY HH:mm");
-//   } else {
-//     dates.start_date= "12/18/2013 00:00";
-//     dates.end_date= "12/19/2013 00:00" ;
-//     console.log("DATES AREEEEEEE");
-//     console.log(dates);
-//   }
-//   return dates;
-// };
 
 var BarChart = React.createClass({
   getInitialState: function(){
-  //
-
-  //var dates = setupDate(this.props);
-  //console.log("START DATEEEEEEE BAR ", dates);
-  
-
     return{
       bars: [],//BarChartStore.getAll(this.props.id),
       width: this.props.width,
@@ -47,9 +26,7 @@ var BarChart = React.createClass({
       height: '200',
     };
   },
-  // componentWillMount: function(){
-
-  // },
+  
   updateDimensions: function(){
     var el = React.findDOMNode(this);
     var d3node = d3.select(el);

@@ -1,12 +1,9 @@
 var React = require('react');
-//var ViewActionCreators = require('../actions/ViewActionCreators');
 var d3 = require('d3');
 
 var XAxis = React.createClass({
+  
   componentDidMount: function() {
-
-    // wrap element in d3
-    
     var axis = d3.svg.axis().scale(this.props.x).orient(this.props.orient || 'top').tickSize(-this.props['height']);
     this.d3Node = d3.select(this.getDOMNode());
 
@@ -26,9 +23,6 @@ var XAxis = React.createClass({
 
   },
   shouldComponentUpdate: function(nextProps) {
-    // if (nextProps.data.update) {
-    //   this.d3Node.datum(nextProps.data);
-    // }
     var axis = d3.svg.axis().scale(nextProps.x).orient(this.props.orient || 'top').tickSize(-nextProps['height']);
     this.d3Node = d3.select(this.getDOMNode());
 
@@ -48,12 +42,7 @@ var XAxis = React.createClass({
 
     return true;
   },
-  // componentDidUpate() {
-  //   this.d3Node.datum(this.props.data);
-  // },
-  // componentWillUnMount() {
 
-  // },
   render: function() {
     return (
       <g className="x axis" />

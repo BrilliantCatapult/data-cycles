@@ -37,7 +37,7 @@ updateWindow = function(){
 var setAnimDuration = function(s){
   animduration = s * minute;
   console.log("animduration: ", animduration);
-}
+};
 
 var map = function(start_date, end_date, view){
 
@@ -48,24 +48,18 @@ var map = function(start_date, end_date, view){
     return values[0] * hour + values[1] * minute;
   };
 
+  var formatMoment = function(date, format){
+    return Moment(date).format(format)
+  }
   
-  // REMOVE END DATA CALCULATE HERE INSTEAD
-  
-  var dateStartValue = Moment(start_date).format("YYYY/MM/DD");
-  var serverStartValue = Moment(start_date).format("MM/DD/YYYY");
-  var serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
-  var time = Moment(start_date).format("HH:mm");
-  
-  //realtime = Moment(start_date).format("HH:mm");
-  //console.log("dateeeeeee ", dateStartValue);
-  var timer, timermemo = timeToMilliSeconds(time) * animduration / day;
- 
+  var dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
+
   var fetchNewDate = function(){
 
-    dateStartValue = Moment(start_date).format("YYYY/MM/DD");
-    serverStartValue = Moment(start_date).format("M/D/YYYY");
-    serverEndValue = Moment(end_date).format("MM/DD/YYYY HH:mm");
-    time = Moment(start_date).format("HH:mm");
+    dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
+    serverStartValue = formatMoment(start_date, "M/D/YYYY");
+    serverEndValue = formatMoment(end_date, "MM/DD/YYYY HH:mm");
+    time = formatMoment(start_date, "HH:mm");
     //console.log("dateeeeeee ", dateStartValue);
     //console.log("TIME IS ", time)
     timer, timermemo = timeToMilliSeconds(time) * animduration / day;
@@ -647,7 +641,7 @@ var axis = d3.svg.axis()
 var tile = d3.geo.tile()
   .size([width, height]);
 
-var projection = d3.geo.mercator()
+var projection =  d3.geo.mercator()
   .scale((1 << 22) / 2 / Math.PI)
   .translate([-width / 2, -height / 2]);
 

@@ -5,7 +5,6 @@ CircleVisualization.enter = function (selection, options, scales, rScale, color,
    var x = scales.x;
    var y = scales.y;
 
-
     selection
       .attr("class", "dot")
       .attr("r", function(d) {

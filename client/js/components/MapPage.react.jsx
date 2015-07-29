@@ -12,13 +12,13 @@ formatDate = function(date){
 formatTime = function(date){
   var day = Moment(date);
   return day.format("HH:mm");
-}
+};
+
 setupDateTime = function(params){
-  var dates = {}
-  console.log("paras", params);
+  var dates = {};
   if(params.date && params.time){
     var day = Moment(params.date + " " + params.time, "DD-MM-YYYY HH:mm");
-    dates.start_date = day.format("YYYY/MM/DD HH:mm")
+    dates.start_date = day.format("YYYY/MM/DD HH:mm");
     dates.end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
   } else {
     dates.start_date= "2013/12/18 00:00";
@@ -33,7 +33,6 @@ var MapPage = React.createClass({
      router: React.PropTypes.func
   },
   getInitialState: function(){
-    console.log("in initial stateeeeee");
     var dates = setupDateTime(this.props.params);
 
     return{
@@ -54,27 +53,19 @@ var MapPage = React.createClass({
         start_date: dates.start_date,
         end_date: dates.end_date
       });
-      //fetchDate(start_date, end_date);
     }
     return false
   },
   componentDidUpdate: function(){
-    console.log("STATE")
     //MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
   },
   componentWillUnmount: function(){
-    console.log("unmounting.")
-    console.log(playmemo);
-    console.log(play);
-    console.log(updateWindow);
     play = false; // do i need this??
     window.removeEventListener('resize', updateWindow);
   },
+  // can we divide each of those into its own view??
   render: function () {
-
-    console.log("MAP START DATE ", this.state.start_date);
-
     return (
     <div>
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
@@ -97,27 +88,3 @@ var MapPage = React.createClass({
 });
 
 module.exports = MapPage;
-
-// render: function () {
-
-//     var divStyle = {
-//       width: '50%'
-//     };
-
-//     return (
-//       <div class="container">
-//           <nav class="menu right"><span class="active">Map</span><a href="statistics.html">Statistics</a><a href="#">Predictions</a></nav>
-//           <h1>Data Cycles</h1>
-//           <h3>Bay Area Bike Share data visualization</h3>
-//       </div>
-//       <div id="timeline" class="container">
-//       </div>
-//       <div id="controls" class="container">
-//         <button id="playbutton" class="btn btn-m">Loading</button>
-//         <span id="timer" class="right l"></span>
-//       </div>
-//       <div id="map" class="container">
-//         <span class="map-tooltip hide">Tooltip</span>
-//       </div>
-//     );
-//   },
