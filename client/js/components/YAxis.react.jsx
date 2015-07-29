@@ -3,8 +3,8 @@ var React = require('react');
 var d3 = require('d3');
 
 var YAxis = React.createClass({
-  componentDidMount: function() {
 
+  componentDidMount: function() {
     // wrap element in d3
     var yAxis = d3.svg.axis().scale(this.props.y).orient("left").tickSize(0);
     this.d3Node = d3.select(this.getDOMNode());
@@ -31,12 +31,6 @@ var YAxis = React.createClass({
 
     return true;
   },
-  // componentDidUpate() {
-  //   this.d3Node.datum(this.props.data);
-  // },
-  // componentWillUnMount() {
-
-  // },
   render: function() {
     return (
       <g className="y axis" />

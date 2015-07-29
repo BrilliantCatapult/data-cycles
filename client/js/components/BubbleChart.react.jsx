@@ -14,10 +14,6 @@ var CHANGE_EVENT="change";
 
 var BubbleChart = React.createClass({
   getInitialState: function(){
-
-    // get data from server.
-    //D3ServerAction.readyToReceive(this.props.id);
-    
     return{
       bars: [],//BubbleChartStore.getAll(this.props.id),
       width: this.props.width,
@@ -33,14 +29,11 @@ var BubbleChart = React.createClass({
       height: '200',
     };
   },
-  // componentWillMount: function(){
-
-  // },
+  
   updateDimensions: function(){
     setTimeout(function(){
       var el = React.findDOMNode(this);
       var d3node = d3.select(el);
-      //console.log("AND HERE ", d3node.node().parentNode.offsetWidth);
       this.setState({width: d3node.node().parentNode.offsetWidth});
     }.bind(this),500);  
   },
@@ -57,7 +50,6 @@ var BubbleChart = React.createClass({
   componentWillMount: function(){
     console.log("HERE "+ this.props.id)
     D3ServerAction.readyToReceiveBubble(this.props.id, this.state.start_date, this.state.end_date);
-    //Utils.getServerData(this.props.id);
   },
   componentWillUnmount: function(){
     BubbleChartStore.removeChangeListener(this._onChange);
@@ -123,7 +115,6 @@ var BubbleChart = React.createClass({
         var LegendItems = colors.domain().map(function(color, index){
           return  (<Legend data={color} colors={colors} width={this.state.width} index={index}/>)
         }, this);
-        //console.log("ERROR?FF")
         return (
           <div style={{width:'100%'}}>
             <button onClick={this._onClick}>SORT</button>

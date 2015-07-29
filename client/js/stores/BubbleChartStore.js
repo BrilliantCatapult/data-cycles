@@ -9,8 +9,6 @@ var actions = Constants.actions;
 var CHANGE_EVENT = "change";
 
 function _addMessages(data_for, msgs){
-  // will process data first!!!
-  console.log("MESSSSSS", msgs);
   _messages[data_for] = msgs;
   _messages[data_for].sort(function(a, b) { return b.doc_count - a.doc_count; });
 }
@@ -37,14 +35,9 @@ BubbleChartStore.dispatchToken = D3Dispatcher.register(function(action){
   switch(action.type){
 
     case actions.RECEIVE_BUBBLE_DATA:
-      console.log("JEREEEEEE", action.data_for);
       _addMessages(action.data_for, action.data);
-      console.log("after is");
       BubbleChartStore.emitChange(action.data_for);
       break;
-
-    //case actions.LOAD_DATA:
-
 
     default:
       // do nothing

@@ -1,18 +1,13 @@
 var React = require('react');
-//var ViewActionCreators = require('../actions/ViewActionCreators');
 var d3 = require('d3');
 
 var YAxis = React.createClass({
-  componentDidMount: function() {
 
+  componentDidMount: function() {
     // wrap element in d3
     var yAxis = d3.svg.axis().scale(this.props.y).orient("left").tickSize(0);
     this.d3Node = d3.select(this.getDOMNode());
 
-    // this.d3Node.style("opacity", 0)
-    //             .transition()
-    //             .duration(500)
-    //             .style("opacity", 1)
     this.d3Node
         .transition()
         .duration(1000)
@@ -24,16 +19,13 @@ var YAxis = React.createClass({
         .attr("class", "ytext")
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Station Activity [start terminal]");
+        .text("Station Activity ["+ this.props.name + "]");
 
   },
   shouldComponentUpdate: function(nextProps) {
-    // console.log("IN Y UPDATEEEEE ");
     var yAxis = d3.svg.axis().scale(nextProps.y).orient("left").tickSize(0);
     this.d3Node = d3.select(this.getDOMNode());
 
-    
-    
     this.d3Node
     .transition()
     .duration(500)
@@ -45,17 +37,11 @@ var YAxis = React.createClass({
          .attr("y", 6)
          .attr("dy", ".71em")
          .style("text-anchor", "end")
-         .text("Station Activity [start terminal]");
-
+         .text("Station Activity ["+ this.props.name + "]");
 
     return true;
   },
-  // componentDidUpate() {
-  //   this.d3Node.datum(this.props.data);
-  // },
-  // componentWillUnMount() {
-
-  // },
+  
   render: function() {
     return (
       <g className="y axis" />

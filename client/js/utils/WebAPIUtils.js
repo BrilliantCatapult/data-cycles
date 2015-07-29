@@ -11,16 +11,12 @@ Utils.pluck = function(obj, key){
 
 // have all server queries here!
 Utils.getAllMessages = function(){
-  // gets messages from localstorage.
-  // as if from database.
   var saved_messages = JSON.parse(localStorage.getItem('saved_messages'));
-  // have messages, now call action.
   D3ServerAction.receiveAll(saved_messages, 1);
 };
 
 Utils.getAllOtherMessages = function(){
   var saved_messages = JSON.parse(localStorage.getItem('saved_messages2'));
-  // have messages, now call action.
   D3ServerAction.receiveAll(saved_messages, 2);
 };
 Utils.getBubbleData = function(id, start_date, end_date){
@@ -45,12 +41,20 @@ Utils.getLineData = function(id, start_date, end_date){
                     D3ServerAction.receiveLine(array, id);
                 }
         );
+  } else if(id === "6"){
+    d3.xhr('/api/trip/station_activity')
+        .header("Content-Type", "application/json")
+        .post(
+            JSON.stringify({start_date: start_date, end_date: end_date, field: "end_terminal"}),
+            function(err, rawData){
+                var array = JSON.parse(rawData.response).aggregations.activity_per_station.buckets;
+                    D3ServerAction.receiveLine(array, id);
+                }
+        );
   }
 };
 Utils.getServerData = function(id, start_date, end_date){
   console.log("returning for id ", id);
-  // instead get from db based on id, and promisify!!
-  //var saved_messages = JSON.parse(localStorage.getItem('saved_messages' + id));
   var D3ServerAction = require('../actions/D3ServerAction');
   if(id === "1"){
     d3.json("/api/bikes?size=10&order=desc&start_date="+start_date+"&end_date="+end_date, function(data){
@@ -83,9 +87,6 @@ Utils.getServerData = function(id, start_date, end_date){
     }); 
     
   } 
-  // have messages, now call action.
-  // return saved_messages;
-  //D3ServerAction.readyToReceive(saved_messages, id); 
 };
 
 

@@ -53,7 +53,10 @@ var Chart = React.createClass({
            <BubbleChart  id='4' start_date={this.state.start_date} end_date={this.state.end_date}/>
         </div>
         <div style={{width: '100%'}}>
-          <LineChart  id='5'  start_date={this.state.start_date} end_date={this.state.end_date}/>
+          <LineChart  id='5'  start_date={this.state.start_date} end_date={this.state.end_date} name="Start Terminal"/>
+        </div>
+        <div style={{width: '100%'}}>
+          <LineChart  id='6'  start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
         </div>
       </div>
     );
