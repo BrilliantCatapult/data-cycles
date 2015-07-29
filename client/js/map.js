@@ -429,7 +429,7 @@ var animate = function (e) {
 var renderFrame = function(e) {
   timer = (timermemo + e) % animduration;
   setTimer(timer); 
-  setHandlePosition(timer);
+  setHandlePosition(timer); 
 
   for (var i = 0; i < bikes[0].length; i++) {
     d3.select(bikes[0][i])
