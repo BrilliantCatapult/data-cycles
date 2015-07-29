@@ -31,6 +31,28 @@ var getData = function() {
         }
     }
 };
+
+var getRegs = function(){
+    event.stopPropagation();
+    event.preventDefault();
+    // var day = document.getElementById('inp1').value; //SOLVE FOR IF THEY DON'T ENTER THIS
+    var input = document.getElementById('inp2').value; 
+    console.log(input)   
+    if(stations.indexOf(+input) === -1){
+        console.log("Not an SF dock")
+    }else{
+        d3.json("/api/ml/predictions?day=" + "12/12/2015" + "&station=" + input, function(error, docks) {
+            if (error) {
+                console.log("error", error);
+            } else {
+                console.log("dataaaa: "+ JSON.stringify(docks))
+                init(docks, true);
+            }
+        });
+    }
+}
+
+
 var max = [0, 0];
 
 var calcHours = function(coef) {
@@ -77,7 +99,7 @@ var calcLineData = function(coef) {
 }
 
 
-var init = function(docks) {
+var init = function(docks, truthy) {
     var x = [];
     var y = [];
     var count = 0;
@@ -203,6 +225,18 @@ var init = function(docks) {
         }
         return x;
     }
+    var calcRegs = function(){
+        var eqs = [];
+        for(var i = 1; i <=10; i++){
+            var A = calcMatrix(i);
+            eqs.push([gauss(A)]);
+        }
+        console.log("THESE ARE EQS: "+eqs);
+    }
+    if(truthy){
+        console.log("regs")
+        calcRegs();
+    }
     var eq = gauss(fourDegMatrix);
     // console.log(eq)
     calcHours(eq)
@@ -217,6 +251,7 @@ var genColor = function(){
     var z1 = z.substring(0,y);
     return "#" + z1 + x;
 }
+
 
 var graph = function(data) {
     // console.log(data)
