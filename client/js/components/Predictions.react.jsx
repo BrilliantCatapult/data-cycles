@@ -23,6 +23,7 @@ var Predictions = React.createClass({
             <input type="text" name="inp" id="inp2" />
             <input onClick={this._getRegs} type="button" value="Submit" />
             <div id="graph" class="aGraph"></div> 
+            <div id="regs" class="aGraph"></div> 
         </div>
       </div>
     );

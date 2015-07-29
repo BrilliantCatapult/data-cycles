@@ -118,7 +118,7 @@ var calcRegData = function(coef) {
     console.log(data.length)
     regPoints.push(data);
     if (regPoints.length === 10) {
-        graph(regPoints, true);
+        obj.graph(regPoints, true);
         regPoints = [];
     }
 }
@@ -276,7 +276,7 @@ obj.genColor = function(){
 }
 
 
-var graph = function(data, truthy) {
+obj.graph = function(data, truthy) {
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
     var id = '';
     if(truthy){
