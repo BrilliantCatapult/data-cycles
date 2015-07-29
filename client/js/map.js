@@ -27,11 +27,17 @@ var timer, timermemo = 0.313 * animduration;
 playmemo = false;
 
 var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
+
 updateWindow = function(){
     console.log("GETTING CALLED");
     width = document.getElementById("map").clientWidth;
     height = Math.max(500, window.innerHeight);
 };
+
+var setAnimDuration = function(s){
+  animduration = s * minute;
+  console.log("animduration: ", animduration);
+}
 
 var map = function(start_date, end_date, view){
 
@@ -380,8 +386,21 @@ var setTimer = function(t) {
   timerdisplay.html(realTimeFormatted);
 
   // console.log("timer", realTimeFormatted, timer);
-}
+};
 
+var brushstart = function() {
+  playmemo = play;
+  play = false;
+};
+
+var brushend = function() {
+  if(playmemo) {
+    play = true;
+    d3.timer(animate);
+  } else {
+    button.html("Play");
+  }
+};
 
 var timeBrushing = function() {
   if (d3.event.sourceEvent) { 
@@ -569,7 +588,7 @@ var prefixMatch = function (p) {
     s = document.body.style;
   while (++i < n)
     if (p[i] + "Transform" in s) return "-" + p[i].toLowerCase() + "-";
-  return "";
+  return ""; 
 };
 
 var formatLocation = function (p, k) {
@@ -583,6 +602,8 @@ var loaded = function () {
   svgAnimations.select(".docks").classed("hide", false);
   setHandlePosition(timermemo);
   setTimer(timermemo); 
+  setAnimDuration(speed);
+  setSpeedHandlePosition(speed);
   brushend();
 };
 
@@ -592,8 +613,6 @@ var unload = function () {
   svgAnimations.selectAll("g").remove();
   button.html("Loading…");
 };
-
-
 
 updateWindow();
 
@@ -624,21 +643,6 @@ var axis = d3.svg.axis()
   .ticks(24)
   .tickFormat(d3.time.format("%H"))
   .orient("top");
-
-var brushstart = function() {
-  playmemo = play;
-  play = false;
-};
-
-
-var brushend = function() {
-  if(playmemo) {
-    play = true;
-    d3.timer(animate);
-  } else {
-    button.html("Play");
-  }
-};
 
 var tile = d3.geo.tile()
   .size([width, height]);
@@ -720,25 +724,37 @@ button.on("click", function () {
 window.addEventListener('resize', updateWindow);
 
 // speed slider
+var setSpeedHandlePosition = function() {
+  speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
+};
+
+var speedBrushing = function() {
+  console.log("bru");
+  if (d3.event.sourceEvent) {
+  console.log("bro");  
+    speed = speedScale.invert(d3.mouse(this)[0]);
+    setSpeedHandlePosition(speed);
+    setAnimDuration(speed);
+  }
+};
 
 var speedMax = "1";
 var speedMin = "20";
 var speedSliderSize = "100";
 
-var speedSliderDisplay = d3.select("#speed");
-
 var speedScale = d3.scale.linear()
   .domain([speedMin, speedMax])
-  .range([0, speedSliderSize]);
+  .range([0, speedSliderSize])
+  .clamp(true);
+
+var speedSliderBrush = d3.svg.brush()
+  .x(speedScale)
+  .extent([0,0])
+  .on("brush", speedBrushing);
 
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
   .orient("top");
-
-var speedSliderBrush = d3.svg.brush()
-  .x(speedScale)
-  .extent([0, 0])
-  .on("brush", speedBrushing);
 
 var speedSvg = d3.select("#speed")
   .append("svg")
@@ -746,7 +762,6 @@ var speedSvg = d3.select("#speed")
 
 var speedSlider = speedSvg.append("g")
   .attr("transform", "translate(0,20)")
-  .attr("class", "speed-axis")
   .call(speedSliderAxis)
   .call(speedSliderBrush); 
 
@@ -754,17 +769,7 @@ var speedHandle = speedSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "speedhandle");
 
-var speedBrushing = function() {
-  console.log("speedBrushing");
-  if (d3.event.sourceEvent) { 
-    speed = speedScale.invert(d3.mouse(this)[0]);
-    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
-  }
-};
 
-var setSpeedHandle = function() {
-  
-}
 
 // calendar
 
@@ -775,16 +780,16 @@ var calendarTimeScale = d3.time.scale()
   .range([0, width])
   .clamp(true);
 
-var calendarAxis = d3.svg.axis()
-  .scale(calendarTimeScale)
-  .tickFormat(d3.time.format("%B"))
-  .orient("top");
-
 var calendarBrush = d3.svg.brush()
   .x(calendarTimeScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
   .on("brush", calendarBrushing);
+
+var calendarAxis = d3.svg.axis()
+  .scale(calendarTimeScale)
+  .tickFormat(d3.time.format("%B"))
+  .orient("top");
 
 var calendarSvg = d3.select("#calendar")
   .append("svg")
@@ -824,21 +829,11 @@ function calendarBrushing() {
       console.log("mouseup");
       var end_date1 = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
       
-      //console.log
-      // view.setState({
-      //   "start_date": start_date,
-      //   "end_date": end_date
-      // })
-      
       start_date = Moment(start_date1).format("YYYY-MM-DD");
       var intermediate_start_date = Moment(start_date1).format("DD-MM-YYYY");
-      //var intermediate_end_date = Moment(end_date1).format("DD-MM-YYYY");
       time = Moment(start_date1).format()
       end_date = Moment(end_date1).format("YYYY-MM-DD");
-      //console.log("REAL TIME", formatMilliseconds(realtime));
       view.context.router.transitionTo('map_datetime', {date: intermediate_start_date, time: formatMilliseconds(realtime)});
-      //console.log("new start date ", start_date);
-      //console.log("new end date ", end_date);
 
       var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
       start_date = day.format("YYYY/MM/DD HH:mm")
@@ -848,8 +843,6 @@ function calendarBrushing() {
   }
 
   calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date1) + ",0)");
-  // calendarHandle.select('text').text(dateFormat(start_date));
-  
 }
 
 fetchNewDate();

@@ -262,9 +262,12 @@ nav .active {
   cursor: pointer;
 }
 
-#timeline svg, #calendar svg {
+#timeline svg, #calendar svg, #speed svg {
   height: 40px;
   font-size: 0.5em;
+}
+#speed {
+  margin-left: 20px;
 }
 
 .hide {
