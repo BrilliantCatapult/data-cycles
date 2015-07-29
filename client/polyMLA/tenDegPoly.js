@@ -35,13 +35,13 @@ var getData = function() {
 var getRegs = function(){
     event.stopPropagation();
     event.preventDefault();
-    // var day = document.getElementById('inp1').value; //SOLVE FOR IF THEY DON'T ENTER THIS
+    var day = document.getElementById('inp').value; //SOLVE FOR IF THEY DON'T ENTER THIS
     var input = document.getElementById('inp2').value; 
     console.log(input)   
     if(stations.indexOf(+input) === -1){
         console.log("Not an SF dock")
     }else{
-        d3.json("/api/ml/predictions?day=" + "12/12/2015" + "&station=" + input, function(error, docks) {
+        d3.json("/api/ml/predictions?day=" + day + "&station=" + input, function(error, docks) {
             if (error) {
                 console.log("error", error);
             } else {
@@ -95,6 +95,30 @@ var calcLineData = function(coef) {
     if (linePoints.length === 35) {
         graph(linePoints);
         linePoints = [];
+    }
+}
+
+var regPoints = [];
+
+var calcRegData = function(coef) {
+    console.log("COEF: "+coef.length, coef)
+    var data = [];
+    var count = 0;
+    for (var j = 0; j <= 23; j += 0.25) {
+        count = 0;
+        for (var i = 0; i < coef.length; i++) {
+            count += (coef[i] * Math.pow(j, i))
+        }
+        data.push({
+            x: j,
+            y: count
+        })
+    }
+    console.log(data.length)
+    regPoints.push(data);
+    if (regPoints.length === 10) {
+        graph(regPoints, true);
+        regPoints = [];
     }
 }
 
@@ -226,12 +250,10 @@ var init = function(docks, truthy) {
         return x;
     }
     var calcRegs = function(){
-        var eqs = [];
         for(var i = 1; i <=10; i++){
             var A = calcMatrix(i);
-            eqs.push([gauss(A)]);
+            calcRegData(gauss(A));            
         }
-        console.log("THESE ARE EQS: "+eqs);
     }
     if(truthy){
         console.log("regs")
@@ -253,10 +275,15 @@ var genColor = function(){
 }
 
 
-var graph = function(data) {
-    // console.log(data)
+var graph = function(data, truthy) {
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
-    d3.select('#graph').html('');
+    var id = '';
+    if(truthy){
+        id = '#regs';
+    }else{
+        id = '#graph';
+    }
+    d3.select(id).html('');
     // define dimensions of graph
     var m = [80, 80, 80, 80]; // margins
     var w = 1000 - m[1] - m[3]; // width
@@ -267,7 +294,7 @@ var graph = function(data) {
     var y = d3.scale.linear().domain([0, max[1]+2]).range([h, 0]);
     // // create a line function that can convert data[] into x and y points
         // Add an SVG element with the desired dimensions and margin.
-    var graph = d3.select("#graph").append("svg:svg")
+    var graph = d3.select(id).append("svg:svg")
         .attr("width", w + m[1] + m[3])
         .attr("height", h + m[0] + m[2])
         .append("svg:g")
