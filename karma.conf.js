@@ -1,5 +1,6 @@
 // Karma configuration
 // Generated on Tue Jul 28 2015 12:06:52 GMT-0700 (PDT)
+var webpack = require('webpack');
 
 module.exports = function(config) {
   config.set({
@@ -16,25 +17,39 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'spec/*.js',
-      'dist/*.js'
+      'client/js/calendar.js'
     ],
 
 
     // list of files to exclude
     exclude: [
+      // 'karmaconfig.js'
     ],
 
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+        'client/js/map.js': ['webpack', 'sourcemap']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['nyan','unicorn'],
+
+    webpack: {
+        devtools: 'inline-source-map',
+        module: {
+            loaders: [
+                {
+                    test: /\.jsx$/,
+                    loader: 'jsx-loader?insertPragma=React.DOM&harmony'
+                }
+            ]
+        }
+    },
 
 
     // web server port
@@ -61,6 +76,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true
   })
 }

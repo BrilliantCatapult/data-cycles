@@ -5,14 +5,14 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bahiafayez/Brilliant-Catapult.git"
+    "url": "git+https://github.com/BrilliantCatapult/Brilliant-Catapult.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bahiafayez/Brilliant-Catapult/issues"
+    "url": "https://github.com/BrilliantCatapult/Brilliant-Catapult/issues"
   },
-  "homepage": "https://github.com/bahiafayez/Brilliant-Catapult#readme",
+  "homepage": "https://github.com/BrilliantCatapult/Brilliant-Catapult#readme",
   "engines": {
     "node": "0.10.x"
   },
@@ -45,18 +45,26 @@
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.3",
     "gulp-shell": "^0.4.2",
+    "i": "^0.3.3",
     "jasmine-core": "^2.3.4",
     "jsx-loader": "^0.13.2",
-    "karma": "^0.13.3",
+    "karma": "^0.12.36",
     "karma-chrome-launcher": "^0.2.0",
+    "karma-cli": "^0.1.0",
     "karma-jasmine": "^0.3.6",
+    "karma-nested-reporter": "^0.1.3",
+    "karma-nyan-reporter": "^0.2.1",
+    "karma-phantomjs-launcher": "^0.2.0",
+    "karma-unicorn-reporter": "^0.1.4",
+    "karma-webpack": "^1.6.0",
     "minami": "^1.1.0",
     "node-libs-browser": "^0.5.2",
+    "phantomjs": "^1.9.17",
     "webpack": "^1.10.1",
     "webpack-dev-server": "^1.10.1"
   },
   "scripts": {
-    "test": "gulp",
+    "test": "gulp && karma start --single-run --browsers PhantomJS",
     "postinstall": "bower install"
   }
 }
