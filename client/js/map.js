@@ -13,7 +13,7 @@ var day = 24 * hour;
 
 var dbJson;
 play = false;
-var realtime=0;
+var realtime;
 var bikesJson;
 var bikes = [];
 var docks = [];
@@ -34,7 +34,7 @@ updateWindow = function(){
 
 var timeToMilliSeconds = function (string) {
   var values = string.split(":");
-  var result = values[0] * hour + values[1] * minute;
+  var result = Number(values[0]) * hour + Number(values[1]) * minute;
   // console.log(formatTimeToMs(string), result);
   return result;
 };
@@ -43,7 +43,6 @@ var formatMsToDate = function(ms) {
   return new Date(ms);
 }
 var formatHourMinutes = d3.time.format("%H:%M");
-var formatMilliseconds = d3.time.format("%L");
 
 var formatTimeToMs = function(time) {
   // console.log("t: ", time, formatHourMinutes.parse(time), formatMilliseconds(formatHourMinutes.parse(time)));
@@ -111,36 +110,36 @@ var mapModule = function(start_date, end_date, view){
 
   var timeBrushing = function() {
     if (d3.event.sourceEvent) {     
-      timermemo = animscale.invert(d3.mouse(this)[0]);
-      renderFrame(0);
+      realtime = dayscale.invert(d3.mouse(this)[0]);
+      // renderFrame(0);
       var mid = Moment(start_date).format("YYYY-MM-DD");
       var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
       start_date = day.format("YYYY/MM/DD HH:mm")
       view.context.router.transitionTo('map_datetime', {date: mid, time: formatMilliseconds(realtime)});
     }
-    timeHandlePositionSet(timermemo);
+    timeHandlePositionSet(realtime);
   };
 
   var speedBrushing = function() {
     if (d3.event.sourceEvent) {
       speed = speedScale.invert(d3.mouse(this)[0]);
+      speedHandlePositionSet(speed);
+      setAnimDuration(speed);
     }
-    speedHandlePositionSet(speed);
-  };
-
-  var speedBrushend = function() {
-    setAnimDuration(speed);
   };
 
   var loaded = function () {
     button.attr("disabled", null);
     timeHandle.classed("hide", false);
     svgAnimations.select(".docks").classed("hide", false);
+    realtime = timeToMilliSeconds(formatMoment(start_date, "HH:mm"));
+    timer, timermemo = animscale.invert(realtime);
     setAnimDuration(speed);
-    timer, timermemo = timeToMilliSeconds(formatMoment(start_date, "HH:mm")) * animduration / day;
+    console.log("timermeo is ", formatMoment(start_date, "HH:mm"));
+    console.log("timermeo is ", timeToMilliSeconds(formatMoment(start_date, "HH:mm")));
     dateDisplay.html(dateStartValue);
-    timeHandlePositionSet(timermemo);
     setTimer(timermemo); 
+    timeHandlePositionSet(realtime);
     speedHandlePositionSet(speed);
     brushend();
   };
@@ -153,11 +152,72 @@ var mapModule = function(start_date, end_date, view){
   };
 
   var setAnimDuration = function(s){
+    var animdurationtmp = animduration;
     animduration = s * minute;
     animscale = d3.scale.linear()
-        .domain([0, animduration])
-        .range([0, width]);
-    console.log("animduration: ", animduration);
+      .domain([0, animduration])
+      .range([0, day]);
+    // timermemo = timer * animdurationtmp / animduration;
+  };
+
+  var brushstart = function() {
+    playmemo = play;
+    play = false;
+  };
+
+  var brushend = function() {
+    timer, timermemo = animscale.invert(realtime);
+    if(playmemo) {
+      play = true;
+      d3.timer(animate);
+    } else {
+      button.html("Play");
+    }
+  };
+
+  var timeHandlePositionSet = function(t){
+    timeHandle.attr("transform", function (d) { return "translate(" + dayscale(t) + ")"; });
+  };
+
+  var speedHandlePositionSet = function() {
+    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
+  };
+
+  var calendarHandlePositionSet = function(date){
+    calendarHandle.attr("transform", "translate(" + calendarTimeScale(date) + ",0)");
+  }
+
+  var setTimer = function(t) {
+    realtime = animscale(t);
+    var realTimeFormatted = formatMilliseconds(realtime);
+    timerdisplay.html(realTimeFormatted);
+    // console.log("timer", realTimeFormatted, timer);
+  };
+
+  var animate = function (e) {
+    if (!play) {
+      timermemo = timer;
+      button.html("Play");
+      return true;
+    }
+    button.html("Stop");
+    renderFrame(e);
+  };
+
+  var renderFrame = function(e) {
+    timer = (timermemo + e) % animduration;
+    setTimer(timer); 
+    timeHandlePositionSet(realtime); 
+
+    for (var i = 0; i < bikes[0].length; i++) {
+      d3.select(bikes[0][i])
+        .attr("transform", function (d) { return moveBike(d, this); });
+    }
+    // console.log("docks[0]", docks[0]);
+    for (var i = 0; i < docks[0].length; i++) {
+      // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
+      setDockLevel(docks[0][i]);
+    }
   };
 
 var animateRing = function (id, color) {
@@ -426,67 +486,6 @@ var drawDocks = function (data) {
   renderZoom();
 };
 
-  var setTimer = function(t) {
-    realtime = t * day / animduration;
-    var realTimeFormatted = formatMilliseconds(realtime);
-    timerdisplay.html(realTimeFormatted);
-
-    // console.log("timer", realTimeFormatted, timer);
-  };
-
-  var brushstart = function() {
-    playmemo = play;
-    play = false;
-  };
-
-  var brushend = function() {
-    if(playmemo) {
-      play = true;
-      d3.timer(animate);
-    } else {
-      button.html("Play");
-    }
-  };
-
-  var timeHandlePositionSet = function(t){
-    console.log("bru", speed, animscale(t));
-    timeHandle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
-  };
-
-  var speedHandlePositionSet = function() {
-    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
-  };
-
-  var calendarHandlePositionSet = function(date){
-    calendarHandle.attr("transform", "translate(" + calendarTimeScale(date) + ",0)");
-  }
-
-  var animate = function (e) {
-    if (!play) {
-      timermemo = timer;
-      button.html("Play");
-      return true;
-    }
-    button.html("Stop");
-    renderFrame(e);
-  };
-
-  var renderFrame = function(e) {
-    timer = (timermemo + e) % animduration;
-    setTimer(timer); 
-    timeHandlePositionSet(timer); 
-
-    for (var i = 0; i < bikes[0].length; i++) {
-      d3.select(bikes[0][i])
-        .attr("transform", function (d) { return moveBike(d, this); });
-    }
-    // console.log("docks[0]", docks[0]);
-    for (var i = 0; i < docks[0].length; i++) {
-      // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
-      setDockLevel(docks[0][i]);
-    }
-  };
-
   var setDockLevel = function (dock) {
     var currentQty = 0;
     
@@ -648,10 +647,14 @@ var timescale = d3.time.scale()
 
 var animscale = d3.scale.linear()
       .domain([0, animduration])
+      .range([0, day]);
+
+var dayscale = d3.scale.linear()
+      .domain([0, day])
       .range([0, width]);
 
 var timeBrush = d3.svg.brush()
-  .x(animscale)
+  .x(dayscale)
   .on("brushstart", brushstart)
   .on("brush", timeBrushing)
   .on("brushend", brushend);
@@ -761,8 +764,9 @@ var speedScale = d3.scale.linear()
 
 var speedSliderBrush = d3.svg.brush()
   .x(speedScale)
+  .on("brushstart", brushstart)
   .on("brush", speedBrushing)
-  .on("brushend", speedBrushend);
+  .on("brushend", brushend);
 
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
