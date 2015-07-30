@@ -37,7 +37,8 @@
     "react": "^0.13.3",
     "react-classset": "0.0.2",
     "react-router": "^0.13.3",
-    "redis": "^0.12.1"
+    "redis": "^0.12.1",
+    "topojson": "^1.6.19"
   },
   "devDependencies": {
     "dotenv": "^1.2.0",

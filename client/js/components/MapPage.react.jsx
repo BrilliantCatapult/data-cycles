@@ -80,7 +80,10 @@ var MapPage = React.createClass({
          <div id="map" className="container">
            <span className="map-tooltip hide">Tooltip</span>
            <div id="routes-info"></div>
+           <div id="tileslayer"></div>
+           
          </div>
+         <div id="mapsense"></div>
      </div>
     );
   } 

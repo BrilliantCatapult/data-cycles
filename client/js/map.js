@@ -1,7 +1,6 @@
 var d3geotile = require('d3.geo.tile')();
 var Moment = require('moment');
 var queue = require('queue-async');
-var mapsense = require('mapsense');
 var helperFunctions = require('./buildgeojson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
@@ -526,12 +525,13 @@ var moveBike = function(d, el) {
 };
 
 var renderZoom = function () {
-  var tiles = tile.scale(zoom.scale())
-    .translate(zoom.translate())();
 
   projection.scale(zoom.scale() / 2 / Math.PI)
     .translate(zoom.translate());
   
+  var tiles = tile.scale(zoom.scale())
+    .translate(zoom.translate())();
+
   var image = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
     .selectAll(".tile")
     .data(tiles, function (d) {
@@ -554,23 +554,26 @@ var renderZoom = function () {
     }).each(function (d) {
 
       var svgTile = d3.select(this);
+      var layers = ['water', 'landuse', 'roads', 'buildings'];
 
-      this._xhr = d3.json("http://" + ["a", "b", "c"][(d[0] * 31 + d[1]) % 3] + ".tile.openstreetmap.us/vectiles-highroad/" + d[2] + "/" + d[0] + "/" + d[1] + ".json", function (error, json) {
-        var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
-        
-        tilePath.projection()
-          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-          .scale(k / 2 / Math.PI);
-        
-        svgTile.selectAll("path")
-          .data(json.features.sort(function (a, b) {
-            return a.properties.sort_key - b.properties.sort_key;
-          }))
-          .enter()
-          .append("path")
-          .attr("class", function (d) { return d.properties.kind; })
-          .attr("d", tilePath);
-      });
+      this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".json?api_key=vector-tiles-AVPulIE", function (error, json) {
+          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
+          
+          tilePath.projection()
+            .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+            .scale(k / 2 / Math.PI);
+          
+          layers.forEach(function(layer){
+            var data = json[layer];
+            if (data) {
+              svgTile.selectAll("path")
+                .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+              .enter().append("path")
+                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+                .attr("d", tilePath);
+            }
+          });
+        });
     });
 
   svgAnimations.selectAll(".dock circle")
@@ -691,8 +694,7 @@ var map = d3.select("#map")
 
 var routesinfo = d3.select("#routes-info");
 
-var tilesLayer = map.append("div")
-  .attr("id", "tileslayer");
+var tilesLayer = d3.select("#tileslayer");
 
 var svgAnimations = map.append("svg:svg")
   .attr("id", 'animations')
