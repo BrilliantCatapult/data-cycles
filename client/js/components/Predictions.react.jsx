@@ -15,15 +15,15 @@ var Predictions = React.createClass({
     return (
       <div>
         <Layout />
-        <div class="container">
-          <div class="pred">Input date (MM/DD/YYYY):</div>
+        <div className="container">
+          <div className="pred">Input date (MM/DD/YYYY):</div>
             <input type="text" name="inp" id="inp" />
             <input onClick={this._onClick} type="button" value="Submit" />
-            <div class="pred">Input San Francisco Dock:</div>
+            <div className="pred">Input San Francisco Dock:</div>
             <input type="text" name="inp" id="inp2" />
             <input onClick={this._getRegs} type="button" value="Submit" />
-            <div id="graph" class="aGraph"></div> 
-            <div id="regs" class="aGraph"></div> 
+            <div id="graph" className="aGraph"></div> 
+            <div id="regs" className="aGraph"></div> 
         </div>
       </div>
     );
