@@ -1,9 +1,11 @@
 var d3geotile = require('d3.geo.tile')();
+var Moment = require('moment');
+var queue = require('queue-async');
+var mapsense = require('mapsense');
 var helperFunctions = require('./buildgeojson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
 var dateMaxValue = '2014-09-01';
-var Moment = require('moment');
 
 var width, height;
 var second = 1000;
@@ -68,25 +70,25 @@ var mapModule = function(start_date, end_date, view){
     dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
     var tripStartDate = formatMoment(start_date, "M/D/YYYY");
 
-    d3.json("/api/redis/trips?start_date=" + tripStartDate, function(error, tripJson) {
-      if (error) {
-        console.log("error", error);
-      }
-
-      bikesJson = helperFunctions.buildBikesJson(tripJson);
-      console.log("bikesJson--------->", bikesJson);
-      d3.json("/api/redis?start_date=" + dateStartValue, function(error, docksJson) {
-        if (error) {
-          console.log("error", error);
-        } 
-        var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
-        console.log("docksHash --------->", docksHash);  
-        drawRoutes(bikesJson);
-        drawDocks(docksHash);
-        loaded();
-      });
-    });
+  var ready = function (error, tripJson, docksJson) {
+    if (error) {
+      console.log("error", error);
+    }
+    bikesJson = helperFunctions.buildBikesJson(tripJson);
+    var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
+    console.log("bikesJson--------->", bikesJson);
+    console.log("docksHash --------->", docksHash);  
+    drawRoutes(bikesJson);
+    drawDocks(docksHash);
+    renderZoom();
+    loaded();
   };
+
+  queue()
+    .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
+    .defer(d3.json, "/api/redis?start_date=" + dateStartValue)
+    .await(ready);
+};
 
   var calendarBrushing = function () {
     var start_date1 = calendarBrush.extent()[0];
@@ -280,8 +282,6 @@ var drawRoutes = function (data) {
     .on("mouseover", function(d) { showBikeRoute(d, this); })
     .on("mouseout", function(){ hideBikesRoute(); });
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-
-  renderZoom();
 };
 
 var hideBikesRoute = function() {
@@ -482,8 +482,6 @@ var drawDocks = function (data) {
       cx: function (d) { return projection(d.geometry.coordinates)[0] }, 
       cy: function (d) { return projection(d.geometry.coordinates)[1] }
     });
-
-  renderZoom();
 };
 
   var setDockLevel = function (dock) {
@@ -665,15 +663,15 @@ var axis = d3.svg.axis()
   .tickFormat(d3.time.format("%H"))
   .orient("top");
 
-var tile = d3.geo.tile()
-  .size([width, height]);
-
 var projection =  d3.geo.mercator()
   .scale((1 << 22) / 2 / Math.PI)
   .translate([-width / 2, -height / 2]);
 
 var path = d3.geo.path()
   .projection(projection);
+
+var tile = d3.geo.tile()
+  .size([width, height]);
 
 var tilePath = d3.geo.path()
   .projection(projection);
