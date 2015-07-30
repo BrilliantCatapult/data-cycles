@@ -101,7 +101,7 @@ obj.calcLineData = function(coef) {
 
 var regPoints = [];
 
-var calcRegData = function(coef) {
+var calcRegData = function(coef, docks) {
     console.log("COEF: "+coef.length, coef)
     var data = [];
     var count = 0;
@@ -118,8 +118,18 @@ var calcRegData = function(coef) {
     console.log(data.length)
     regPoints.push(data);
     if (regPoints.length === 10) {
-        obj.graph(regPoints, true);
-        regPoints = [];
+    // console.log("THE DOCKS")
+    // console.dir(docks);
+    var output = [];
+    docks.forEach(function(hr,index){
+        for(var key in hr){
+            output.push([index, hr[key]]);
+        }
+    });
+    //docks = output;
+    obj.graph(regPoints, true, output);
+    regPoints = [];
+    console.log("New docks ", output);
     }
 }
 
@@ -253,8 +263,9 @@ obj.init = function(docks, truthy) {
     var calcRegs = function(){
         for(var i = 1; i <=10; i++){
             var A = calcMatrix(i);
-            calcRegData(gauss(A));            
+            calcRegData(gauss(A), docks);            
         }
+
     }
     if(truthy){
         console.log("regs")
@@ -275,20 +286,27 @@ obj.genColor = function(){
     return "#" + z1 + x;
 }
 
+// obj.grow = function(){
+//     console.log("GROW"+this);
+//     d3.select(this).setAttribute("r", "4px").setAttribute("fill", "green")
+// }
+// obj.shrink = function(){
+//     console.log("SHRINK "+this)
+// }
 
-obj.graph = function(data, truthy) {
+obj.graph = function(data, truthy, docks) {
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
     var id = '';
-    if(truthy){
+    if(truthy) {
         id = '#regs';
-    }else{
+    } else {
         id = '#graph';
     }
     d3.select(id).html('');
+    // var width = document.getElementById(id).clientWidth;
     // define dimensions of graph
-    var m = [80, 80, 80, 80]; // margins
-    var w = 1000 - m[1] - m[3]; // width
-    var h = 400 - m[0] - m[2]; // height
+    var w = 500;
+    var h = 500; // height
 
     // X scale will fit all values from data[] within pixels 0-w
     var x = d3.scale.linear().domain([0, 24]).range([0, w]);
@@ -296,10 +314,10 @@ obj.graph = function(data, truthy) {
     // // create a line function that can convert data[] into x and y points
         // Add an SVG element with the desired dimensions and margin.
     var graph = d3.select(id).append("svg:svg")
-        .attr("width", w + m[1] + m[3])
-        .attr("height", h + m[0] + m[2])
-        .append("svg:g")
-        .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+        .attr("width", w)
+        .attr("height", h)
+        .append("svg:g");
+        // .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
     // create yAxis
     var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
     // Add the x-axis.
@@ -307,12 +325,6 @@ obj.graph = function(data, truthy) {
         .attr("class", "x axis")
         .attr("transform", "translate(0," + h + ")")
         .call(xAxis);
-    // var mapMouseOver = function(d){
-    //     document.body.append(this.innerHTML)
-    // }
-    // var mapMouseOut = function(d){
-    //     console.log("OUT: "+d)
-    // }
     // create left yAxis
     var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
     // Add the y-axis to the left
@@ -320,6 +332,22 @@ obj.graph = function(data, truthy) {
         .attr("class", "y axis")
         .attr("transform", "translate(-25,0)")
         .call(yAxisLeft);
+    if(docks){
+        // d3.slider().axis(true).min(1).max(10).step(1)
+        console.log("plotting points")
+        graph.selectAll("circle")
+            .data(docks).enter()
+            .append("circle")
+            // .on("mouseover", graph.select(this).attr("r", "4px").attr("fill", "green"))
+            // .on("mouseout", obj.shrink)
+            .attr("cx", function (d, i) { 
+                console.log("CX ISSSS ", d[0]);
+                return x(d[0]);
+            })
+            .attr("cy", function (d, i) { return y(d[1])})
+            .attr("r", "2px")
+            .attr("fill", "red")
+        }     
     for(var i = 0; i < data.length; i++){
             var line = i
             line = d3.svg.line()
@@ -342,7 +370,7 @@ obj.graph = function(data, truthy) {
         .attr("id", "poly");
         // .on("mouseover", mapMouseOver)
         // .on("mouseout", mapMouseOut);
-    }    
+    } 
 }
 
 module.exports = obj;
