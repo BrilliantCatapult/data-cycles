@@ -18,6 +18,7 @@ var Layout = React.createClass({
            <Link to="map_datetime" params={{date: this.props.start_date || "18-12-2013", time: this.props.time || "00:00"}} >Map</Link>
            <Link to="statistics_datetime" params={{date: this.props.start_date || "18-12-2013", time: this.props.time || "00:00"}} >Statistics</Link>
            <Link to="predictions">Predications</Link>
+           <Link to="about">About</Link>
          </nav>
          <h1>Data Cycles</h1>
          <h3>Bay Area Bike Share data visualization</h3>

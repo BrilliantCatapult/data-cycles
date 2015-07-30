@@ -13,6 +13,7 @@ var RouteHandler = Router.RouteHandler;
 var Statistics = require('./components/Chart.react');
 var MapPage = require('./components/MapPage.react');
 var Predictions = require('./components/Predictions.react');
+var About = require('./components/About.react');
 
 
 var App = React.createClass({
@@ -32,8 +33,11 @@ var routes = (
     <Route name="statistics_datetime" path="/statistics/:date/:time" handler={Statistics}/>
     <Route name="map_datetime" path="/map/:date/:time" handler={MapPage} ignoreScrollBehavior/>
     <Route name="predictions" path="predictions/" handler={Predictions}/>
-    <Redirect path="/" to="map_datetime" params={{date:"2013-12-22", time:"06:24"}} />
-    <Redirect path="/statistics" to="statistics_datetime" params={{date:"2013-12-22", time:"06:24"}} />
+
+    <Route name="about" path="about/" handler={About}/>
+    <Redirect path="/" to="map_datetime" params={{date:"22-12-2013", time:"06:24"}} />
+    <Redirect path="/statistics" to="statistics_datetime" params={{date:"22-12-2013", time:"06:24"}} />
+
   </Route>
 );
 
