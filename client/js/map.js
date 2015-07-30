@@ -1,13 +1,9 @@
 var d3geotile = require('d3.geo.tile')();
 var helperFunctions = require('./buildgeojson');
-//var fetchNewDate = require('./fetchData');
-//var dateFormat = d3.time.format("%Y.%m.%d");
-//var dateServerFormat = d3.time.format("%-m/%d/%Y 00:00");
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
 var dateMaxValue = '2014-09-01';
 var Moment = require('moment');
-
 
 var width, height;
 var second = 1000;
@@ -22,78 +18,41 @@ var bikesJson;
 var bikes = [];
 var docks = [];
 var speed = 15;
+var speedMax = 1;
+var speedMin = 20;
+
 var animduration = speed * minute;
-var timer, timermemo = 0.313 * animduration;
+var timer, timermemo;
 playmemo = false;
 
-var colors = ["#FF0000", "#FF1100", "#FF2300", "#FF3400", "#FF4600", "#FF5700", "#FF6900", "#FF7B00", "#FF8C00", "#FF9E00", "#FFAF00", "#FFC100", "#FFD300", "#FFE400", "#FFF600", "#F7FF00", "#E5FF00", "#D4FF00", "#C2FF00", "#B0FF00", "#9FFF00", "#8DFF00", "#7CFF00", "#6AFF00", "#58FF00", "#47FF00", "#35FF00", "#24FF00", "#12FF00", "#00FF00"];
+var colors = [];
 
 updateWindow = function(){
-    console.log("GETTING CALLED");
     width = document.getElementById("map").clientWidth;
     height = Math.max(500, window.innerHeight);
 };
 
-var setAnimDuration = function(s){
-  animduration = s * minute;
-  console.log("animduration: ", animduration);
+var timeToMilliSeconds = function (string) {
+  var values = string.split(":");
+  var result = values[0] * hour + values[1] * minute;
+  // console.log(formatTimeToMs(string), result);
+  return result;
 };
 
-var map = function(start_date, end_date, view){
+var formatMsToDate = function(ms) {
+  return new Date(ms);
+}
+var formatHourMinutes = d3.time.format("%H:%M");
+var formatMilliseconds = d3.time.format("%L");
 
+var formatTimeToMs = function(time) {
+  // console.log("t: ", time, formatHourMinutes.parse(time), formatMilliseconds(formatHourMinutes.parse(time)));
+  return formatMilliseconds(formatHourMinutes.parse(time));
+}
 
-
-  var timeToMilliSeconds = function (string) {
-    var values = string.split(":");
-    return values[0] * hour + values[1] * minute;
-  };
-
-  var formatMoment = function(date, format){
-    return Moment(date).format(format)
-  }
-  
-  var dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
-
-  var fetchNewDate = function(){
-
-    dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
-    serverStartValue = formatMoment(start_date, "M/D/YYYY");
-    serverEndValue = formatMoment(end_date, "MM/DD/YYYY HH:mm");
-    time = formatMoment(start_date, "HH:mm");
-    //console.log("dateeeeeee ", dateStartValue);
-    //console.log("TIME IS ", time)
-    timer, timermemo = timeToMilliSeconds(time) * animduration / day;
-
-
-    //console.log("start_date in fetch ", start_date);
-    //console.log("end_date in fetch ", end_date);
-
-    dateDisplay.html(dateStartValue);
-    //console.log("ALSO ", dateFormat(start_date));
-    var tripStartDate =  serverStartValue; //: //USE START_DATE HERE "12/18/2013 00:00";
-    var tripEndDate =  serverEndValue; //: //USE END DATE HERE "12/19/2013 00:00";
-    var dockStartDate =  dateStartValue; //: //dateStartValue BUT DIFFERENT FORMAT "2013/12/18";
-
-
-    d3.json("/api/redis/trips?start_date=" + tripStartDate, function(error, tripJson) {
-      if (error) {
-        console.log("error", error);
-      }
-
-      bikesJson = helperFunctions.buildBikesJson(tripJson);
-      console.log("elastic successsssss--------->", bikesJson);
-      d3.json("/api/redis?start_date=" + dockStartDate, function(error, docksJson) {
-        if (error) {
-          console.log("error", error);
-        } 
-        var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
-        console.log("redis successsssss--------->", docksHash);  
-        drawRoutes(bikesJson);
-        drawDocks(docksHash);
-        loaded();
-      });
-    });
-  };
+var formatMoment = function(date, format){
+  return Moment(date).format(format)
+};
 
 var formatMilliseconds = function (d) {
   var hours = Math.floor(d / hour);
@@ -103,6 +62,103 @@ var formatMilliseconds = function (d) {
   }
   return hours + ":" + minutes;
 };
+
+var mapModule = function(start_date, end_date, view){
+
+  var fetchNewDate = function(){
+    dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
+    var tripStartDate = formatMoment(start_date, "M/D/YYYY");
+
+    d3.json("/api/redis/trips?start_date=" + tripStartDate, function(error, tripJson) {
+      if (error) {
+        console.log("error", error);
+      }
+
+      bikesJson = helperFunctions.buildBikesJson(tripJson);
+      console.log("bikesJson--------->", bikesJson);
+      d3.json("/api/redis?start_date=" + dateStartValue, function(error, docksJson) {
+        if (error) {
+          console.log("error", error);
+        } 
+        var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
+        console.log("docksHash --------->", docksHash);  
+        drawRoutes(bikesJson);
+        drawDocks(docksHash);
+        loaded();
+      });
+    });
+  };
+
+  var calendarBrushing = function () {
+    var start_date1 = calendarBrush.extent()[0];
+    unload();
+
+    if (d3.event.sourceEvent) { 
+      start_date1 = calendarTimeScale.invert(d3.mouse(this)[0]);
+
+      calendarBrush.extent([start_date, start_date]);
+
+      if (d3.event.sourceEvent.type === 'mouseup') {
+        start_date = Moment(start_date1).format("YYYY-MM-DD");
+        view.context.router.transitionTo('map_datetime', {date: start_date, time: formatMilliseconds(realtime)});
+        var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
+        start_date = day.format("YYYY/MM/DD HH:mm")
+        fetchNewDate();
+      }
+    }
+    calendarHandlePositionSet(start_date1);
+  }; 
+
+  var timeBrushing = function() {
+    if (d3.event.sourceEvent) {     
+      timermemo = animscale.invert(d3.mouse(this)[0]);
+      renderFrame(0);
+      var mid = Moment(start_date).format("YYYY-MM-DD");
+      var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
+      start_date = day.format("YYYY/MM/DD HH:mm")
+      view.context.router.transitionTo('map_datetime', {date: mid, time: formatMilliseconds(realtime)});
+    }
+    timeHandlePositionSet(timermemo);
+  };
+
+  var speedBrushing = function() {
+    if (d3.event.sourceEvent) {
+      speed = speedScale.invert(d3.mouse(this)[0]);
+    }
+    speedHandlePositionSet(speed);
+  };
+
+  var speedBrushend = function() {
+    setAnimDuration(speed);
+  };
+
+  var loaded = function () {
+    button.attr("disabled", null);
+    timeHandle.classed("hide", false);
+    svgAnimations.select(".docks").classed("hide", false);
+    setAnimDuration(speed);
+    timer, timermemo = timeToMilliSeconds(formatMoment(start_date, "HH:mm")) * animduration / day;
+    dateDisplay.html(dateStartValue);
+    timeHandlePositionSet(timermemo);
+    setTimer(timermemo); 
+    speedHandlePositionSet(speed);
+    brushend();
+  };
+
+  var unload = function () {
+    console.log("unload");
+    button.attr("disabled", true);
+    svgAnimations.selectAll("g").remove();
+    button.html("Loading…");
+  };
+
+  var setAnimDuration = function(s){
+    animduration = s * minute;
+    animscale = d3.scale.linear()
+        .domain([0, animduration])
+        .range([0, width]);
+    console.log("animduration: ", animduration);
+  };
 
 var animateRing = function (id, color) {
   d3.select("#ring-" + id)
@@ -190,13 +246,13 @@ var showBikeRoute = function (d, bike) {
   var top = position.top - svgAnimationsPosition.top - 80;
   var trips = [];
   var id = d.properties.bikeID;
-  var speed = 1;
+  var bikeSpeed = 1;
   var delay = 0;
   var delays = [delay];
   console.log(bikes);
   for (var i = 0; i < bikesJson.features.length; i++) {
     if (bikesJson.features[i].properties.bikeID == id) {
-      delay += bikesJson.features[i].properties.duration/speed;
+      delay += bikesJson.features[i].properties.duration/bikeSpeed;
       bikesJson.features[i].properties.delay = delay;
       trips.push(bikesJson.features[i].properties);
     }
@@ -215,7 +271,7 @@ var animateBikeRoute = function(trips) {
   var routeIdsArray = [];
   var startRingIdsArray = [];
   var endRingIdsArray = [];
-  var speed = 1;
+  var bikeSpeed = 1;
   var delay = 0;
   var delays = [delay];
   var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
@@ -224,7 +280,7 @@ var animateBikeRoute = function(trips) {
     routeIdsArray.push("#route-" + trips[i].id); 
     startRingIdsArray.push("#ring-" + trips[i].startTerminal);
     endRingIdsArray.push("#ring-" + trips[i].endTerminal);
-    delay += trips[i].duration/speed;
+    delay += trips[i].duration/bikeSpeed;
     delays.push(delay);
 
     var routeInfoBlocPosition;
@@ -299,7 +355,7 @@ var animateBikeRoute = function(trips) {
     .duration(function(d, i) { 
       drawRing(startRingIdsArray[i], "orange");
       drawRing(endRingIdsArray[i], "blue");
-      return d.properties.duration/speed; })
+      return d.properties.duration/bikeSpeed; })
     .ease("linear")
     .attr("stroke-dashoffset", 0);
 };
@@ -370,97 +426,84 @@ var drawDocks = function (data) {
   renderZoom();
 };
 
-var setHandlePosition = function(t){
-  timeHandle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
-};
+  var setTimer = function(t) {
+    realtime = t * day / animduration;
+    var realTimeFormatted = formatMilliseconds(realtime);
+    timerdisplay.html(realTimeFormatted);
 
-var setTimer = function(t) {
-  realtime = t * day / animduration;
-  var realTimeFormatted = formatMilliseconds(realtime);
-  timerdisplay.html(realTimeFormatted);
+    // console.log("timer", realTimeFormatted, timer);
+  };
 
-  // console.log("timer", realTimeFormatted, timer);
-};
+  var brushstart = function() {
+    playmemo = play;
+    play = false;
+  };
 
-var brushstart = function() {
-  playmemo = play;
-  play = false;
-};
+  var brushend = function() {
+    if(playmemo) {
+      play = true;
+      d3.timer(animate);
+    } else {
+      button.html("Play");
+    }
+  };
 
-var brushend = function() {
-  if(playmemo) {
-    play = true;
-    d3.timer(animate);
-  } else {
-    button.html("Play");
+  var timeHandlePositionSet = function(t){
+    console.log("bru", speed, animscale(t));
+    timeHandle.attr("transform", function (d) { return "translate(" + animscale(t) + ")"; });
+  };
+
+  var speedHandlePositionSet = function() {
+    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
+  };
+
+  var calendarHandlePositionSet = function(date){
+    calendarHandle.attr("transform", "translate(" + calendarTimeScale(date) + ",0)");
   }
-};
 
-var timeBrushing = function() {
-  if (d3.event.sourceEvent) { 
+  var animate = function (e) {
+    if (!play) {
+      timermemo = timer;
+      button.html("Play");
+      return true;
+    }
+    button.html("Stop");
+    renderFrame(e);
+  };
+
+  var renderFrame = function(e) {
+    timer = (timermemo + e) % animduration;
+    setTimer(timer); 
+    timeHandlePositionSet(timer); 
+
+    for (var i = 0; i < bikes[0].length; i++) {
+      d3.select(bikes[0][i])
+        .attr("transform", function (d) { return moveBike(d, this); });
+    }
+    // console.log("docks[0]", docks[0]);
+    for (var i = 0; i < docks[0].length; i++) {
+      // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
+      setDockLevel(docks[0][i]);
+    }
+  };
+
+  var setDockLevel = function (dock) {
+    var currentQty = 0;
     
-    timermemo = animscale.invert(d3.mouse(this)[0]);
-    setHandlePosition(timermemo);
-    renderFrame(0);
-    /*
-    re-render
-    */
-    
-     
-    var mid = Moment(start_date).format("YYYY-MM-DD");
-    var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
-    start_date = day.format("YYYY/MM/DD HH:mm")
-    view.context.router.transitionTo('map_datetime', {date: day.format("DD-MM-YYYY"), time: formatMilliseconds(realtime)});
-    end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
-
-  }
-};
-
-var animate = function (e) {
-  if (!play) {
-    timermemo = timer;
-    button.html("Play");
-    return true;
-  }
-  button.html("Stop");
-  renderFrame(e);
-};
-
-var renderFrame = function(e) {
-  timer = (timermemo + e) % animduration;
-  setTimer(timer); 
-  setHandlePosition(timer); 
-
-  for (var i = 0; i < bikes[0].length; i++) {
-    d3.select(bikes[0][i])
-      .attr("transform", function (d) { return moveBike(d, this); });
-  }
-  // console.log("docks[0]", docks[0]);
-  for (var i = 0; i < docks[0].length; i++) {
-    // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
-    setDockLevel(docks[0][i]);
-  }
-};
-
-var setDockLevel = function (dock) {
-  var currentQty = 0;
-  
-  d3.select(dock).select(".gauge-qty")
-    .attr({
-      transform: function (d) { 
-        for (var i = 0; i < d.properties.activity.length; i++) {
-          var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
-          if (changeTime < realtime) {
-            currentQty = d.properties.activity[i].bikes_available;
+    d3.select(dock).select(".gauge-qty")
+      .attr({
+        transform: function (d) { 
+          for (var i = 0; i < d.properties.activity.length; i++) {
+            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+            if (changeTime < realtime) {
+              currentQty = d.properties.activity[i].bikes_available;
+            }
           }
-        }
-        return "translate(" + -3 + "," + -(currentQty + 5) + ")";
-      }, 
-      height: function (d) { return currentQty; }
-    });
-  
-
-};
+          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+        }, 
+        height: function (d) { return currentQty; }
+      });
+  };
 
 var moveBike = function(d, el) {
   var startTime = timeToMilliSeconds(d.properties.startTime);
@@ -590,24 +633,6 @@ var formatLocation = function (p, k) {
   return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " " + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
 };
 
-var loaded = function () {
-  button.attr("disabled", null);
-  timeHandle.classed("hide", false);
-  svgAnimations.select(".docks").classed("hide", false);
-  setHandlePosition(timermemo);
-  setTimer(timermemo); 
-  setAnimDuration(speed);
-  setSpeedHandlePosition(speed);
-  brushend();
-};
-
-var unload = function () {
-  console.log("unload");
-  button.attr("disabled", true);
-  svgAnimations.selectAll("g").remove();
-  button.html("Loading…");
-};
-
 updateWindow();
 
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
@@ -622,12 +647,11 @@ var timescale = d3.time.scale()
   .range([0, width]);
 
 var animscale = d3.scale.linear()
-  .domain([0, animduration])
-  .range([0, width]);
+      .domain([0, animduration])
+      .range([0, width]);
 
 var timeBrush = d3.svg.brush()
   .x(animscale)
-  .extent([0, 0])
   .on("brushstart", brushstart)
   .on("brush", timeBrushing)
   .on("brushend", brushend);
@@ -688,22 +712,22 @@ var timelineSvg = d3.select("#timeline")
   .append("svg")
   .attr("width", width);
 
-var slider = timelineSvg.append("g")
-  .attr("transform", "translate(0,20)")
-  .call(axis)
-  .call(timeBrush);
-
-var timeHandle = slider.append("polygon")
-  .attr("points", "-15,20 0,0 15,20")
-  .attr("id", "handle")
-  .classed("hide", true);
-
 var button = d3.select("#playbutton")
   .attr('disabled', true);
 
 var tooltip = d3.select(".map-tooltip");
 
 var timerdisplay = d3.select("#time");
+
+var dateDisplay = d3.select("#date");
+
+var calendarSvg = d3.select("#calendar")
+  .append("svg")
+  .attr("width", width);
+
+var speedSvg = d3.select("#speed")
+  .append("svg")
+  .attr("width", speedSliderSize);
 
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
@@ -716,26 +740,20 @@ button.on("click", function () {
 });
 
 window.addEventListener('resize', updateWindow);
+fetchNewDate();
+
+var slider = timelineSvg.append("g")
+  .attr("transform", "translate(0,20)")
+  .call(axis)
+  .call(timeBrush);
+
+var timeHandle = slider.append("polygon")
+  .attr("points", "-15,20 0,0 15,20")
+  .attr("id", "handle")
+  .classed("hide", true);
 
 // speed slider
-var setSpeedHandlePosition = function() {
-  speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
-};
-
-var speedBrushing = function() {
-  console.log("bru");
-  if (d3.event.sourceEvent) {
-  console.log("bro");  
-    speed = speedScale.invert(d3.mouse(this)[0]);
-    setSpeedHandlePosition(speed);
-    setAnimDuration(speed);
-  }
-};
-
-var speedMax = "1";
-var speedMin = "20";
 var speedSliderSize = "100";
-
 var speedScale = d3.scale.linear()
   .domain([speedMin, speedMax])
   .range([0, speedSliderSize])
@@ -743,16 +761,12 @@ var speedScale = d3.scale.linear()
 
 var speedSliderBrush = d3.svg.brush()
   .x(speedScale)
-  .extent([0,0])
-  .on("brush", speedBrushing);
+  .on("brush", speedBrushing)
+  .on("brushend", speedBrushend);
 
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
   .orient("top");
-
-var speedSvg = d3.select("#speed")
-  .append("svg")
-  .attr("width", speedSliderSize);
 
 var speedSlider = speedSvg.append("g")
   .attr("transform", "translate(0,20)")
@@ -763,11 +777,7 @@ var speedHandle = speedSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "speedhandle");
 
-
-
 // calendar
-
-var dateDisplay = d3.select("#date");
 
 var calendarTimeScale = d3.time.scale()
   .domain([new Date(dateMinValue), new Date(dateMaxValue)])
@@ -784,10 +794,6 @@ var calendarAxis = d3.svg.axis()
   .scale(calendarTimeScale)
   .tickFormat(d3.time.format("%B"))
   .orient("top");
-
-var calendarSvg = d3.select("#calendar")
-  .append("svg")
-  .attr("width", width);
 
 var calendarSlider = calendarSvg.append("g")
   .attr("transform", "translate(0,20)")
@@ -808,39 +814,8 @@ var calendarHandle = calendarSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "calendarhandle");
 
-//dateDisplay.html(new Date(dateStartValue));
-
 calendarSlider
-  .call(calendarBrush.event)
-
-function calendarBrushing() {
-  var start_date1 = calendarBrush.extent()[0];
-  unload();
-  if (d3.event.sourceEvent) { // not a programmatic event
-    start_date1 = calendarTimeScale.invert(d3.mouse(this)[0]);
-    calendarBrush.extent([start_date, start_date]);  
-    if (d3.event.sourceEvent.type === 'mouseup') {
-      console.log("mouseup");
-      var end_date1 = calendarTimeScale.invert(d3.mouse(this)[0] + 1);
-      
-      start_date = Moment(start_date1).format("YYYY-MM-DD");
-      var intermediate_start_date = Moment(start_date1).format("DD-MM-YYYY");
-      time = Moment(start_date1).format()
-      end_date = Moment(end_date1).format("YYYY-MM-DD");
-      view.context.router.transitionTo('map_datetime', {date: intermediate_start_date, time: formatMilliseconds(realtime)});
-
-      var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
-      start_date = day.format("YYYY/MM/DD HH:mm")
-      end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
-      fetchNewDate(start_date, end_date);
-    }
-  }
-
-  calendarHandle.attr("transform", "translate(" + calendarTimeScale(start_date1) + ",0)");
+  .call(calendarBrush.event);
 }
 
-fetchNewDate();
-
-}
-
-module.exports = map;
+module.exports = mapModule;

@@ -6,7 +6,7 @@ var Router = require('react-router');
 // var CalendarLogic = require('../calendar.js');
 formatDate = function(date){
   var day = Moment(date);
-  return day.format("DD-MM-YYYY");
+  return day.format("YYYY-MM-DD");
 };
 
 formatTime = function(date){
@@ -17,12 +17,12 @@ formatTime = function(date){
 setupDateTime = function(params){
   var dates = {};
   if(params.date && params.time){
-    var day = Moment(params.date + " " + params.time, "DD-MM-YYYY HH:mm");
-    dates.start_date = day.format("YYYY/MM/DD HH:mm");
+    var day = Moment(params.date + " " + params.time, "YYYY-MM-DD HH:mm");
+    dates.start_date = day.format("YYYY/MM/DD HH:mm")
     dates.end_date = day.endOf("day").format("YYYY/MM/DD HH:mm");
   } else {
     dates.start_date= "2013/12/18 00:00";
-    dates.end_date= "2013/12/18 23:59";
+    dates.end_date= "2013/12/18 23:59" ;
   }
   return dates;
 };

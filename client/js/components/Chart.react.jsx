@@ -8,7 +8,7 @@ var Moment = require('moment');
 setupDate = function(params){
   var dates = {}
   if(params){
-    var day = Moment(params, "DD-MM-YYYY");
+    var day = Moment(params, "YYYY-MM-DD");
     dates.start_date = day.startOf("day").format("MM/DD/YYYY HH:mm")
     dates.end_date = day.endOf("day").format("MM/DD/YYYY HH:mm");
   } else {
