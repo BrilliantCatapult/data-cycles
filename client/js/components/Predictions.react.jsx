@@ -31,6 +31,10 @@ var Predictions = React.createClass({
 
   _onClick: function(){
     PredictionLogic.getData();
+    console.log(document.getElementById("regs"));
+    if(document.getElementById("regs").children.length > 0){
+      PredictionLogic.getRegs();
+    }
   },
 
   _getRegs: function(){
