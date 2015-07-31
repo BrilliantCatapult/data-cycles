@@ -25,8 +25,8 @@ var Predictions = React.createClass({
             <input onClick={this._getRegs} type="button" value="Submit" />
             <div id="graph" className="aGraph" style={divStyle}></div> 
             <div id="regs" className="aGraph"></div> 
-            <table id="results" border="1" cellPadding="2" cellSpacing="2"></table>
         </div>
+      <table id="results" border="1" cellPadding="2" cellSpacing="2"></table>
       </div>
     );
   },
