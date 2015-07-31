@@ -1,3 +1,6 @@
+var D3Utils = require('../utils/D3Utils');
+
+
 var stations = [41, 42, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 82];
 var obj = {}
 obj.getData = function() {
@@ -295,82 +298,315 @@ obj.genColor = function(){
 // }
 
 obj.graph = function(data, truthy, docks) {
+    console.log("DATA ISSSS ", data);
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
+    var parseDate = d3.time.format("%H:%M").parse;
+
     var id = '';
     if(truthy) {
         id = '#regs';
     } else {
+
+   
+        // var output = [];
+        // data.forEach(function(station, index) {
+        //   for(var station in hr) {
+        //      //console.log("HR ISSSS ", hr)
+        //     output[stations[station]] = output[stations[station]] || [];
+        //     output[stations[station]].push({date: index, activity: hr[station]});
+        //   }
+        // });
+
+        // var activity = [];
+        // for(var station in output){
+        //   activity.push({
+        //     name: station,
+        //     values: output[station],
+        //     visible: true
+        //   });
+        // }
+        
         id = '#graph';
     }
+    var activity = data.map(function(station, index) {
+      return {
+        name: stations[index],
+        values: station,
+        visible: true
+      };
+    });
+
+    console.log("activity is ", activity)
+    data= activity;
+
     d3.select(id).html('');
     // var width = document.getElementById(id).clientWidth;
     // define dimensions of graph
-    var w = 500;
-    var h = 500; // height
+    var w = document.getElementById(id.split("#")[1]).clientWidth;
+    //console.log("W ISSS ", w);
+    var h = 400; // height
 
     // X scale will fit all values from data[] within pixels 0-w
-    var x = d3.scale.linear().domain([0, 24]).range([0, w]);
-    var y = d3.scale.linear().domain([0, max[1]+2]).range([h, 0]);
+    var x = d3.scale.linear().domain([0, 24]).range([0, w - 40]);
+    var y = d3.scale.linear().domain([0, max[1]]).range([h-40, 0]);
+    // y.domain([
+    //        // d3.min(activity, function(c) { return d3.min(c.values, function(v) { return v.activity; }); }),
+    //        0,
+    //        d3.max(activity, function(c) { return d3.max(c.values, function(v) { return v.y; }); })
+    // ]);
     // // create a line function that can convert data[] into x and y points
         // Add an SVG element with the desired dimensions and margin.
+    var line = d3.svg.line()
+            .interpolate("basis")
+            .x(function(d) {
+                 return x(d.x); 
+             })
+            .y(function(d) { return y(d.y); })
+
     var graph = d3.select(id).append("svg:svg")
         .attr("width", w)
         .attr("height", h)
-        .append("svg:g");
+        .append("svg:g")
+         .attr("transform", "translate(" + 30 + "," + 30+ ")");
+
+    var tooltip = d3.select("body").append("div");
+      tooltip.attr("class", "tooltip top");
+      tooltip.append("div").attr("class", "tooltip-inner");
+      tooltip.style("opacity", 0);
         // .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
     // create yAxis
     var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
     // Add the x-axis.
     graph.append("svg:g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + h + ")")
+        .attr("transform", "translate(0," + (h - 40) + ")")
         .call(xAxis);
     // create left yAxis
     var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
     // Add the y-axis to the left
     graph.append("svg:g")
         .attr("class", "y axis")
-        .attr("transform", "translate(-25,0)")
-        .call(yAxisLeft);
+        .attr("transform", "translate(-5,0)")
+        .call(yAxisLeft)
+        .append("text")
+                  .attr("transform", "rotate(-90)")
+                  .attr("y", 6)
+                  .attr("dy", ".71em")
+                  .style("text-anchor", "end")
+                  .text("Number of Bikes Available");
     if(docks){
         // d3.slider().axis(true).min(1).max(10).step(1)
         console.log("plotting points")
+        d3.select(id).append("button")
+            .text("Remove Dots")
+            .on("click", function(d){ // On click make d.visible 
+             
+              console.log("THIS IS ", d3.select(this));
+              var currentItem = d3.select(this)
+              if(currentItem.text()==="Remove Dots"){
+                graph.selectAll("circle").remove();
+                currentItem.text("Add Dots");
+
+                maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
+                minY = findMinY(activity);
+                y.domain([minY,maxY]); 
+
+              } else {
+                maxY = max[1]; // Find max Y rating value categories data with "visible"; true
+                minY = 0;
+                y.domain([minY,maxY]); 
+                graph.selectAll("circle")
+                    .data(docks).enter()
+                    .append("circle")
+                    // .on("mouseover", graph.select(this).attr("r", "4px").attr("fill", "green"))
+                    // .on("mouseout", obj.shrink)
+                    .attr("cx", function (d, i) { 
+                        return x(d[0]);
+                    })
+                    .attr("cy", function (d, i) { return y(d[1])})
+                    .attr("r", "2px")
+                    .attr("fill", "red")
+
+                currentItem.text("Remove Dots");
+              }
+              
+              //maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
+              //minY = findMinY(activity);
+
+              //y.domain([minY,maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
+              graph.select(".y.axis")
+                .transition()
+                .duration(500)
+                .call(yAxisLeft);   
+
+              city.select("path")
+                .transition()
+                .duration(500)
+                .attr("d", function(d){
+                  return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+                });
+
+            })
+
+            //.attr("")
         graph.selectAll("circle")
             .data(docks).enter()
             .append("circle")
             // .on("mouseover", graph.select(this).attr("r", "4px").attr("fill", "green"))
             // .on("mouseout", obj.shrink)
             .attr("cx", function (d, i) { 
-                console.log("CX ISSSS ", d[0]);
                 return x(d[0]);
             })
             .attr("cy", function (d, i) { return y(d[1])})
             .attr("r", "2px")
             .attr("fill", "red")
         }     
-    for(var i = 0; i < data.length; i++){
-            var line = i
-            line = d3.svg.line()
-                // assign the X function to plot our line as we wish
-                .interpolate("basis")
-                .x(function(d) {
-                    var xcoord = d.x
-                    // console.log("X: " + xcoord)
-                    return x(xcoord);
+    // for(var i = 0; i < data.length; i++){
+    //         var line = i
+    //         line = d3.svg.line()
+    //             // assign the X function to plot our line as we wish
+    //             .interpolate("basis")
+    //             .x(function(d) {
+    //                 var xcoord = d.x
+    //                 // console.log("X: " + xcoord)
+    //                 return x(xcoord);
+    //             })
+    //             .y(function(d) {
+    //                 var ycoord = d.y
+    //                 // console.log("Y: " + ycoord)
+    //                 return y(ycoord);
+    //             })  
+    // graph.append("svg:path")
+    //     .text("Dock "+stations[i])
+    //     .style("stroke", obj.genColor())
+    //     .attr("d", line(data[i]))
+    //     .attr("id", "poly");
+    //     // .on("mouseover", mapMouseOver)
+    //     // .on("mouseout", mapMouseOut);
+    // } 
+
+    var color = D3Utils.calculateColor([0, 100]);
+    var city = graph.selectAll(".city")
+              .data(activity)
+            .enter().append("g")
+              .attr("class", "city");
+
+          city.append("path")
+              .attr("class", "line")
+              //.attr("d", function(d) { return line(d.values); })
+              .style("stroke", function(d) { return color(Number(d.name)); })
+              .attr("id", function(d) {
+                return "line-" + d.name; // Give line id of line-(insert issue name, with any spaces replaced with no spaces)
+              })
+              .attr("d", function(d) { 
+                //console.log("values areeee ", d);
+                return d.visible ? line(d.values) : null; // If array key "visible" = true then draw line, if not then don't 
+              })
+              .on("mouseover", function(d) {
+                    tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+
+                    d3.select('.tooltip-inner').html("Station #"+d.name);
+
+                    tooltip
+                      .style("left", (d3.event.pageX + 5) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px");
+                       
                 })
-                .y(function(d) {
-                    var ycoord = d.y
-                    // console.log("Y: " + ycoord)
-                    return y(ycoord);
-                })  
-    graph.append("svg:path")
-        .text("Dock "+stations[i])
-        .style("stroke", obj.genColor())
-        .attr("d", line(data[i]))
-        .attr("id", "poly");
-        // .on("mouseover", mapMouseOver)
-        // .on("mouseout", mapMouseOut);
-    } 
+                .on("mouseout", function() {
+                    // Remove the info text on mouse out.
+                     tooltip.transition()
+                         .duration(500)
+                         .style("opacity", 0);
+                });
+
+    // draw legend
+       function findMaxY(data){  // Define function "findMaxY"
+           var maxYValues = data.map(function(d) { 
+             if (d.visible){
+               return d3.max(d.values, function(value) { // Return max rating value
+                 return value.y; })
+             }
+           });
+           return d3.max(maxYValues);
+         }
+
+        function findMinY(data){  // Define function "findMaxY"
+            var minYValues = data.map(function(d) { 
+              if (d.visible){
+                return d3.min(d.values, function(value) { // Return max rating value
+                  return value.y; })
+              }
+            });
+            return d3.min(minYValues);
+          }
+
+
+       var legendSpace = 300 / data.length; // 450/number of issues (ex. 40)    
+
+       city.append("rect")
+       .attr("width", 10)
+       .attr("height", 10)                                    
+       .attr("x", w - 65) 
+       .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace) - 8; })  // spacing
+       .attr("fill",function(d) {
+         return d.visible ? color(d.name) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+       })
+       .attr("class", "legend-box")
+
+       .on("click", function(d){ // On click make d.visible 
+         d.visible = !d.visible; // If array key for this data selection is "visible" = true then make it false, if false then make it true
+
+         maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
+         y.domain([0,maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
+         graph.select(".y.axis")
+           .transition()
+           .duration(500)
+           .call(yAxisLeft);   
+
+         city.select("path")
+           .transition()
+           .duration(500)
+           .attr("d", function(d){
+             return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+           });
+
+         city.select("rect")
+           .transition()
+           .attr("fill", function(d) {
+           return d.visible ? color(d.name) : "#F1F1F2";
+         });
+       })
+
+       .on("mouseover", function(d){
+
+         d3.select(this)
+           .transition()
+           .attr("fill", function(d) { return color(d.name); });
+
+         d3.select("#line-" + d.name)
+           .transition()
+           .style("stroke-width", 2.5);  
+       })
+
+       .on("mouseout", function(d){
+
+         d3.select(this)
+           .transition()
+           .attr("fill", function(d) {
+           return d.visible ? color(d.name) : "#F1F1F2";});
+
+         d3.select("#line-" + d.name)
+           .transition()
+           .style("stroke-width", 1.5);
+       })
+       
+   city.append("text")
+       .attr("x", w - 45) 
+       .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
+       .text(function(d) { return d.name; }); 
+
 }
 
 module.exports = obj;
