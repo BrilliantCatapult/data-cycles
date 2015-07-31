@@ -1,5 +1,5 @@
 require('dotenv').load();
-var redis = require('./server/config/redis');
+var redis = require('./server/config/redisgreen');
 var data = require('./server/redisMLData.js'); 
 
   var addData = function(){
