@@ -15,38 +15,44 @@ html {
   color: $base-color-text;
 }
 
-h1, .xxl, 
-h2, .xl, 
-h3, .l {
-    font-weight: 300; 
-}
- 
-h2 a, h3 a,
-h2 a:visited, h3 a:visited {
-	color: $color-brand; 
+h1, .xxl {
+  letter-spacing: -0.04em;
+  font-weight: 300; 
 }
 
-h4 {
-	font-weight: 700;
+h4, .xl {
+  font-weight: 700; 
+  letter-spacing: -0.03em;
 }
 
 blockquote {
 	color: $color-dark;
 }
 
-h6, .xs {
+h6, .xs, .btn {
 	text-transform: uppercase;
-	letter-spacing: 0.25em;
+	letter-spacing: 0.1em;
 	font-weight: 700;
-}
-
-h6 {
-	color: $color-dark;
 }
 
 b, strong, .strong {
   font-weight: 700;
 }
+
+.title-sub, .title {
+  float: left; 
+}
+
+.title-sub {
+  color: $color-brand;
+  border-left: $color-neutral dotted 1px;
+  padding-left: 1.5em;
+  margin-left: 1.5em;
+  line-height: 1.65em;
+  padding-top: 3em;
+  padding-bottom: 1.25em;
+}
+
 
 .height-full {
 	min-height: 100%;
@@ -118,28 +124,18 @@ hr {
 nav {
   margin-bottom: 0.5em;
   display: block;
+  border-left: $color-neutral dotted 1px;
 }
 
-nav a,
-nav span {
-  float: left;
-  text-decoration: none;
-  color: grey;
-  padding: 0.75em 1.5em;
-  background-color: #EBEBEB;
+nav > .btn {
+  text-align: left;
+  padding-top: 4.25em;
+  width: 12em;
+  color: $color-dark;
+  border-right: $color-neutral dotted 1px;
 }
 
-nav a:hover {
-  color: white;
-  background-color: #F8772E;
-}
-
-nav .active {
-  color: white;
-  background-color: grey;
-}
-
-.container {
-  overflow: hidden;
-  position: relative;
+nav .btn.active, nav .btn.active:hover {
+  color: $color-brand;
+  background-color: $color-clear;
 }

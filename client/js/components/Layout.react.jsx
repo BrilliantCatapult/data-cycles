@@ -13,15 +13,17 @@ var Layout = React.createClass({
     };
 
     return (
-     <div className="container">
+     <div className="container clearfix">
          <nav className="menu right">
-           <Link to="map_datetime" params={{date: this.props.start_date || "2013-12-18", time: this.props.time || "00:00"}} >Map</Link>
-           <Link to="statistics_datetime" params={{date: this.props.start_date || "2013-12-18", time: this.props.time || "00:00"}} >Statistics</Link>
-           <Link to="predictions">Predications</Link>
-           <Link to="about">About</Link>
+           <Link to="map_datetime" params={{date: this.props.start_date || "2013-12-18", time: this.props.time || "00:00"}} className="btn btn-m xs">Map</Link>
+           <Link to="statistics_datetime" params={{date: this.props.start_date || "2013-12-18", time: this.props.time || "00:00"}}  className="btn btn-m xs">Statistics</Link>
+           <Link to="predictions" className="btn btn-m xs">Predications</Link>
+           <Link to="about" className="btn btn-m xs">About</Link>
          </nav>
-         <h1>Data Cycles</h1>
-         <h3>Bay Area Bike Share data visualization</h3>
+         <div>
+           <h1 className="title margin-top">Data Cycles</h1>
+           <h6 className="title-sub">Bay Area Bike Share <br />Data-visualization</h6>
+          </div>
       </div> 
     );
   },

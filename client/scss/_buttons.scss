@@ -12,53 +12,53 @@
  * 6. Fixes odd inner spacing in IE7.
  */
 .btn {
-    display: 				inline-block;		/* 1 */
-//  vertical-align: 		middle;				/* 2 */
-//  font: 					inherit;			/* 3 */
-    text-align: 			center; 			/* 4 */
-    border: 				none; 				/* 4 */
-    margin:  				0; 					/* 4 */
-    overflow: 				visible; 			/* 6 */
-
-    text-decoration: none; 		/* 4 */
-	color: 					$btn-color;
-	background-color: 		$btn-color-bg;
-	
+  display:                 inline-block;    /* 1 */
+//  vertical-align:        middle;        /* 2 */
+//  font:                  inherit;      /* 3 */
+  text-align:              center;       /* 4 */
+  border:                  none;         /* 4 */
+  margin:                  0;           /* 4 */
+  overflow:                visible;       /* 6 */
+   
+  text-decoration:         none;     /* 4 */
+  color:                   $btn-color;
+  background-color:        $btn-color-bg;
+  
     &:hover,
     &:active,
     &:focus {
-        color: 				$btn-active-color;
-        background-color:	$btn-active-color-bg;
+        color:             $btn-active-color;
+        background-color:  $btn-active-color-bg;
     }
 
 }
 
 .btn-rnd {
-	@include border-radius($btn-radius * 1rem);
+  @include border-radius($btn-radius * 1rem);
 }
 
 .btn-alt, .btn-alt:visited {
-	color: 					$btn-alt-color;
-	background-color: 		$btn-alt-color-bg;
-	
+  color:                   $btn-alt-color;
+  background-color:        $btn-alt-color-bg;
+  
     &:hover,
     &:active,
     &:focus {
-        color: 				$btn-alt-active-color;
-        background-color: 	$btn-alt-active-color-bg;
+        color:         $btn-alt-active-color;
+        background-color:   $btn-alt-active-color-bg;
     }
 
 }
 
 .btn-flash, .btn-flash:visited {
-	color:					$btn-flash-color;
-	background-color: 		$btn-flash-color-bg;
-	
+  color:          $btn-flash-color;
+  background-color:     $btn-flash-color-bg;
+  
     &:hover,
     &:active,
     &:focus {
-        color: 				$btn-flash-active-color;
-        background-color: 	$btn-flash-active-color-bg;
+        color:         $btn-flash-active-color;
+        background-color:   $btn-flash-active-color-bg;
     }
 
 }
@@ -67,67 +67,67 @@
  * Fix a Firefox bug whereby `input type="submit"` gains 2px extra padding.
  */
 .btn::-moz-focus-inner,  {
-    border:  				0;
-    padding: 				0;
+    border:          0;
+    padding:         0;
 }
 
 .btn-xs {
-    padding: 				0.4em 0.5em 0.2em 0.5em;
+    padding:         0.4em 0.5em 0.2em 0.5em;
 }
 
 .btn-s {
-    padding: 				$base-unit-xs * 1em  $base-unit-xs * 2 * 1em;
+    padding:         $base-unit-xs * 1em  $base-unit-xs * 2 * 1em;
 }
 
 .btn-m {
-	padding: 				$base-unit-s  * 1em  $base-unit-s * 2 * 1em; 
+  padding:         $base-unit-s  * 1em  $base-unit-s * 2 * 1em; 
 }
 
 .btn-l {
-    padding: 				$base-unit-m * 1em  $base-unit-m * 2 * 1em;
+    padding:         $base-unit-m * 1em  $base-unit-m * 2 * 1em;
 }
 
 .btn-border {
-	border: $btn-b-width * 1rem $btn-b-style $btn-b-color-border;
-	background-color:		$btn-b-color-bg;
-	color: 					$btn-b-color;
-	&:hover,
-	&:active,
-	&:focus {
-	    color: 				$btn-b-active-color;
-	    background-color:	$btn-b-active-color-bg;
-	    border-color:		$btn-b-active-color-border;
-	}
+  border: $btn-b-width * 1rem $btn-b-style $btn-b-color-border;
+  background-color:    $btn-b-color-bg;
+  color:           $btn-b-color;
+  &:hover,
+  &:active,
+  &:focus {
+      color:         $btn-b-active-color;
+      background-color:  $btn-b-active-color-bg;
+      border-color:    $btn-b-active-color-border;
+  }
 }
 
 .btn-border.disabled {
-	color: rgba($btn-b-color, 0.25);
-	&:hover,
-	&:active,
-	&:focus {
-	    color: 				rgba($btn-b-color, 0.25);
-	    background-color:	$btn-b-color-bg;
-	}
+  color: rgba($btn-b-color, 0.25);
+  &:hover,
+  &:active,
+  &:focus {
+      color:             rgba($btn-b-color, 0.25);
+      background-color:  $btn-b-color-bg;
+  }
 }
 
 .btn-border.active {
-	background-color: $color-clear;
-	border-color: $color-clear;
-	&:focus {
-	    color: 				$btn-b-color;
-	    background-color:	$color-clear;
-	    border-color:		$color-clear;
-	}
+  background-color: $color-clear;
+  border-color: $color-clear;
+  &:focus {
+      color:             $btn-b-color;
+      background-color:  $color-clear;
+      border-color:      $color-clear;
+  }
 }
 
 .btn-s-border {
-	padding: 				$base-unit-xs - $btn-b-width * 2 * 1em  $base-unit-xs * 2 - $btn-b-width * 2 * 1em;
+  padding:         $base-unit-xs - $btn-b-width * 2 * 1em  $base-unit-xs * 2 - $btn-b-width * 2 * 1em;
 }
 .btn-m-border {
-	padding: 				$base-unit-s - $btn-b-width * 2 * 1em  $base-unit-s * 2 - $btn-b-width * 2 * 1em;
+  padding:         $base-unit-s - $btn-b-width * 2 * 1em  $base-unit-s * 2 - $btn-b-width * 2 * 1em;
 }
 .btn-l-border {
-	padding: 				$base-unit-m - $btn-b-width * 2 * 1em  $base-unit-m * 2 - $btn-b-width * 2 * 1em;
+  padding:         $base-unit-m - $btn-b-width * 2 * 1em  $base-unit-m * 2 - $btn-b-width * 2 * 1em;
 }
 
 .btn-full {

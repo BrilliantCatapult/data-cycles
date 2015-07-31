@@ -69,16 +69,18 @@ var MapPage = React.createClass({
     return (
     <div>
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
-       <div id="controls" className="container">
-           <button id="playbutton" className="btn btn-m">Loading</button>
-           <span id="speed"></span>
-           <span className="right l"><span id="date"></span>, <span id="time"></span></span>
-         </div>
-         <div id="calendar" className="container"></div>
-         <div id="timeline" className="container"></div>
-         
+        <div className="container"><button id="playbutton" className="btn btn-full btn-l btn-alt">Loading</button></div>
+        <div className="container margin-top">
+          <h6>Animation duration</h6>
+          <span id="speed"></span>
+          <h6>Date</h6>
+          <div id="calendar"></div>
+          <h6>Time</h6>
+          <div id="timeline"></div>
+                  </div>
          <div className="container">
           <div id="map">
+            <span className="right xl"><span id="date"></span>, <span id="time"></span></span>
             <span className="map-tooltip hide">Tooltip</span>
             <div id="routes-info"></div>
             <div id="tileslayer"></div>
