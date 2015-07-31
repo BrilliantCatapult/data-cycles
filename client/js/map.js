@@ -112,7 +112,8 @@ var mapModule = function(start_date, end_date, view){
   var timeBrushing = function() {
     if (d3.event.sourceEvent) {     
       realtime = dayscale.invert(d3.mouse(this)[0]);
-      // renderFrame(0);
+      timermemo = animscale.invert(realtime);
+      renderFrame(0);
       var mid = Moment(start_date).format("YYYY-MM-DD");
       var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
       start_date = day.format("YYYY/MM/DD HH:mm")
@@ -528,6 +529,8 @@ var renderZoom = function () {
 
   projection.scale(zoom.scale() / 2 / Math.PI)
     .translate(zoom.translate());
+
+  console.log("zzzzzz", zoom.translate());
   
   var tiles = tile.scale(zoom.scale())
     .translate(zoom.translate())();
@@ -680,12 +683,14 @@ var tilePath = d3.geo.path()
   .projection(projection);
 
 var zoom = d3.behavior.zoom()
-  .scale(projection.scale() * 2 * Math.PI).scaleExtent([1 << 20, 1 << 23])
+  .scale(projection.scale() * 2 * Math.PI)
+  .scaleExtent([1 << 22, 1 << 23])
   .translate(projection([-122.4, 37.785])
-  .map(function (x) {
-    console.log('zoom', x);
-    return -x;
-  }))
+    .map(function (x) {
+      console.log('zoom', x);
+      return -x;
+    })
+  )
   .on("zoom", renderZoom);
 
 var map = d3.select("#map")
@@ -745,12 +750,13 @@ button.on("click", function () {
 window.addEventListener('resize', updateWindow);
 fetchNewDate();
 
-var slider = timelineSvg.append("g")
+var timeSlider = timelineSvg.append("g")
   .attr("transform", "translate(0,20)")
+  .attr("class", "time-axis")
   .call(axis)
   .call(timeBrush);
 
-var timeHandle = slider.append("polygon")
+var timeHandle = timeSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "handle")
   .classed("hide", true);
@@ -774,6 +780,7 @@ var speedSliderAxis = d3.svg.axis()
 
 var speedSlider = speedSvg.append("g")
   .attr("transform", "translate(0,20)")
+  .attr("class", "speed-axis")
   .call(speedSliderAxis)
   .call(speedSliderBrush); 
 
@@ -792,7 +799,8 @@ var calendarBrush = d3.svg.brush()
   .x(calendarTimeScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
-  .on("brush", calendarBrushing);
+  .on("brush", calendarBrushing)
+  .on("brushend", brushend);
 
 var calendarAxis = d3.svg.axis()
   .scale(calendarTimeScale)
@@ -804,12 +812,12 @@ var calendarSlider = calendarSvg.append("g")
   .attr("class", "calendar-axis")
   .call(calendarAxis); 
 
-calendarSlider.selectAll(".calendar-axis .tick text")
+d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tick text")
   .attr("x", 5)
   .attr("dy", null)
   .style("text-anchor", "start");
 
-calendarSlider.selectAll(".calendar-axis .tick line")
+d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
     .attr("y2", "-18");
 
 calendarSlider.call(calendarBrush);

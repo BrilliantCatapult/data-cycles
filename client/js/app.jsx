@@ -35,8 +35,8 @@ var routes = (
     <Route name="predictions" path="predictions/" handler={Predictions}/>
 
     <Route name="about" path="about/" handler={About}/>
-    <Redirect path="/" to="map_datetime" params={{date:"22-12-2013", time:"06:24"}} />
-    <Redirect path="/statistics" to="statistics_datetime" params={{date:"22-12-2013", time:"06:24"}} />
+    <Redirect path="/" to="map_datetime" params={{date:"2013-12-22", time:"06:24"}} />
+    <Redirect path="/statistics" to="statistics_datetime" params={{date:"2013-12-22", time:"06:24"}} />
 
   </Route>
 );

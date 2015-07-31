@@ -1,0 +1,145 @@
+@import "compass/typography/links/link-colors";
+@import "compass/layout/sticky-footer";
+    
+a {  
+	text-decoration: none;
+	// link-colors($normal, $hover, $active, $visited, $focus)
+  @include link-colors($color-dark, $color-brand, $color-brand, $color-dark, $color-brand)
+}
+
+@include sticky-footer($base-unit-xl * 1em, ".page", ".push-footer", ".footer");
+
+html {
+	background-color: $base-color-bg;
+  font-family: 'Roboto Condensed', sans-serif;
+  color: $base-color-text;
+}
+
+h1, .xxl, 
+h2, .xl, 
+h3, .l {
+    font-weight: 300; 
+}
+ 
+h2 a, h3 a,
+h2 a:visited, h3 a:visited {
+	color: $color-brand; 
+}
+
+h4 {
+	font-weight: 700;
+}
+
+blockquote {
+	color: $color-dark;
+}
+
+h6, .xs {
+	text-transform: uppercase;
+	letter-spacing: 0.25em;
+	font-weight: 700;
+}
+
+h6 {
+	color: $color-dark;
+}
+
+b, strong, .strong {
+  font-weight: 700;
+}
+
+.height-full {
+	min-height: 100%;
+}
+
+.height-unit-l {
+	height: $base-unit * $base-unit-l * 1em;
+}
+
+.margin-left-s {
+	margin-left: $base-unit-s * 1em; 
+}
+
+hr {
+	border: 0;
+	height: 0;
+	border-top: 1px dotted $color-neutral;
+	border-bottom: 1px dotted $color-clear;
+	margin-bottom: $base-unit-xs - $base-unit-xxs * 1rem;
+}
+
+.pad {
+	padding: 16px;
+}
+
+.pad-h {
+	padding-right: 16px;
+	padding-left: 16px;
+}
+
+.label {
+	padding: 0 0.8em;
+	text-align: center;
+	color: white;
+	background-color: #bcb9af;
+	float: left;
+}
+
+.label-color {
+	padding: 0 0.8em;
+	text-align: center;
+	color: white;
+	background-color: #9b4458;
+	margin-bottom: 0.75rem;
+	float: left;
+}
+
+.label-small-color {
+	padding: 0.2em 0.6em 0.25em 0.5em;
+	text-align: center;
+	color: white;
+	background-color: #9b4458;
+}
+
+.relative {
+	position: relative;
+}
+.labels {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+#content, #content img {
+	opacity: 1; 
+}
+
+nav {
+  margin-bottom: 0.5em;
+  display: block;
+}
+
+nav a,
+nav span {
+  float: left;
+  text-decoration: none;
+  color: grey;
+  padding: 0.75em 1.5em;
+  background-color: #EBEBEB;
+}
+
+nav a:hover {
+  color: white;
+  background-color: #F8772E;
+}
+
+nav .active {
+  color: white;
+  background-color: grey;
+}
+
+.container {
+  overflow: hidden;
+  position: relative;
+}

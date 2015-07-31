@@ -1,0 +1,155 @@
+@import "compass/css3";
+
+/*------------------------------------*\
+    #BOX-SIZING
+\*------------------------------------*/
+
+/**
+ * Set the global `box-sizing` state to `border-box`.
+ *
+ * css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice
+ * paulirish.com/2012/box-sizing-border-box-ftw
+ */
+html {
+    @include box-sizing(border-box);
+}
+
+* {
+    &,
+    &:before,
+    &:after {
+		@include box-sizing(inherit);
+    }
+}
+
+/*------------------------------------*\
+    #PAGE
+\*------------------------------------*/
+
+/**
+ * High-, page-level styling.
+ *
+ * 1. Set the default `font-size` and `line-height` for the entire project,
+ *    sourced from our default variables. The `font-size` is calculated to exist
+ *    in ems, the `line-height` is calculated to exist unitlessly.
+ * 2. Force scrollbars to always be visible to prevent awkward ‘jumps’ when
+ *    navigating between pages that do/do not have enough content to produce
+ *    scrollbars naturally.
+ * 3. Ensure the page always fills at least the entire height of the viewport.
+ * 4. Prevent certain mobile browsers from automatically zooming fonts.
+ * 5. Fonts on OSX will look more consistent with other systems that do not
+ *    render text using sub-pixel anti-aliasing.
+ */
+html {
+    font-size: $base-font-size / 16px * 1em; /* [1] */
+    line-height: $base-unit; /* [1] */
+    overflow-y: scroll; /* [2] */
+    min-height: 100%; /* [3] */
+    -webkit-text-size-adjust: 100%; /* [4] */
+        -ms-text-size-adjust: 100%; /* [4] */
+    -moz-osx-font-smoothing: grayscale; /* [5] */
+     -webkit-font-smoothing: antialiased; /* [5] */
+	text-rendering: optimizeLegibility;
+}
+
+/**
+ * Remove that ugly dotted outline on clicked link in FF and IE.
+ */
+
+a {
+	outline: 0;
+}
+
+/**
+ * Remove all margins from certain elements.
+ */
+body,
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+dl, dd, ol, ul,
+form, fieldset, legend,
+figure,
+table, th, td, caption,
+hr {
+    margin:  0;
+    padding: 0;
+}
+
+/**
+ * `margin-bottom` as base line-height
+ * This allows to keep a consistent vertical rhythm
+ */
+h1, h2, h3, h4, h5, h6,
+ul, ol, dl,
+blockquote, p, address,
+table,
+fieldset, figure,
+pre, hr {
+    margin-bottom: $base-unit-s * $base-font-size;
+    margin-bottom: $base-unit-s * 1rem;
+}
+
+/**
+ * Give a help cursor to elements that give extra info on `:hover`.
+ */
+abbr[title],
+dfn[title] {
+    cursor: help;
+}
+
+/**
+ * Remove underlines from potentially troublesome elements.
+ */
+u,
+ins {
+    text-decoration: none;
+}
+
+/**
+ * Apply faux underlines to inserted text via `border-bottom`.
+ */
+ins {
+    border-bottom: 1px solid;
+}
+
+/*------------------------------------*\
+    #LISTS
+\*------------------------------------*/
+
+ul, ol, dd {
+    margin-left: $base-unit-l * $base-font-size;
+    margin-left: $base-unit-l * 1rem;
+}
+
+li {
+
+    > ul,
+    > ol {
+        margin-bottom: 0;
+    }
+}
+
+/*------------------------------------*\
+    #IMAGES
+\*------------------------------------*/
+
+/**
+ * 1. Fluid images for responsive purposes.
+ * 2. Offset `alt` text from surrounding copy.
+ * 3. Setting `vertical-align` removes the whitespace that appears under `img`
+ *    elements when they are dropped into a page as-is.
+ */
+img {
+    max-width: 100%; /* [1] */
+    font-style: italic; /* [2] */
+    vertical-align: middle; /* [3] */
+    height:auto;
+	outline: 0;
+	border: 0;
+}
+
+
+fieldset {
+  border: 0 none transparent;
+}
+

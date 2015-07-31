@@ -77,13 +77,13 @@ var MapPage = React.createClass({
          <div id="calendar" className="container"></div>
          <div id="timeline" className="container"></div>
          
-         <div id="map" className="container">
-           <span className="map-tooltip hide">Tooltip</span>
-           <div id="routes-info"></div>
-           <div id="tileslayer"></div>
-           
+         <div className="container">
+          <div id="map">
+            <span className="map-tooltip hide">Tooltip</span>
+            <div id="routes-info"></div>
+            <div id="tileslayer"></div>
+          </div>
          </div>
-         <div id="mapsense"></div>
      </div>
     );
   } 

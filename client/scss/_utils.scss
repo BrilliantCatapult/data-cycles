@@ -1,0 +1,49 @@
+/*------------------------------------*\
+    #UTILS
+\*------------------------------------*/
+
+.clearfix {
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+.hide {
+	display: none;
+	visibility: hidden;
+}
+
+.right {
+	float: right; 
+}
+
+.left {
+	float: left; 
+}
+
+.capitalize {
+	text-transform: capitalize;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.color {
+	color: $color-brand; 
+}
+
+.strikethrough {
+  color: $color-neutral;
+  text-decoration: line-through;
+}
+
+.light {
+  color: silver;
+}
+
+.text-right {
+  text-align: right;
+}
