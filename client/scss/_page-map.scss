@@ -8,13 +8,14 @@
   cursor: pointer;
 }
 
-#timeline svg, #calendar svg, #speed svg {
+#timeline svg, #calendar svg {
   height: 40px;
   font-size: 0.5em;
 }
 
-#speed {
-  margin-left: 20px;
+#speed svg {
+  height: 100px;
+  font-size: 0.5em;
 }
 
 #tileslayer {

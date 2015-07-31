@@ -28,7 +28,8 @@
     gulp.src('client/scss/*.scss')
       .pipe(compass({
         css: 'client/css',
-        sass: 'client/scss'
+        sass: 'client/scss',
+        sourcemap: true
       }))
       .pipe(minifyCSS())
       .pipe(gulp.dest('./client/css'));
@@ -40,13 +41,6 @@
           .pipe(jshint())
           .pipe(jshint.reporter('default'));
   }); 
-
-  // Compile Our Sass
-  // gulp.task('sass', function() {
-  //     return gulp.src('scss/*.scss')
-  //         .pipe(sass())
-  //         .pipe(gulp.dest('css'));
-  // });
 
 
   // Concatenate & Minify JS
@@ -123,8 +117,8 @@
   gulp.task('default', ['test', 'scripts']);
 
 
-  gulp.task('dev', ['monitor-client']);
+  gulp.task('dev', ['webpack', 'monitor-client']);
 
-  gulp.task('dev-styles', ['monitor-client', 'monitor-styles']);
+  gulp.task('dev-styles', ['webpack', 'monitor-client', 'monitor-styles']);
 
 

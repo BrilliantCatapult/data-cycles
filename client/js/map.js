@@ -124,7 +124,7 @@ var mapModule = function(start_date, end_date, view){
 
   var speedBrushing = function() {
     if (d3.event.sourceEvent) {
-      speed = speedScale.invert(d3.mouse(this)[0]);
+      speed = speedScale.invert(d3.mouse(this)[1]);
       speedHandlePositionSet(speed);
       setAnimDuration(speed);
     }
@@ -182,7 +182,7 @@ var mapModule = function(start_date, end_date, view){
   };
 
   var speedHandlePositionSet = function() {
-    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
+    speedHandle.attr("transform", function (d) { return "translate(0, " + speedScale(speed) + ")"; });
   };
 
   var calendarHandlePositionSet = function(date){
@@ -198,12 +198,14 @@ var mapModule = function(start_date, end_date, view){
 
   var animate = function (e) {
     if (!play) {
+      console.log("stop");
       timermemo = timer;
       button.html("Play");
       return true;
     }
     button.html("Stop");
     renderFrame(e);
+    console.log("render");
   };
 
   var renderFrame = function(e) {
@@ -545,7 +547,7 @@ var renderZoom = function () {
     .each(function (d) {
       this._xhr.abort();
     })
-    .remove();
+    .remove(); 
 
   image.enter()
     .append("svg")
@@ -735,7 +737,7 @@ var calendarSvg = d3.select("#calendar")
 
 var speedSvg = d3.select("#speed")
   .append("svg")
-  .attr("width", speedSliderSize);
+  .attr("height", speedSliderSize);
 
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
@@ -764,28 +766,28 @@ var timeHandle = timeSlider.append("polygon")
 // speed slider
 var speedSliderSize = "100";
 var speedScale = d3.scale.linear()
-  .domain([speedMin, speedMax])
+  .domain([speedMax, speedMin])
   .range([0, speedSliderSize])
   .clamp(true);
 
 var speedSliderBrush = d3.svg.brush()
-  .x(speedScale)
+  .y(speedScale)
   .on("brushstart", brushstart)
   .on("brush", speedBrushing)
   .on("brushend", brushend);
 
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
-  .orient("top");
+  .orient("left");
 
 var speedSlider = speedSvg.append("g")
-  .attr("transform", "translate(0,20)")
+  .attr("transform", "translate(20,0)")
   .attr("class", "speed-axis")
   .call(speedSliderAxis)
   .call(speedSliderBrush); 
 
 var speedHandle = speedSlider.append("polygon")
-  .attr("points", "-15,20 0,0 15,20")
+  .attr("points", "0,0 20,-15  20,15")
   .attr("id", "speedhandle");
 
 // calendar
@@ -812,13 +814,21 @@ var calendarSlider = calendarSvg.append("g")
   .attr("class", "calendar-axis")
   .call(calendarAxis); 
 
-d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tick text")
+d3.selectAll(".calendar-axis .tick text, .time-axis .tick text")
   .attr("x", 5)
   .attr("dy", null)
   .style("text-anchor", "start");
 
-d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
-    .attr("y2", "-18");
+d3.selectAll(".calendar-axis .tick line, .time-axis .tick line")
+  .attr("y2", "-18");
+
+d3.selectAll(".speed-axis .tick text")
+  .attr("y", 5)
+  .attr("dx", null)
+  .style("text-anchor", "start");
+
+d3.selectAll(".speed-axis .tick line")
+    .attr("x2", "-18");
 
 calendarSlider.call(calendarBrush);
 
