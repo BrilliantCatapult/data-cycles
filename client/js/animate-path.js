@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var json, map,
+  var json, map, 
     path, vis, xy,
     duration, offset, origin_x, origin_y, len, group, circle;
   // Draw a GeoJSON line on the map:

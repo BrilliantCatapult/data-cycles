@@ -15,20 +15,24 @@ obj.getData = function() {
     var day = +input.slice(3, 5);
     var year = +input.slice(input.length - 4, input.length);
     if (!Number.isInteger(month) || !Number.isInteger(day) || !Number.isInteger(year)) {
-        console.log("false input")
-    } else if (year <= y && month <= m && day <= d) {
-        console.log("future day please")
+        document.getElementById("errMessage").innerHTML = ' False Input';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
+    } else if ((year === y && month <= m && day <= d) || (year < y)) {
+        document.getElementById("errMessage").innerHTML = ' Enter A Future Day Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else if (month > 12) {
-        console.log("accurate month please")
+        document.getElementById("errMessage").innerHTML = ' Enter An Accurate Month Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else if (day > 31) {
-        console.log("accurate day please")
+        document.getElementById("errMessage").innerHTML = ' Enter An Accurate Day Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else {
         for (var i = 0; i < stations.length; i++) {
             d3.json("/api/ml/predictions?day=" + input + "&station=" + stations[i], function(error, docks) {
                 if (error) {
                     console.log("error", error);
                 } else {
-                    console.log("dataaaa: "+ JSON.stringify(docks))
+                    // console.log("dataaaa: "+ JSON.stringify(docks))
                     obj.init(docks);
                 }
             });
@@ -49,18 +53,34 @@ obj.getRegs = function(){
             if (error) {
                 console.log("error", error);
             } else {
-                console.log("dataaaa: "+ JSON.stringify(docks))
+                // console.log("dataaaa: "+ JSON.stringify(docks))
                 obj.init(docks, true);
             }
         });
     }
 }
 
+var addRow = function(rowNum, arr) {
+  // Get a reference to the table
+  var tableRef = document.getElementById('results');
+  // Insert a row in the table at row index 0
+  var newRow   = tableRef.insertRow(rowNum);
+  // Insert a cell in the row at index 0
+  for(var i = 0; i < arr.length; i++){
+      var newCell  = newRow.insertCell(i);
+      // Append a text node to the cell
+      var newText  = document.createTextNode(arr[i]);
+      newCell.appendChild(newText);
+  }
+}
 
-var max = [0, 0];
+var max = 0;
+var min = 100;
+var SE = [];
+var SD = [];
+var dockCount = 0;
 
-obj.calcHours = function(coef) {
-    // console.log("this is coef:"+coef)
+obj.calcMinMax = function(coef){
     var result = [];
     var count = 0;
     for (var j = 0; j < 24; j++) {
@@ -70,19 +90,86 @@ obj.calcHours = function(coef) {
         }
         result.push(count)
     }
-    console.log(result)
     var thisMax = Math.max.apply(null, result);
-    console.log("THIS MAX: " + thisMax, "THIS HOUR: " + result.indexOf(thisMax))
-    if (thisMax > max[1]) {
-        max[1] = thisMax
-        max[0] = result.indexOf(thisMax)
+    var thisMin = Math.min.apply(null, result);
+    if (thisMax > max) {
+        max = thisMax;
     }
+
+    if (thisMin < min) {
+        min = thisMin;
+    }
+}
+
+obj.calcHours = function(coef) {
+    // console.log("this is coef:"+coef)
+    if(dockCount === 35){
+        min = 100;
+        max = 0;
+    }
+    if(dockCount === 35 || dockCount === 0){
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('results').innerHTML = '<tr id='+"description"+'><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td></tr>';
+        dockCount = 0;
+    }
+    var result = [];
+    var count = 0;
+    var eq = 'y(x)=';
+    for (var j = 0; j < 24; j++) {
+        count = 0;
+        for (var i = 0; i < coef.length; i++) {
+            count += (coef[i] * Math.pow(j, i))
+        }
+        result.push(count)
+    }
+    for(var k = 0; k < coef.length; k++){
+        if(k === 0){
+            eq+=coef[k].toString();
+        }else{
+            eq+='+'+coef[k].toString()+'*x^'+i;
+        }
+    }
+    // console.log(result)
+    var minNum = Math.min.apply(null, result)
+    var minTime = result.indexOf(minNum)
+    var maxNum = Math.max.apply(null, result)
+    var maxTime = result.indexOf(maxNum)
+    var thisMax = [maxTime, maxNum];
+    var thisMin = [minTime, minNum];
+    
+    if(thisMax[0] > 11){
+        if(thisMax[0] === 12){
+            thisMax[0] = thisMax[0].toString() + 'PM';
+        }else{
+            thisMax[0] = (thisMax[0]-12).toString() + 'PM';
+        }
+    }else if(thisMax[0] === 0){
+        thisMax[0] = '12AM';
+    }else{
+        thisMax[0] = thisMax[0].toString() + 'AM';
+    }
+
+    if(thisMin[0] > 11){
+        if(thisMin[0] === 12){
+            thisMin[0] = thisMin[0].toString() + 'PM';
+        }else{
+            thisMin[0] = (thisMin[0]-12).toString() + 'PM';
+        }
+    }else if(thisMin[0] === 0){
+        thisMin[0] = '12AM';
+    }else{
+        thisMin[0] = thisMin[0].toString() + 'AM';
+    }
+    addRow(dockCount+1, [stations[dockCount], Math.round(thisMax[1]), thisMax[0], Math.round(thisMin[1]), thisMin[0], SD[dockCount], SE[dockCount], eq])
+    dockCount++;
+
     return result;
 }
 
 var linePoints = [];
 
 obj.calcLineData = function(coef) {
+    ("called")
     var data = [];
     var count = 0;
     for (var j = 0; j <= 23; j += 0.25) {
@@ -163,17 +250,16 @@ obj.init = function(docks, truthy) {
         for (var i = 0; i < y.length; i++) {
             total += Math.pow((y[i] - avg), 2)
         }
-        return Math.sqrt(total / y.length)
+        var sd = Math.sqrt(total / y.length)
+        if(SD.length === 35){
+            SD = [];
+            SE = [];
+        }
+        SD.push(sd)
+        SE.push(sd / (Math.sqrt(y.length)))
     }
 
-    console.log("S. DEVIATION: " + calcSD());
-
-    var calcSE = function() {
-        var sd = calcSD();
-        return sd / (Math.sqrt(y.length))
-    }
-
-    console.log("S. ERROR: " + calcSE());
+    calcSD();
 
     var calcError = function() {
         var result = 0;
@@ -263,22 +349,23 @@ obj.init = function(docks, truthy) {
         }
         return x;
     }
+
     var calcRegs = function(){
         for(var i = 1; i <=10; i++){
             var A = calcMatrix(i);
             calcRegData(gauss(A), docks);            
         }
-
     }
-    if(truthy){
-        console.log("regs")
-        calcRegs();
+    // console.log(document.getElementById('inp2').value);
+   var eq = gauss(fourDegMatrix);
+   if(truthy){
+       console.log("regs")
+       calcRegs();
+   }else{
+        obj.calcMinMax(eq);
+        obj.calcHours(eq);
+        obj.calcLineData(eq);
     }
-    var eq = gauss(fourDegMatrix);
-    // console.log(eq)
-    obj.calcHours(eq)
-        // console.log("MAX: "+max)
-    obj.calcLineData(eq);
 }
 
 obj.genColor = function(){
@@ -289,22 +376,15 @@ obj.genColor = function(){
     return "#" + z1 + x;
 }
 
-// obj.grow = function(){
-//     console.log("GROW"+this);
-//     d3.select(this).setAttribute("r", "4px").setAttribute("fill", "green")
-// }
-// obj.shrink = function(){
-//     console.log("SHRINK "+this)
-// }
-
 obj.graph = function(data, truthy, docks) {
-    console.log("DATA ISSSS ", data);
+    // console.log("DATA ISSSS ", data);
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
     var parseDate = d3.time.format("%H:%M").parse;
 
     var id = '';
     if(truthy) {
         id = '#regs';
+        var scaleMax = d3.max(docks, function(v) { return Number(v[1]); });
     } else {
 
    
@@ -325,7 +405,6 @@ obj.graph = function(data, truthy, docks) {
         //     visible: true
         //   });
         // }
-        
         id = '#graph';
     }
     var activity = data.map(function(station, index) {
@@ -336,7 +415,7 @@ obj.graph = function(data, truthy, docks) {
       };
     });
 
-    console.log("activity is ", activity)
+    // console.log("activity is ", activity)
     data= activity;
 
     d3.select(id).html('');
@@ -345,10 +424,14 @@ obj.graph = function(data, truthy, docks) {
     var w = document.getElementById(id.split("#")[1]).clientWidth;
     //console.log("W ISSS ", w);
     var h = 400; // height
-
     // X scale will fit all values from data[] within pixels 0-w
+    if(scaleMax){
+        var maximum = scaleMax;
+    }else{
+        var maximum = max;
+    }
     var x = d3.scale.linear().domain([0, 24]).range([0, w - 40]);
-    var y = d3.scale.linear().domain([0, max[1]]).range([h-40, 0]);
+    var y = d3.scale.linear().domain([0, maximum]).range([h-40, 0]);
     // y.domain([
     //        // d3.min(activity, function(c) { return d3.min(c.values, function(v) { return v.activity; }); }),
     //        0,
@@ -396,24 +479,26 @@ obj.graph = function(data, truthy, docks) {
                   .text("Number of Bikes Available");
     if(docks){
         // d3.slider().axis(true).min(1).max(10).step(1)
+
         console.log("plotting points")
         d3.select(id).append("button")
-            .text("Remove Dots")
+            .text("Remove Data")
             .on("click", function(d){ // On click make d.visible 
              
               console.log("THIS IS ", d3.select(this));
               var currentItem = d3.select(this)
-              if(currentItem.text()==="Remove Dots"){
+              if(currentItem.text()==="Remove Data"){
                 graph.selectAll("circle").remove();
-                currentItem.text("Add Dots");
+                currentItem.text("Add Data");
 
                 maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
                 minY = findMinY(activity);
                 y.domain([minY,maxY]); 
 
               } else {
-                maxY = max[1]; // Find max Y rating value categories data with "visible"; true
+                maxY = d3.max(docks, function(v) { return Number(v[1]); }); // Find max Y rating value categories data with "visible"; true
                 minY = 0;
+                console.log("MAX ISSSSSS ", max);
                 y.domain([minY,maxY]); 
                 graph.selectAll("circle")
                     .data(docks).enter()
@@ -445,7 +530,6 @@ obj.graph = function(data, truthy, docks) {
                 .attr("d", function(d){
                   return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
                 });
-
             })
 
             //.attr("")
@@ -605,12 +689,10 @@ obj.graph = function(data, truthy, docks) {
            .transition()
            .style("stroke-width", 1.5);
        })
-       
    city.append("text")
        .attr("x", w - 45) 
        .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
-       .text(function(d) { return d.name; }); 
-
+       .text(function(d, i) { return d.name; }); 
 }
 
 module.exports = obj;
