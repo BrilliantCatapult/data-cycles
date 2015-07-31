@@ -359,16 +359,15 @@ obj.init = function(docks, truthy) {
         }
     }
     // console.log(document.getElementById('inp2').value);
+   var eq = gauss(fourDegMatrix);
    if(truthy){
        console.log("regs")
        calcRegs();
-   }
-   var eq = gauss(fourDegMatrix);
-   // console.log(eq)
-   obj.calcMinMax(eq);
-   obj.calcHours(eq);
-   obj.calcLineData(eq);
-       // console.log("MAX: "+max)
+   }else{
+        obj.calcMinMax(eq);
+        obj.calcHours(eq);
+        obj.calcLineData(eq);
+    }
 }
 
 obj.genColor = function(){
@@ -380,14 +379,14 @@ obj.genColor = function(){
 }
 
 obj.graph = function(data, truthy, docks) {
-    console.log("DATA ISSSS ", data);
+    // console.log("DATA ISSSS ", data);
     /* implementation heavily influenced by http://bl.ocks.org/1166403 */
     var parseDate = d3.time.format("%H:%M").parse;
 
     var id = '';
     if(truthy) {
         id = '#regs';
-        max = d3.max(docks, function(v) { return Number(v[1]); });
+        var scaleMax = d3.max(docks, function(v) { return Number(v[1]); });
     } else {
 
    
@@ -408,7 +407,6 @@ obj.graph = function(data, truthy, docks) {
         //     visible: true
         //   });
         // }
-        
         id = '#graph';
     }
     var activity = data.map(function(station, index) {
@@ -419,7 +417,7 @@ obj.graph = function(data, truthy, docks) {
       };
     });
 
-    console.log("activity is ", activity)
+    // console.log("activity is ", activity)
     data= activity;
 
     d3.select(id).html('');
@@ -429,9 +427,13 @@ obj.graph = function(data, truthy, docks) {
     //console.log("W ISSS ", w);
     var h = 400; // height
     // X scale will fit all values from data[] within pixels 0-w
-    console.log("this is max" + max)
+    if(scaleMax){
+        var maximum = scaleMax;
+    }else{
+        var maximum = max;
+    }
     var x = d3.scale.linear().domain([0, 24]).range([0, w - 40]);
-    var y = d3.scale.linear().domain([0, max]).range([h-40, 0]);
+    var y = d3.scale.linear().domain([0, maximum]).range([h-40, 0]);
     // y.domain([
     //        // d3.min(activity, function(c) { return d3.min(c.values, function(v) { return v.activity; }); }),
     //        0,
@@ -482,21 +484,21 @@ obj.graph = function(data, truthy, docks) {
 
         console.log("plotting points")
         d3.select(id).append("button")
-            .text("Remove Data")
+            .text("Remove Dots")
             .on("click", function(d){ // On click make d.visible 
              
               console.log("THIS IS ", d3.select(this));
               var currentItem = d3.select(this)
-              if(currentItem.text()==="Remove Data"){
+              if(currentItem.text()==="Remove Dots"){
                 graph.selectAll("circle").remove();
-                currentItem.text("Add Data");
+                currentItem.text("Add Dots");
 
                 maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
                 minY = findMinY(activity);
                 y.domain([minY,maxY]); 
 
               } else {
-                maxY = max; // Find max Y rating value categories data with "visible"; true
+                maxY = d3.max(docks, function(v) { return Number(v[1]); }); // Find max Y rating value categories data with "visible"; true
                 minY = 0;
                 console.log("MAX ISSSSSS ", max);
                 y.domain([minY,maxY]); 
@@ -693,7 +695,6 @@ obj.graph = function(data, truthy, docks) {
        .attr("x", w - 45) 
        .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
        .text(function(d, i) { return d.name; }); 
-   }
 }
 
 module.exports = obj;
