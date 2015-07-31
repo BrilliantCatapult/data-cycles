@@ -1,0 +1,115 @@
+/*------------------------------------*\
+    #HEADINGS
+\*------------------------------------*/
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+	font-style: normal;
+	text-decoration: none;
+}
+
+h1, 
+.xxl {
+    @include adjust-font-size-to($base-font-size * $text-xxl, $text-baseline-xxl);
+}
+
+h2, 
+.xl {
+    @include adjust-font-size-to($base-font-size * $text-xl, $text-baseline-xl);
+}
+
+h3, 
+.l {
+    @include adjust-font-size-to($base-font-size * $text-l, $text-baseline-l);
+}
+
+h4, 
+.m {
+    @include adjust-font-size-to($base-font-size * $text, $text-baseline);
+}
+
+h5, 
+.s {
+    @include adjust-font-size-to($base-font-size * $text-s, $text-baseline-s);
+}
+
+h6, 
+.xs, small {
+    @include adjust-font-size-to($base-font-size * $text-xs, $text-baseline-s);
+}
+
+/*------------------------------------*\
+    #PARAGRAPHS
+\*------------------------------------*/
+
+/**
+ * bigger text for the lead paragraph
+ */
+
+.lead {
+    @include adjust-font-size-to($base-font-size * $text-lead, $text-baseline-lead);
+}
+
+blockquote {
+    @include adjust-font-size-to($base-font-size * $text-blockquote, $text-baseline-blockquote);
+    font-style: italic;
+    padding-left: $base-unit * 1rem; 
+    padding-right: $base-unit * 1rem; 
+}
+
+/*------------------------------------*\
+    #LISTS
+\*------------------------------------*/
+
+.list-sans {
+    margin:  0;
+    padding: 0;
+    list-style: none;
+}
+
+.list-inline {
+    margin:  0;
+    padding: 0;
+    list-style: none; 
+
+    > li {
+        margin-right: $base-unit-xs * 1em;
+        margin-bottom: $base-unit-xs * 1em;
+        float: left;
+    }
+
+}
+
+ol {
+	list-style-type:decimal;
+	list-style-position:inside; 
+}
+
+.list-inline--separator {
+
+    > li + li {
+
+        &:before {
+            content: "#{$list-inline-sep}";
+        }
+
+    }
+
+}
+
+/*------------------------------------*\
+    #IMAGES
+\*------------------------------------*/
+ 
+/**
+ * 1. Google Maps breaks if `max-width: 100%` acts upon it; use their selector
+ *    to remove the effects.
+ */
+ 
+.gm-style img {  
+    max-width: none;
+}
+
+ 
+
+

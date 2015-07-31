@@ -1,0 +1,154 @@
+// responsive breakpoints	// $columns		// ($col-width * $columns) - $gutter + ($container-padding * 2)
+
+$screens: (	xxs:			1, 				// 256px
+			xs: 			2, 				// 512px
+			s: 				3, 				// 768px
+			m: 				4, 				// 1024px
+			l: 				5, 				// 1280px
+			xl: 			6,				// 1600px
+			xxl: 			7				// 1600px
+		); 
+
+
+
+.container {
+	padding-left: $container-padding * 1em;
+	padding-right: $container-padding * 1em;
+	margin-right: auto;
+	margin-left: auto;
+}
+.grid {
+	margin-right: -$gutter * 1em;
+	clear: both;
+	&:after {
+	    content: "";
+	    display: table;
+	    clear: both;
+	}
+}
+%bloc {
+	float: left; 
+}
+.bloc {
+	margin-right: $gutter * 1em;
+	margin-bottom: $gutter * 1em;
+}
+.bloc-left {
+	@extend %bloc;
+}
+.bloc-n {
+	width: auto;
+	min-width: ($col-width - $gutter) * 1em;
+	@extend %bloc; 
+}
+
+$one-third: ($col-width / 3) - $gutter  * 1em;
+$two-third: ($col-width * 2 / 3) - $gutter  * 1em;
+
+.bloc-one-third {	
+	width: $one-third; 
+	height: $one-third; 
+	text-align: center;
+	@extend %bloc; 
+}
+.bloc-two-third {
+	width: 27.9%; 
+	@extend %bloc; 
+}
+
+
+
+$screen-s-width: $col-min * $col-width - $gutter + (2 * $container-padding) + $base-unit * 1em; 
+
+@media (min-width: $screen-s-width) {
+	.bloc-height {
+		overflow: hidden; 
+		height: (($col-width - $gutter) * 1.5 - $gutter) * 1em;
+	}
+	.bloc-height img {
+		max-width: 102%;
+		margin-left: -1%; 
+		margin-top: -1%;
+	}
+}
+
+@each $screen-name, $columns in $screens {
+	@if ($columns >= $col-min  and $columns <= $col-max) { 
+		$width: ($columns * $col-width - $gutter);
+		$container-width: $width + (2 * $container-padding);
+	  
+		@media (min-width: $container-width + $base-unit * 1em) {
+			.container {
+				width: $container-width * 1em;
+			}
+			.show-#{$screen-name} {
+				display: inherit;
+				visibility: visible;
+			}
+			
+			@for $i from 1 through $col-max {
+				.bloc-#{$screen-name}-#{$i} {
+					float: left;
+				}
+				@if ($i > 1) {
+					@for $j from 1 through $i - 1 {
+						.bloc-#{$screen-name}-#{$i}-#{$j} {
+							float: left; 
+						}
+					}
+				}
+			}
+			
+			
+			.#{$screen-name}-right {
+				float: right; 
+			}
+				
+			@each $screen-name-n, $columns-n in $screens { 
+			
+				@if $columns-n <= $columns {
+				
+					@for $j from 1 through $col-max {
+						
+						@if $columns >= $j {
+						
+							.bloc-#{$screen-name-n}-#{$j} {
+								width: (($col-width * $j) - $gutter) * 1em;
+							}
+							
+							@if $j > 1 {
+								@for $k from 1 through ($j - 1) {					
+									.bloc-#{$screen-name-n}-#{$j}-#{$k} {
+										width: ($col-width * ($j - $k) - $gutter) * 1em;
+									}
+								}
+							}
+						
+						} @else {
+						
+							.bloc-#{$screen-name-n}-#{$j} {
+								width: $width * 1em;
+							}
+							
+							@for $k from 1 through ($j - 1) {	
+								@if $columns - $k > 1  {	
+									.bloc-#{$screen-name-n}-#{$j}-#{$k} {
+										width: ($col-width * ($columns - $k) - $gutter) * 1em;
+									}
+								} @else {
+									.bloc-#{$screen-name-n}-#{$j}-#{$k} {
+										width: ($col-width - $gutter) * 1em;
+									}
+								}
+							}
+							
+						}
+						
+					}
+				
+				}
+				
+			} 
+		}
+	}
+}

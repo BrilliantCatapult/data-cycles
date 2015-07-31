@@ -1,0 +1,41 @@
+.tooltip {
+  position: relative;
+}
+
+.tooltip span {
+  position: absolute;
+  color: 		$color-clear;
+  background:	$color-brand;
+  text-align:	center;
+  border-radius: $base-unit-xs * 1rem;
+  top: -12px;
+  right: 0;
+	padding: 2px 12px;
+	z-index: 999;
+}
+
+.tooltip span:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: $base-unit * 1rem;
+  border-top: $base-unit-xs * 1rem solid $color-brand;;
+  border-right: $base-unit-xs * 1rem solid transparent;
+  border-left: $base-unit-xs * 1rem solid transparent;
+}
+
+.toast-error {
+  color: #FFFFFF;
+  background: $color-brand;
+	width: 100%; 
+	padding: 8px 12px;
+	font-style: italic; 
+}
+
+.toast-success {
+  color: #FFFFFF;
+  background: $color-neutral;
+	width: 100%; 
+	padding: 8px 12px;
+	font-style: italic; 
+}

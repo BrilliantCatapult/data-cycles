@@ -15,11 +15,23 @@
   var webpack = require('webpack');
   var WebpackDevServer = require('webpack-dev-server');
   var watch = require('gulp-watch');
+  var compass = require('gulp-compass');
+  var minifyCSS = require('gulp-minify-css');
 
    
   gulp.task('test', function () {
       return gulp.src('spec/test.js')
           .pipe(jasmine());
+  });
+
+  gulp.task('compass', function() {
+    gulp.src('client/scss/*.scss')
+      .pipe(compass({
+        css: 'client/css',
+        sass: 'client/scss'
+      }))
+      .pipe(minifyCSS())
+      .pipe(gulp.dest('./client/css'));
   });
 
   // Lint Task
@@ -64,13 +76,16 @@
   // Watch Files For Changes
   gulp.task('watch', function() {
       gulp.watch(['client/**/*.js', 'client/*.js'], ['lint', 'scripts']);
-      //gulp.watch('scss/*.scss', ['sass']);
   });
 
 
   gulp.task("monitor-client", function(callback) {
       gulp.watch('client/js/**/*.js', ['webpack']);
       gulp.watch('client/js/**/*.jsx', ['webpack']);
+  });
+
+  gulp.task("monitor-styles", function(callback) {
+      gulp.watch('client/scss/*.scss', ['compass']);
   });
 
   gulp.task("webpack", function(callback) {
@@ -109,5 +124,7 @@
 
 
   gulp.task('dev', ['monitor-client']);
+
+  gulp.task('dev-styles', ['monitor-client', 'monitor-styles']);
 
 

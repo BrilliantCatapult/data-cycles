@@ -1,9 +1,10 @@
 var d3geotile = require('d3.geo.tile')();
+var Moment = require('moment');
+var queue = require('queue-async');
 var helperFunctions = require('./buildgeojson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
 var dateMaxValue = '2014-09-01';
-var Moment = require('moment');
 
 var width, height;
 var second = 1000;
@@ -68,25 +69,25 @@ var mapModule = function(start_date, end_date, view){
     dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
     var tripStartDate = formatMoment(start_date, "M/D/YYYY");
 
-    d3.json("/api/redis/trips?start_date=" + tripStartDate, function(error, tripJson) {
-      if (error) {
-        console.log("error", error);
-      }
-
-      bikesJson = helperFunctions.buildBikesJson(tripJson);
-      console.log("bikesJson--------->", bikesJson);
-      d3.json("/api/redis?start_date=" + dateStartValue, function(error, docksJson) {
-        if (error) {
-          console.log("error", error);
-        } 
-        var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
-        console.log("docksHash --------->", docksHash);  
-        drawRoutes(bikesJson);
-        drawDocks(docksHash);
-        loaded();
-      });
-    });
+  var ready = function (error, tripJson, docksJson) {
+    if (error) {
+      console.log("error", error);
+    }
+    bikesJson = helperFunctions.buildBikesJson(tripJson);
+    var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
+    console.log("bikesJson--------->", bikesJson);
+    console.log("docksHash --------->", docksHash);  
+    drawRoutes(bikesJson);
+    drawDocks(docksHash);
+    renderZoom();
+    loaded();
   };
+
+  queue()
+    .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
+    .defer(d3.json, "/api/redis?start_date=" + dateStartValue)
+    .await(ready);
+};
 
   var calendarBrushing = function () {
     var start_date1 = calendarBrush.extent()[0];
@@ -111,7 +112,8 @@ var mapModule = function(start_date, end_date, view){
   var timeBrushing = function() {
     if (d3.event.sourceEvent) {     
       realtime = dayscale.invert(d3.mouse(this)[0]);
-      // renderFrame(0);
+      timermemo = animscale.invert(realtime);
+      renderFrame(0);
       var mid = Moment(start_date).format("YYYY-MM-DD");
       var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
       start_date = day.format("YYYY/MM/DD HH:mm")
@@ -280,8 +282,6 @@ var drawRoutes = function (data) {
     .on("mouseover", function(d) { showBikeRoute(d, this); })
     .on("mouseout", function(){ hideBikesRoute(); });
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-
-  renderZoom();
 };
 
 var hideBikesRoute = function() {
@@ -482,8 +482,6 @@ var drawDocks = function (data) {
       cx: function (d) { return projection(d.geometry.coordinates)[0] }, 
       cy: function (d) { return projection(d.geometry.coordinates)[1] }
     });
-
-  renderZoom();
 };
 
   var setDockLevel = function (dock) {
@@ -528,12 +526,15 @@ var moveBike = function(d, el) {
 };
 
 var renderZoom = function () {
-  var tiles = tile.scale(zoom.scale())
-    .translate(zoom.translate())();
 
   projection.scale(zoom.scale() / 2 / Math.PI)
     .translate(zoom.translate());
+
+  console.log("zzzzzz", zoom.translate());
   
+  var tiles = tile.scale(zoom.scale())
+    .translate(zoom.translate())();
+
   var image = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
     .selectAll(".tile")
     .data(tiles, function (d) {
@@ -556,23 +557,26 @@ var renderZoom = function () {
     }).each(function (d) {
 
       var svgTile = d3.select(this);
+      var layers = ['water', 'landuse', 'roads', 'buildings'];
 
-      this._xhr = d3.json("http://" + ["a", "b", "c"][(d[0] * 31 + d[1]) % 3] + ".tile.openstreetmap.us/vectiles-highroad/" + d[2] + "/" + d[0] + "/" + d[1] + ".json", function (error, json) {
-        var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
-        
-        tilePath.projection()
-          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-          .scale(k / 2 / Math.PI);
-        
-        svgTile.selectAll("path")
-          .data(json.features.sort(function (a, b) {
-            return a.properties.sort_key - b.properties.sort_key;
-          }))
-          .enter()
-          .append("path")
-          .attr("class", function (d) { return d.properties.kind; })
-          .attr("d", tilePath);
-      });
+      this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".json?api_key=vector-tiles-AVPulIE", function (error, json) {
+          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
+          
+          tilePath.projection()
+            .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+            .scale(k / 2 / Math.PI);
+          
+          layers.forEach(function(layer){
+            var data = json[layer];
+            if (data) {
+              svgTile.selectAll("path")
+                .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+              .enter().append("path")
+                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+                .attr("d", tilePath);
+            }
+          });
+        });
     });
 
   svgAnimations.selectAll(".dock circle")
@@ -665,9 +669,6 @@ var axis = d3.svg.axis()
   .tickFormat(d3.time.format("%H"))
   .orient("top");
 
-var tile = d3.geo.tile()
-  .size([width, height]);
-
 var projection =  d3.geo.mercator()
   .scale((1 << 22) / 2 / Math.PI)
   .translate([-width / 2, -height / 2]);
@@ -675,16 +676,21 @@ var projection =  d3.geo.mercator()
 var path = d3.geo.path()
   .projection(projection);
 
+var tile = d3.geo.tile()
+  .size([width, height]);
+
 var tilePath = d3.geo.path()
   .projection(projection);
 
 var zoom = d3.behavior.zoom()
-  .scale(projection.scale() * 2 * Math.PI).scaleExtent([1 << 20, 1 << 23])
+  .scale(projection.scale() * 2 * Math.PI)
+  .scaleExtent([1 << 22, 1 << 23])
   .translate(projection([-122.4, 37.785])
-  .map(function (x) {
-    console.log('zoom', x);
-    return -x;
-  }))
+    .map(function (x) {
+      console.log('zoom', x);
+      return -x;
+    })
+  )
   .on("zoom", renderZoom);
 
 var map = d3.select("#map")
@@ -693,8 +699,7 @@ var map = d3.select("#map")
 
 var routesinfo = d3.select("#routes-info");
 
-var tilesLayer = map.append("div")
-  .attr("id", "tileslayer");
+var tilesLayer = d3.select("#tileslayer");
 
 var svgAnimations = map.append("svg:svg")
   .attr("id", 'animations')
@@ -745,12 +750,13 @@ button.on("click", function () {
 window.addEventListener('resize', updateWindow);
 fetchNewDate();
 
-var slider = timelineSvg.append("g")
+var timeSlider = timelineSvg.append("g")
   .attr("transform", "translate(0,20)")
+  .attr("class", "time-axis")
   .call(axis)
   .call(timeBrush);
 
-var timeHandle = slider.append("polygon")
+var timeHandle = timeSlider.append("polygon")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "handle")
   .classed("hide", true);
@@ -774,6 +780,7 @@ var speedSliderAxis = d3.svg.axis()
 
 var speedSlider = speedSvg.append("g")
   .attr("transform", "translate(0,20)")
+  .attr("class", "speed-axis")
   .call(speedSliderAxis)
   .call(speedSliderBrush); 
 
@@ -792,7 +799,8 @@ var calendarBrush = d3.svg.brush()
   .x(calendarTimeScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
-  .on("brush", calendarBrushing);
+  .on("brush", calendarBrushing)
+  .on("brushend", brushend);
 
 var calendarAxis = d3.svg.axis()
   .scale(calendarTimeScale)
@@ -804,12 +812,12 @@ var calendarSlider = calendarSvg.append("g")
   .attr("class", "calendar-axis")
   .call(calendarAxis); 
 
-calendarSlider.selectAll(".calendar-axis .tick text")
+d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tick text")
   .attr("x", 5)
   .attr("dy", null)
   .style("text-anchor", "start");
 
-calendarSlider.selectAll(".calendar-axis .tick line")
+d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
     .attr("y2", "-18");
 
 calendarSlider.call(calendarBrush);
