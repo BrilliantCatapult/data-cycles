@@ -9,7 +9,7 @@ var Link = Router.Link;
 var Route = Router.Route;
 //var History = Router.BrowserHistory;
 var RouteHandler = Router.RouteHandler;
-
+ 
 var Statistics = require('./components/Chart.react');
 var MapPage = require('./components/MapPage.react');
 var Predictions = require('./components/Predictions.react');
