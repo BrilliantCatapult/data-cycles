@@ -160,8 +160,6 @@ obj.calcHours = function(coef) {
     }else{
         thisMin[0] = thisMin[0].toString() + 'AM';
     }
-    // console.log("THIS IS RESULT"+result)
-    // console.log(eq)
     addRow(dockCount+1, [stations[dockCount], Math.round(thisMax[1]), thisMax[0], Math.round(thisMin[1]), thisMin[0], SD[dockCount], SE[dockCount], eq])
     dockCount++;
 
@@ -484,14 +482,14 @@ obj.graph = function(data, truthy, docks) {
 
         console.log("plotting points")
         d3.select(id).append("button")
-            .text("Remove Dots")
+            .text("Remove Data")
             .on("click", function(d){ // On click make d.visible 
              
               console.log("THIS IS ", d3.select(this));
               var currentItem = d3.select(this)
-              if(currentItem.text()==="Remove Dots"){
+              if(currentItem.text()==="Remove Data"){
                 graph.selectAll("circle").remove();
-                currentItem.text("Add Dots");
+                currentItem.text("Add Data");
 
                 maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
                 minY = findMinY(activity);
