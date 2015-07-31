@@ -15,20 +15,24 @@ obj.getData = function() {
     var day = +input.slice(3, 5);
     var year = +input.slice(input.length - 4, input.length);
     if (!Number.isInteger(month) || !Number.isInteger(day) || !Number.isInteger(year)) {
-        console.log("false input")
-    } else if (year <= y && month <= m && day <= d) {
-        console.log("future day please")
+        document.getElementById("errMessage").innerHTML = ' False Input';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
+    } else if ((year === y && month <= m && day <= d) || (year < y)) {
+        document.getElementById("errMessage").innerHTML = ' Enter A Future Day Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else if (month > 12) {
-        console.log("accurate month please")
+        document.getElementById("errMessage").innerHTML = ' Enter An Accurate Month Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else if (day > 31) {
-        console.log("accurate day please")
+        document.getElementById("errMessage").innerHTML = ' Enter An Accurate Day Please';
+        setTimeout(function(){document.getElementById("errMessage").innerHTML = '';}, 1500)
     } else {
         for (var i = 0; i < stations.length; i++) {
             d3.json("/api/ml/predictions?day=" + input + "&station=" + stations[i], function(error, docks) {
                 if (error) {
                     console.log("error", error);
                 } else {
-                    console.log("dataaaa: "+ JSON.stringify(docks))
+                    // console.log("dataaaa: "+ JSON.stringify(docks))
                     obj.init(docks);
                 }
             });
@@ -49,20 +53,47 @@ obj.getRegs = function(){
             if (error) {
                 console.log("error", error);
             } else {
-                console.log("dataaaa: "+ JSON.stringify(docks))
+                // console.log("dataaaa: "+ JSON.stringify(docks))
                 obj.init(docks, true);
             }
         });
     }
 }
 
+var addRow = function(rowNum, arr) {
+  // Get a reference to the table
+  var tableRef = document.getElementById('results');
+  // Insert a row in the table at row index 0
+  var newRow   = tableRef.insertRow(rowNum);
+  // Insert a cell in the row at index 0
+  for(var i = 0; i < arr.length; i++){
+      var newCell  = newRow.insertCell(i);
+      // Append a text node to the cell
+      var newText  = document.createTextNode(arr[i]);
+      newCell.appendChild(newText);
+  }
+}
 
 var max = [0, 0];
+var min = [100, 100];
+var SE = [];
+var SD = [];
+var dockCount = 0;
 
 obj.calcHours = function(coef) {
     // console.log("this is coef:"+coef)
+    
+        console.log(document.getElementById('results').innerHTML)
+    if(dockCount === 35 || dockCount === 0){
+        document.getElementById('results').innerHTML = '';
+        max = [0, 0];
+        min = [100, 100];
+        document.getElementById('results').innerHTML = '<tr id='+"description"+'><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td></tr>';
+        dockCount = 0;
+    }
     var result = [];
     var count = 0;
+    var eq = 'y(x)=';
     for (var j = 0; j < 24; j++) {
         count = 0;
         for (var i = 0; i < coef.length; i++) {
@@ -70,13 +101,58 @@ obj.calcHours = function(coef) {
         }
         result.push(count)
     }
-    console.log(result)
-    var thisMax = Math.max.apply(null, result);
-    console.log("THIS MAX: " + thisMax, "THIS HOUR: " + result.indexOf(thisMax))
-    if (thisMax > max[1]) {
-        max[1] = thisMax
-        max[0] = result.indexOf(thisMax)
+    for(var k = 0; k < coef.length; k++){
+        if(k === 0){
+            eq+=coef[k].toString();
+        }else{
+            eq+='+'+coef[k].toString()+'*x^'+i;
+        }
     }
+    // console.log(result)
+    var minNum = Math.min.apply(null, result)
+    var minTime = result.indexOf(minNum)
+    var maxNum = Math.max.apply(null, result)
+    var maxTime = result.indexOf(maxNum)
+    var thisMax = [maxTime, maxNum];
+    var thisMin = [minTime, minNum];
+    
+    if(thisMax[0] > 11){
+        if(thisMax[0] === 12){
+            thisMax[0] = thisMax[0].toString() + 'PM';
+        }else{
+            thisMax[0] = (thisMax[0]-12).toString() + 'PM';
+        }
+    }else if(thisMax[0] === 0){
+        thisMax[0] = '12AM';
+    }else{
+        thisMax[0] = thisMax[0].toString() + 'AM';
+    }
+
+    if(thisMin[0] > 11){
+        if(thisMin[0] === 12){
+            thisMin[0] = thisMin[0].toString() + 'PM';
+        }else{
+            thisMin[0] = (thisMin[0]-12).toString() + 'PM';
+        }
+    }else if(thisMin[0] === 0){
+        thisMin[0] = '12AM';
+    }else{
+        thisMin[0] = thisMin[0].toString() + 'AM';
+    }
+
+    if (thisMax > max[1]) {
+        max[1] = thisMax[1];
+        max[0] = thisMax[0];
+    }
+
+    if (thisMin < min[1]) {
+        min[1] = thisMin[1];
+        min[0] = thisMin[0];
+    }
+    // console.log("THIS IS RESULT"+result)
+    // console.log(eq)
+    addRow(dockCount+1, [stations[dockCount], Math.round(thisMax[1]), thisMax[0], Math.round(thisMin[1]), thisMin[0], SD[dockCount], SE[dockCount], eq])
+    dockCount++;
     return result;
 }
 
@@ -163,17 +239,16 @@ obj.init = function(docks, truthy) {
         for (var i = 0; i < y.length; i++) {
             total += Math.pow((y[i] - avg), 2)
         }
-        return Math.sqrt(total / y.length)
+        var sd = Math.sqrt(total / y.length)
+        if(SD.length === 35){
+            SD = [];
+            SE = [];
+        }
+        SD.push(sd)
+        SE.push(sd / (Math.sqrt(y.length)))
     }
 
-    console.log("S. DEVIATION: " + calcSD());
-
-    var calcSE = function() {
-        var sd = calcSD();
-        return sd / (Math.sqrt(y.length))
-    }
-
-    console.log("S. ERROR: " + calcSE());
+    calcSD();
 
     var calcError = function() {
         var result = 0;
@@ -263,21 +338,19 @@ obj.init = function(docks, truthy) {
         }
         return x;
     }
+
     var calcRegs = function(){
         for(var i = 1; i <=10; i++){
             var A = calcMatrix(i);
             calcRegData(gauss(A), docks);            
         }
-
     }
     if(truthy){
         console.log("regs")
         calcRegs();
     }
     var eq = gauss(fourDegMatrix);
-    // console.log(eq)
     obj.calcHours(eq)
-        // console.log("MAX: "+max)
     obj.calcLineData(eq);
 }
 
@@ -288,14 +361,6 @@ obj.genColor = function(){
     var z1 = z.substring(0,y);
     return "#" + z1 + x;
 }
-
-// obj.grow = function(){
-//     console.log("GROW"+this);
-//     d3.select(this).setAttribute("r", "4px").setAttribute("fill", "green")
-// }
-// obj.shrink = function(){
-//     console.log("SHRINK "+this)
-// }
 
 obj.graph = function(data, truthy, docks) {
     console.log("DATA ISSSS ", data);
