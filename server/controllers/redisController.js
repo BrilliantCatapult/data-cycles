@@ -19,14 +19,8 @@ module.exports = {
       else {
         res.json(replies);
       }
-<<<<<<< HEAD
-    })
-
-  }, 
-=======
     });
   },
->>>>>>> code cleanup
 
   trips: function (req, res, next) {
     var startDate = req.query.start_date || "12/18/2013";
