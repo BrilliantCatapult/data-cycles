@@ -387,6 +387,7 @@ obj.graph = function(data, truthy, docks) {
     var id = '';
     if(truthy) {
         id = '#regs';
+        max = d3.max(docks, function(v) { return Number(v[1]); });
     } else {
 
    
@@ -478,6 +479,7 @@ obj.graph = function(data, truthy, docks) {
                   .text("Number of Bikes Available");
     if(docks){
         // d3.slider().axis(true).min(1).max(10).step(1)
+
         console.log("plotting points")
         d3.select(id).append("button")
             .text("Remove Data")
@@ -494,8 +496,9 @@ obj.graph = function(data, truthy, docks) {
                 y.domain([minY,maxY]); 
 
               } else {
-                maxY = max[1]; // Find max Y rating value categories data with "visible"; true
+                maxY = max; // Find max Y rating value categories data with "visible"; true
                 minY = 0;
+                console.log("MAX ISSSSSS ", max);
                 y.domain([minY,maxY]); 
                 graph.selectAll("circle")
                     .data(docks).enter()
@@ -686,16 +689,10 @@ obj.graph = function(data, truthy, docks) {
            .transition()
            .style("stroke-width", 1.5);
        })
-    if(!docks){
    city.append("text")
        .attr("x", w - 45) 
        .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
        .text(function(d, i) { return d.name; }); 
-   }else{
-    city.append("text")
-           .attr("x", w - 45) 
-           .attr("y", function (d, i) { return (legendSpace)+i*(legendSpace); })  // (return (11.25/2 =) 5.625) + i * (5.625) 
-           .text(function(d, i) { return i+1; }); 
    }
 }
 
