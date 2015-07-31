@@ -25,11 +25,13 @@ var speedMin = 20;
 var animduration = speed * minute;
 var timer, timermemo;
 playmemo = false;
+var margins = 20;
 
 var colors = [];
 
 updateWindow = function(){
     width = document.getElementById("map").clientWidth;
+    timelineWidth = document.getElementById("timeline").clientWidth;
     height = Math.max(500, window.innerHeight);
 };
 
@@ -94,7 +96,7 @@ var mapModule = function(start_date, end_date, view){
     unload();
 
     if (d3.event.sourceEvent) { 
-      start_date1 = calendarTimeScale.invert(d3.mouse(this)[0]);
+      start_date1 = calendarScale.invert(d3.mouse(this)[0]);
 
       calendarBrush.extent([start_date, start_date]);
 
@@ -186,7 +188,7 @@ var mapModule = function(start_date, end_date, view){
   };
 
   var calendarHandlePositionSet = function(date){
-    calendarHandle.attr("transform", "translate(" + calendarTimeScale(date) + ",0)");
+    calendarHandle.attr("transform", "translate(" + calendarScale(date) + ",0)");
   }
 
   var setTimer = function(t) {
@@ -649,15 +651,15 @@ var colorscale = d3.scale.linear()
 var timescale = d3.time.scale()
   .domain([new Date, new Date])
   .nice(d3.time.day)
-  .range([0, width]);
+  .range([0, timelineWidth - (2 * margins)]);
 
 var animscale = d3.scale.linear()
-      .domain([0, animduration])
-      .range([0, day]);
+  .domain([0, animduration])
+  .range([0, day]);
 
 var dayscale = d3.scale.linear()
-      .domain([0, day])
-      .range([0, width]);
+  .domain([0, day])
+  .range([0, timelineWidth - (2 * margins)]);
 
 var timeBrush = d3.svg.brush()
   .x(dayscale)
@@ -665,7 +667,7 @@ var timeBrush = d3.svg.brush()
   .on("brush", timeBrushing)
   .on("brushend", brushend);
 
-var axis = d3.svg.axis()
+var timeAxis = d3.svg.axis()
   .scale(timescale)
   .ticks(24)
   .tickFormat(d3.time.format("%H"))
@@ -720,7 +722,7 @@ var info = map.append("div")
 
 var timelineSvg = d3.select("#timeline")
   .append("svg")
-  .attr("width", width);
+  .attr("width", timelineWidth);
 
 var button = d3.select("#playbutton")
   .attr('disabled', true);
@@ -733,7 +735,7 @@ var dateDisplay = d3.select("#date");
 
 var calendarSvg = d3.select("#calendar")
   .append("svg")
-  .attr("width", width);
+  .attr("width", timelineWidth);
 
 var speedSvg = d3.select("#speed")
   .append("svg")
@@ -753,9 +755,9 @@ window.addEventListener('resize', updateWindow);
 fetchNewDate();
 
 var timeSlider = timelineSvg.append("g")
-  .attr("transform", "translate(0,20)")
+  .attr("transform", "translate(20,20)")
   .attr("class", "time-axis")
-  .call(axis)
+  .call(timeAxis)
   .call(timeBrush);
 
 var timeHandle = timeSlider.append("polygon")
@@ -764,7 +766,7 @@ var timeHandle = timeSlider.append("polygon")
   .classed("hide", true);
 
 // speed slider
-var speedSliderSize = "100";
+var speedSliderSize = "80";
 var speedScale = d3.scale.linear()
   .domain([speedMax, speedMin])
   .range([0, speedSliderSize])
@@ -778,6 +780,7 @@ var speedSliderBrush = d3.svg.brush()
 
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
+  .ticks(2)
   .orient("left");
 
 var speedSlider = speedSvg.append("g")
@@ -792,25 +795,25 @@ var speedHandle = speedSlider.append("polygon")
 
 // calendar
 
-var calendarTimeScale = d3.time.scale()
+var calendarScale = d3.time.scale()
   .domain([new Date(dateMinValue), new Date(dateMaxValue)])
-  .range([0, width])
+  .range([0, timelineWidth - (2 * margins)])
   .clamp(true);
 
 var calendarBrush = d3.svg.brush()
-  .x(calendarTimeScale)
+  .x(calendarScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
   .on("brush", calendarBrushing)
   .on("brushend", brushend);
 
 var calendarAxis = d3.svg.axis()
-  .scale(calendarTimeScale)
+  .scale(calendarScale)
   .tickFormat(d3.time.format("%B"))
   .orient("top");
 
 var calendarSlider = calendarSvg.append("g")
-  .attr("transform", "translate(0,20)")
+  .attr("transform", "translate(20,20)")
   .attr("class", "calendar-axis")
   .call(calendarAxis); 
 
@@ -823,8 +826,8 @@ d3.selectAll(".calendar-axis .tick line, .time-axis .tick line")
   .attr("y2", "-18");
 
 d3.selectAll(".speed-axis .tick text")
-  .attr("y", 5)
-  .attr("dx", null)
+  .attr("y", -10)
+  .attr("x", -18)
   .style("text-anchor", "start");
 
 d3.selectAll(".speed-axis .tick line")

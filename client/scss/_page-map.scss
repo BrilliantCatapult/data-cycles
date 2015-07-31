@@ -114,23 +114,25 @@
 }
 
 .tick line {
-  stroke: #000;
+  stroke: $color-neutral;
 }
 
-
-  .axis {
-    shape-rendering: crispEdges;
-  }
-  .x.axis line {
-    stroke: lightgrey;
-  }
-  .x.axis .minor {
-    stroke-opacity: .5;
-  }
-  .x.axis path {
-    display: none;
-  }
-  .y.axis line, .y.axis path {
-    fill: none;
-    stroke: #000;
-  }
+#speed {
+  margin-left: 20px;
+}
+.axis {
+  shape-rendering: crispEdges;
+}
+.x.axis line {
+  stroke: lightgrey;
+}
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+.x.axis path {
+  display: none;
+}
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: $color-neutral;
+}
