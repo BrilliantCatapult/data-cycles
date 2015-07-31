@@ -330,7 +330,7 @@ obj.graph = function(data, truthy, docks) {
     }
     var activity = data.map(function(station, index) {
       return {
-        name: stations[index],
+        name: truthy ? (index + 1) : stations[index],
         values: station,
         visible: true
       };
@@ -369,7 +369,7 @@ obj.graph = function(data, truthy, docks) {
         .append("svg:g")
          .attr("transform", "translate(" + 30 + "," + 30+ ")");
 
-    var tooltip = d3.select("body").append("div");
+    var tooltip = d3.select(id).append("div");
       tooltip.attr("class", "tooltip top");
       tooltip.append("div").attr("class", "tooltip-inner");
       tooltip.style("opacity", 0);
@@ -507,11 +507,11 @@ obj.graph = function(data, truthy, docks) {
                     .duration(200)
                     .style("opacity", .9);
 
-                    d3.select('.tooltip-inner').html("Station #"+d.name);
+                    d3.select(id).select('.tooltip-inner').html("Station #"+d.name);
 
                     tooltip
                       .style("left", (d3.event.pageX + 5) + "px")
-                      .style("top", (d3.event.pageY - 28) + "px");
+                      .style("top", (d3.event.pageY - 58) + "px");
                        
                 })
                 .on("mouseout", function() {
@@ -556,10 +556,12 @@ obj.graph = function(data, truthy, docks) {
        .attr("class", "legend-box")
 
        .on("click", function(d){ // On click make d.visible 
+         if(!truthy || !docks){
          d.visible = !d.visible; // If array key for this data selection is "visible" = true then make it false, if false then make it true
 
          maxY = findMaxY(activity); // Find max Y rating value categories data with "visible"; true
-         y.domain([0,maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
+         minY = findMinY(activity);
+         y.domain([minY,maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
          graph.select(".y.axis")
            .transition()
            .duration(500)
@@ -577,6 +579,8 @@ obj.graph = function(data, truthy, docks) {
            .attr("fill", function(d) {
            return d.visible ? color(d.name) : "#F1F1F2";
          });
+
+       }
        })
 
        .on("mouseover", function(d){
