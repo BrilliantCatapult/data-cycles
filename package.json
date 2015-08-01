@@ -48,6 +48,7 @@
     "gulp-jsdoc": "^0.1.4",
     "gulp-jshint": "^1.11.2",
     "gulp-minify-css": "^1.2.0",
+    "gulp-nodemon": "^2.0.3",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.3",
     "gulp-shell": "^0.4.2",
