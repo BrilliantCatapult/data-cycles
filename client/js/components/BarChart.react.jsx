@@ -98,7 +98,7 @@ var BarChart = React.createClass({
         }, this);
 
         return (
-           <Loader loaded={this.state.loaded}>
+           <Loader length={0} width={5} loaded={this.state.loaded}>
             <div>
               <svg style={svgStyle}>
                 <g className="graph">
@@ -114,7 +114,7 @@ var BarChart = React.createClass({
         );
     } else {
       return (
-        <Loader loaded={this.state.loaded}>
+        <Loader length={0} width={5} loaded={this.state.loaded}>
         <div></div>
         </Loader>
         );

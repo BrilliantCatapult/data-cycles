@@ -84,9 +84,7 @@ var MapPage = React.createClass({
   // can we divide each of those into its own view??
   render: function () {
     return (
-    <div>
-      <Loader loaded={this.state.loaded} >
-      </Loader>
+    <div>      
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
 
       <div className="container">
@@ -106,6 +104,8 @@ var MapPage = React.createClass({
           </div>
         </div>
         <div id="map">
+       <Loader length={0} width={5} loaded={this.state.loaded} >
+        </Loader>
           <span id="date" className="xl bg"></span><br />
           <span id="time" className="xl bg"></span>
           <span className="map-tooltip hide">Tooltip</span>
