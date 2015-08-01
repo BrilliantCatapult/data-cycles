@@ -40,23 +40,34 @@ var Chart = React.createClass({
     return (
       <div>
         <Layout start_date={formatDate(this.state.start_date)} time={this.state.time}/>
-        <div style={divStyle}>
-          <BarChart  id='1' start_date={this.state.start_date} end_date={this.state.end_date}/>
-        </div> 
-        <div style={divStyle}>
-          <BarChart  id='2' start_date={this.state.start_date} end_date={this.state.end_date}/>
-        </div>
-        <div style={divStyle}>
-          <BarChart  id='3' start_date={this.state.start_date} end_date={this.state.end_date}/>
-        </div>
-        <div style={{width: '100%'}}>
-           <BubbleChart  id='4' start_date={this.state.start_date} end_date={this.state.end_date}/>
-        </div>
-        <div style={{width: '100%'}}>
-          <LineChart  id='5'  start_date={this.state.start_date} end_date={this.state.end_date} name="Start Terminal"/>
-        </div>
-        <div style={{width: '100%'}}>
-          <LineChart  id='6'  start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
+        <div className="container">
+        {formatDate(this.state.start_date)}
+          <div className="grid">
+            <div className="bloc bloc-s-1">
+              <h3>Most used bikes</h3>
+              <BarChart  id='1' start_date={this.state.start_date} end_date={this.state.end_date}/>
+            </div>
+            <div className="bloc bloc-s-1">
+              <h3>Least used bikes</h3>
+              <BarChart  id='2' start_date={this.state.start_date} end_date={this.state.end_date}/>
+            </div>
+            <div className="bloc bloc-s-1">
+              <h3>Overall used bikes</h3>
+              <BarChart  id='3' start_date={this.state.start_date} end_date={this.state.end_date}/>
+            </div>
+          </div>
+          <h3>Bikes used</h3>
+          <BubbleChart  id='4' start_date={this.state.start_date} end_date={this.state.end_date}/>
+          <div className="grid">
+            <div className="bloc bloc-s-2">
+              <h3>Number of bikes taken from terminal</h3>
+              <LineChart  id='5'  start_date={this.state.start_date} end_date={this.state.end_date} name="Start Terminal"/>
+            </div>
+            <div className="bloc bloc-s-2">
+              <h3>Number of bikes returned from terminal</h3>
+              <LineChart  id='6'  start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
+            </div>
+          </div>
         </div>
       </div>
     );

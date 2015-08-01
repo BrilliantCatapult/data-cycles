@@ -20,7 +20,12 @@ h1, .xxl {
   font-weight: 300; 
 }
 
-h4, .xl {
+h2, .xl {
+  letter-spacing: -0.01em;
+  font-weight: 700; 
+}
+
+h4 {
   font-weight: 700; 
   letter-spacing: -0.03em;
 }
@@ -48,8 +53,8 @@ b, strong, .strong {
   border-left: $color-neutral dotted 1px;
   padding-left: 1.5em;
   margin-left: 1.5em;
-  line-height: 1.65em;
-  padding-top: 3em;
+  line-height: 1.4em;
+  padding-top: 2em;
   padding-bottom: 1.25em;
 }
 
@@ -138,4 +143,20 @@ nav > .btn {
 nav .btn.active, nav .btn.active:hover {
   color: $color-brand;
   background-color: $color-clear;
+}
+
+.circle {
+  border-radius: 50%;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  background: $color-neutral;
+}
+.circle div {
+    display: block;
+/* Stretch 
+      height: 100%;
+      width: 100%; */
+min-width: 100%;
+min-height: 100%;
 }

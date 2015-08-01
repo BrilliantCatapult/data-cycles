@@ -4,19 +4,22 @@
 }
 
 #handle, #calendarhandle, #speedhandle {
-  fill: red;
+  fill: $color-brand;
   cursor: pointer;
 }
 
-#timeline svg, #calendar svg {
+#timeline svg, #calendar svg, #speed svg  {
   height: 40px;
-  font-size: 0.5em;
 }
 
-#speed svg {
-  height: 100px;
-  font-size: 0.5em;
+#timeline svg text, #calendar svg text, #speed svg text {
+  font-size: 0.75em;
 }
+
+#timeline .domain, #calendar  .domain, #speed  .domain  {
+  fill: $color-dark;
+}
+
 
 #tileslayer {
   position: absolute;
@@ -31,14 +34,14 @@
 
 .tile path {
   fill: none;
-  stroke: #fff;
+  stroke: silver;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
-.tile .water, .tile .ocean { fill: #9DD9D2; stroke: #9DD9D2; }
-.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: #9DD9D2; stroke-width: 1.5px;}
-.tile .riverbank { fill: #9DD9D2; }
+.tile .water, .tile .ocean { fill: $color-neutral; stroke: $color-neutral; }
+.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: $color-neutral; stroke-width: 1.5px;}
+.tile .riverbank { fill: $color-neutral; }
 .tile .major_road { stroke: #fb7b7a; stroke-width: 1px; }
 .tile .minor_road { stroke: #999; stroke-width: 0.5px; }
 .tile .highway { stroke: #FA4A48; stroke-width: 1.5px; }
@@ -117,9 +120,6 @@
   stroke: $color-neutral;
 }
 
-#speed {
-  margin-left: 20px;
-}
 .axis {
   shape-rendering: crispEdges;
 }
