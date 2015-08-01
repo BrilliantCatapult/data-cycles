@@ -38,7 +38,6 @@ updateWindow = function(){
 var timeToMilliSeconds = function (string) {
   var values = string.split(":");
   var result = Number(values[0]) * hour + Number(values[1]) * minute;
-  // console.log(formatTimeToMs(string), result);
   return result;
 };
 
@@ -48,7 +47,6 @@ var formatMsToDate = function(ms) {
 var formatHourMinutes = d3.time.format("%H:%M");
 
 var formatTimeToMs = function(time) {
-  // console.log("t: ", time, formatHourMinutes.parse(time), formatMilliseconds(formatHourMinutes.parse(time)));
   return formatMilliseconds(formatHourMinutes.parse(time));
 }
 
@@ -71,25 +69,23 @@ var mapModule = function(start_date, end_date, view){
     dateStartValue = formatMoment(start_date, "YYYY/MM/DD");
     var tripStartDate = formatMoment(start_date, "M/D/YYYY");
 
-  var ready = function (error, tripJson, docksJson) {
-    if (error) {
-      console.log("error", error);
-    }
-    bikesJson = helperFunctions.buildBikesJson(tripJson);
-    var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson);
-    console.log("bikesJson--------->", bikesJson);
-    console.log("docksHash --------->", docksHash);  
-    drawRoutes(bikesJson);
-    drawDocks(docksHash);
-    renderZoom();
-    loaded();
-  };
+    var ready = function (error, tripJson, docksJson) {
+      if (error) {
+        console.log("error", error);
+      }
+      bikesJson = helperFunctions.buildBikesJson(tripJson);
+      var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson); 
+      drawRoutes(bikesJson);
+      drawDocks(docksHash);
+      renderZoom();
+      loaded();
+    };
 
-  queue()
-    .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
-    .defer(d3.json, "/api/redis?start_date=" + dateStartValue)
-    .await(ready);
-};
+    queue()
+      .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
+      .defer(d3.json, "/api/redis?start_date=" + dateStartValue)
+      .await(ready);
+  };
 
   var calendarBrushing = function () {
     var start_date1 = calendarBrush.extent()[0];
@@ -104,10 +100,11 @@ var mapModule = function(start_date, end_date, view){
         start_date = Moment(start_date1).format("YYYY-MM-DD");
         view.context.router.transitionTo('map_datetime', {date: start_date, time: formatMilliseconds(realtime)});
         var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
-        start_date = day.format("YYYY/MM/DD HH:mm")
+        start_date = day.format("YYYY/MM/DD HH:mm");
         fetchNewDate();
       }
     }
+    dateDisplay.html(Moment(start_date1).format("YYYY/MM/DD"));
     calendarHandlePositionSet(start_date1);
   }; 
 
@@ -147,7 +144,6 @@ var mapModule = function(start_date, end_date, view){
   };
 
   var unload = function () {
-    console.log("unload");
     button.attr("disabled", true);
     svgAnimations.selectAll("g").remove();
     button.html("Loading…");
@@ -193,19 +189,17 @@ var mapModule = function(start_date, end_date, view){
     realtime = animscale(t);
     var realTimeFormatted = formatMilliseconds(realtime);
     timerdisplay.html(realTimeFormatted);
-    // console.log("timer", realTimeFormatted, timer);
   };
 
   var animate = function (e) {
     if (!play) {
-      console.log("stop");
       timermemo = timer;
       button.html("Play");
       return true;
+    } else {
+      button.html("Stop");
+      renderFrame(e);
     }
-    button.html("Stop");
-    renderFrame(e);
-    console.log("render");
   };
 
   var renderFrame = function(e) {
@@ -217,9 +211,7 @@ var mapModule = function(start_date, end_date, view){
       d3.select(bikes[0][i])
         .attr("transform", function (d) { return moveBike(d, this); });
     }
-    // console.log("docks[0]", docks[0]);
     for (var i = 0; i < docks[0].length; i++) {
-      // console.log("docks[0][i]", d3.select(docks[0][i]).select(".gauge-qty"));
       setDockLevel(docks[0][i]);
     }
   };
@@ -311,7 +303,6 @@ var showBikeRoute = function (d, bike) {
   var bikeSpeed = 1;
   var delay = 0;
   var delays = [delay];
-  console.log(bikes);
   for (var i = 0; i < bikesJson.features.length; i++) {
     if (bikesJson.features[i].properties.bikeID == id) {
       delay += bikesJson.features[i].properties.duration/bikeSpeed;
@@ -531,8 +522,6 @@ var renderZoom = function () {
 
   projection.scale(zoom.scale() / 2 / Math.PI)
     .translate(zoom.translate());
-
-  console.log("zzzzzz", zoom.translate());
   
   var tiles = tile.scale(zoom.scale())
     .translate(zoom.translate())();
@@ -689,7 +678,6 @@ var zoom = d3.behavior.zoom()
   .scaleExtent([1 << 22, 1 << 23])
   .translate(projection([-122.4, 37.785])
     .map(function (x) {
-      console.log('zoom', x);
       return -x;
     })
   )
@@ -803,8 +791,7 @@ var calendarBrush = d3.svg.brush()
   .x(calendarScale)
   .extent([new Date(dateStartValue), new Date(dateStartValue)])
   .on("brushstart", brushstart)
-  .on("brush", calendarBrushing)
-  .on("brushend", brushend);
+  .on("brush", calendarBrushing);
 
 var calendarAxis = d3.svg.axis()
   .scale(calendarScale)
