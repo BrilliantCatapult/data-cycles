@@ -5,7 +5,7 @@ var obj = {};
 //Retrieve data for 10th-Degree Regression Graph
 
 //Test user input to be sure it's a valid date
-obj.testDate = function(){
+obj.testDate = function() {
   var input = document.getElementById('inp').value;
   var dt = new Date();
   var m = dt.getMonth() + 1;
@@ -16,17 +16,17 @@ obj.testDate = function(){
   var year = +input.slice(input.length - 4, input.length);
   if (!Number.isInteger(month) || !Number.isInteger(day) || !Number.isInteger(year)) {
     document.getElementById("errMessage").innerHTML = ' False Input';
-    setTimeout(function() {document.getElementById("errMessage").innerHTML = '';}, 1500);
+    setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
   } else if ((year === y && month <= m && day <= d) || (year < y)) {
     document.getElementById("errMessage").innerHTML = ' Enter A Future Day Please';
-    setTimeout(function() {document.getElementById("errMessage").innerHTML = '';}, 1500);
+    setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
   } else if (month > 12) {
     document.getElementById("errMessage").innerHTML = ' Enter An Accurate Month Please';
-    setTimeout(function() {document.getElementById("errMessage").innerHTML = '';}, 1500);
+    setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
   } else if (day > 31) {
     document.getElementById("errMessage").innerHTML = ' Enter An Accurate Day Please';
-    setTimeout(function() {document.getElementById("errMessage").innerHTML = '';}, 1500);
-  } else{
+    setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
+  } else {
     return true;
   }
 };
@@ -34,7 +34,7 @@ obj.testDate = function(){
 obj.getData = function() {
   event.stopPropagation();
   event.preventDefault();
-  if(obj.testDate()){
+  if(obj.testDate()) {
     for (var i = 0; i < stations.length; i++) {
       d3.json("/api/ml/predictions?day=" + document.getElementById('inp').value + "&station=" + stations[i], function(error, docks) {
         if (error) {
@@ -268,7 +268,7 @@ obj.init = function(docks, truthy) {
     SE.push(sd / (Math.sqrt(y.length)));
   };
 
-  if(!truthy){
+  if(!truthy) {
     calcSD();
   }
 
