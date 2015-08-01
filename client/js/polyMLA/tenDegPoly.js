@@ -2,8 +2,7 @@ var D3Utils = require('../utils/D3Utils');
 
 var stations = [41, 42, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 82];
 var obj = {};
-//Retrieve data for 10th-Degree Regression Graph
-
+ 
 //Test user input to be sure it's a valid date
 obj.testDate = function() {
   var input = document.getElementById('inp').value;
@@ -17,20 +16,25 @@ obj.testDate = function() {
   if (!Number.isInteger(month) || !Number.isInteger(day) || !Number.isInteger(year)) {
     document.getElementById("errMessage").innerHTML = ' False Input';
     setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
+    return false;
   } else if ((year === y && month <= m && day <= d) || (year < y)) {
     document.getElementById("errMessage").innerHTML = ' Enter A Future Day Please';
     setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
+    return false;
   } else if (month > 12) {
     document.getElementById("errMessage").innerHTML = ' Enter An Accurate Month Please';
     setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
+    return false;
   } else if (day > 31) {
     document.getElementById("errMessage").innerHTML = ' Enter An Accurate Day Please';
     setTimeout(function() {document.getElementById("errMessage").innerHTML = ''; }, 1500);
+    return false;
   } else {
     return true;
   }
 };
 
+//Retrieve data for 10th-Degree Regression Graph
 obj.getData = function() {
   event.stopPropagation();
   event.preventDefault();
@@ -139,7 +143,7 @@ obj.calcHours = function(coef) {
     if (k === 0) {
       eq += coef[k].toString();
     } else {
-      eq += '+' + coef[k].toString() + '*x^' + i;
+      eq += '+' + coef[k].toString() + '*x^' + k;
     }
   }
 
@@ -238,7 +242,7 @@ obj.init = function(docks, truthy) {
   var y = [];
   var count = 0;
   for (var key in docks) {
-    for (k in docks[key]) {
+    for (var k in docks[key]) {
       y.push(docks[key][k]);
       x.push(count);
     }
@@ -339,7 +343,7 @@ obj.init = function(docks, truthy) {
       for (k = i + 1; k < n; k++) {
         var c = -matrix[k][i] / matrix[i][i];
         for (var j = i; j < n + 1; j++) {
-          if (i == j) {
+          if (i === j) {
             matrix[k][j] = 0;
         } else {
             matrix[k][j] += c * matrix[i][j];
@@ -444,7 +448,7 @@ obj.graph = function(data, truthy, docks) {
   tooltip.style("opacity", 0);
   
   // create yAxis
-  var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+  var xAxis = d3.svg.axis().scale(x).tickSize(-height).tickSubdivide(true);
   
   // Add the x-axis.
   graph.append("svg:g")
@@ -597,10 +601,10 @@ obj.graph = function(data, truthy, docks) {
     .attr("x", width - 65)
     .attr("y", function(d, i) {
       return (legendSpace) + i * (legendSpace) - 8;
-    }); // spacing
+    }) // spacing
     .attr("fill", function(d) {
       return d.visible ? color(d.name) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
-    });
+    })
     .attr("class", "legend-box")
     .on("click", function(d) { // On click make d.visible 
       if (!truthy || !docks) {
