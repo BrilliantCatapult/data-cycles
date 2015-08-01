@@ -121,10 +121,11 @@ obj.calcHours = function(coef) {
     max = 0;
   }
 
-  if (dockCount === 35 || dockCount === 0) {
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('results').innerHTML = '<th>Find the best time to pick up a bike on ' + document.getElementById('inp').value + ' below!</th><tr id=' + "description" + '><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td></tr>';
+  if (dockCount === 35) {
     dockCount = 0;
+    console.log("res");
+    document.getElementById("res").className = "container"; 
+    document.getElementById('date').innerHTML = document.getElementById('inp').value;
   }
 
   var result = [];
@@ -179,7 +180,7 @@ obj.calcHours = function(coef) {
       thisMin[0] = thisMin[0].toString() + 'AM';
   }  
 
-  addRow(dockCount + 2, [stations[dockCount], Math.round(thisMax[1]), thisMax[0], Math.round(thisMin[1]), thisMin[0], SD[dockCount], SE[dockCount], eq]);
+  addRow(dockCount + 1, [stations[dockCount], Math.round(thisMax[1]), thisMax[0], Math.round(thisMin[1]), thisMin[0], SD[dockCount], SE[dockCount], eq]);
   dockCount++;
   return result;
 };

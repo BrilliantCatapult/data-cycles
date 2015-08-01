@@ -15,7 +15,7 @@ input[type="text"], input[type="email"], input[type="search"], input[type="passw
 	height: $base-unit-l * 1em;
 	padding: $base-unit-s * 1em;
 	border: 0 none;
-	background-color: white; 
+	background-color: $base-color-bg; 
 	-webkit-appearance: none;
 	-moz-appearance: none; /* mobile firefox too! */
 }
@@ -44,5 +44,5 @@ textarea:focus, input:focus, select:focus {
 }
 
 input[type="text"].input-alt, input[type="email"].input-alt, input[type="search"].input-alt, input[type="password"].input-alt, input[type="tel"].input-alt, select.input-alt, textarea.input-alt {
-	background-color: $base-color-bg; 
+	background-color: $color-clear; 
 }
