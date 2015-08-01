@@ -30,9 +30,9 @@ var margins = 20;
 var colors = [];
 
 updateWindow = function(){
-    width = document.getElementById("map").clientWidth;
-    timelineWidth = document.getElementById("timeline").clientWidth;
-    height = Math.max(500, window.innerHeight);
+  width = document.getElementById("map").clientWidth;
+  timelineWidth = document.getElementById("timeline").clientWidth;
+  height = Math.min(500, window.innerHeight);
 };
 
 var timeToMilliSeconds = function (string) {
@@ -126,7 +126,7 @@ var mapModule = function(start_date, end_date, view){
 
   var speedBrushing = function() {
     if (d3.event.sourceEvent) {
-      speed = speedScale.invert(d3.mouse(this)[1]);
+      speed = speedScale.invert(d3.mouse(this)[0]);
       speedHandlePositionSet(speed);
       setAnimDuration(speed);
     }
@@ -139,8 +139,6 @@ var mapModule = function(start_date, end_date, view){
     realtime = timeToMilliSeconds(formatMoment(start_date, "HH:mm"));
     timer, timermemo = animscale.invert(realtime);
     setAnimDuration(speed);
-    console.log("timermeo is ", formatMoment(start_date, "HH:mm"));
-    console.log("timermeo is ", timeToMilliSeconds(formatMoment(start_date, "HH:mm")));
     dateDisplay.html(dateStartValue);
     setTimer(timermemo); 
     timeHandlePositionSet(realtime);
@@ -184,7 +182,7 @@ var mapModule = function(start_date, end_date, view){
   };
 
   var speedHandlePositionSet = function() {
-    speedHandle.attr("transform", function (d) { return "translate(0, " + speedScale(speed) + ")"; });
+    speedHandle.attr("transform", function (d) { return "translate(" + speedScale(speed) + ")"; });
   };
 
   var calendarHandlePositionSet = function(date){
@@ -739,7 +737,7 @@ var calendarSvg = d3.select("#calendar")
 
 var speedSvg = d3.select("#speed")
   .append("svg")
-  .attr("height", speedSliderSize);
+  .attr("width", speedSliderSize);
 
 projection.scale(zoom.scale() / 2 / Math.PI)
   .translate(zoom.translate());
@@ -755,7 +753,7 @@ window.addEventListener('resize', updateWindow);
 fetchNewDate();
 
 var timeSlider = timelineSvg.append("g")
-  .attr("transform", "translate(20,20)")
+  .attr("transform", "translate(20,24)")
   .attr("class", "time-axis")
   .call(timeAxis)
   .call(timeBrush);
@@ -766,14 +764,14 @@ var timeHandle = timeSlider.append("polygon")
   .classed("hide", true);
 
 // speed slider
-var speedSliderSize = "80";
+var speedSliderSize = "176";
 var speedScale = d3.scale.linear()
-  .domain([speedMax, speedMin])
+  .domain([speedMin, speedMax])
   .range([0, speedSliderSize])
   .clamp(true);
 
 var speedSliderBrush = d3.svg.brush()
-  .y(speedScale)
+  .x(speedScale)
   .on("brushstart", brushstart)
   .on("brush", speedBrushing)
   .on("brushend", brushend);
@@ -781,16 +779,17 @@ var speedSliderBrush = d3.svg.brush()
 var speedSliderAxis = d3.svg.axis()
   .scale(speedScale)
   .ticks(2)
-  .orient("left");
+  .orient("top");
 
 var speedSlider = speedSvg.append("g")
-  .attr("transform", "translate(20,0)")
+  .attr("transform", "translate(20,24)")
   .attr("class", "speed-axis")
   .call(speedSliderAxis)
   .call(speedSliderBrush); 
 
 var speedHandle = speedSlider.append("polygon")
-  .attr("points", "0,0 20,-15  20,15")
+  // .attr("points", "0,0 20,-15  20,15")
+  .attr("points", "-15,20 0,0 15,20")
   .attr("id", "speedhandle");
 
 // calendar
@@ -813,25 +812,25 @@ var calendarAxis = d3.svg.axis()
   .orient("top");
 
 var calendarSlider = calendarSvg.append("g")
-  .attr("transform", "translate(20,20)")
+  .attr("transform", "translate(20,24)")
   .attr("class", "calendar-axis")
   .call(calendarAxis); 
 
-d3.selectAll(".calendar-axis .tick text, .time-axis .tick text")
+d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tick text")
   .attr("x", 5)
-  .attr("dy", null)
+  .attr("y", -12)
   .style("text-anchor", "start");
 
-d3.selectAll(".calendar-axis .tick line, .time-axis .tick line")
+d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
 
-d3.selectAll(".speed-axis .tick text")
-  .attr("y", -10)
-  .attr("x", -18)
-  .style("text-anchor", "start");
+// d3.selectAll(".speed-axis .tick text")
+//   .attr("y", -10)
+//   .attr("x", -18)
+//   .style("text-anchor", "start");
 
-d3.selectAll(".speed-axis .tick line")
-    .attr("x2", "-18");
+// d3.selectAll(".speed-axis .tick line")
+//     .attr("x2", "-18");
 
 calendarSlider.call(calendarBrush);
 
