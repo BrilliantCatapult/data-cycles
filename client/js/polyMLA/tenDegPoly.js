@@ -448,7 +448,7 @@ obj.graph = function(data, truthy, docks) {
   tooltip.style("opacity", 0);
   
   // create yAxis
-  var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+  var xAxis = d3.svg.axis().scale(x).tickSize(-height).tickSubdivide(true);
   
   // Add the x-axis.
   graph.append("svg:g")
