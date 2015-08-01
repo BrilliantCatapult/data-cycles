@@ -1,3 +1,6 @@
+/*
+About Us React View
+*/
 var React = require('react');
 var Layout = require('./Layout.react.jsx');
 var Team = require('./Team.react');

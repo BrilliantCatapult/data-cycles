@@ -8,6 +8,7 @@ var XAxis = require('./XAxis.react');
 var YAxisLine = require('./YAxisLine.react');
 var Legend = require('./Legend.react');
 var D3ServerAction = require('../actions/D3ServerAction');
+var Loader = require('react-loader');
 
 var CHANGE_EVENT="change";
 var parseDate = d3.time.format("%m/%d/%Y %H:%M").parse;
@@ -163,7 +164,11 @@ var LineChart = React.createClass({
             </svg>
         );
     } else {
-      return (<div></div>);
+      return (
+        <Loader length={0} width={5} loaded={this.state.loaded}>
+          <div></div>
+        </Loader>
+        );
     }
   },
   _onChange: function(){

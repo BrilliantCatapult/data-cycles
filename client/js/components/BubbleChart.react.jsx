@@ -8,6 +8,8 @@ var XAxis = require('./XAxis.react');
 var YAxis = require('./YAxis.react');
 var Legend = require('./Legend.react');
 var D3ServerAction = require('../actions/D3ServerAction');
+var Loader = require('react-loader');
+
 
 
 var CHANGE_EVENT="change";
@@ -123,6 +125,7 @@ var BubbleChart = React.createClass({
           return  (<Legend data={color} colors={colors} width={this.state.width} index={index}/>)
         }, this);
         return (
+
           <div style={{width:'100%'}}>
             <button onClick={this._onClick}>SORT</button>
             <svg style={svgStyle}>            
@@ -130,7 +133,7 @@ var BubbleChart = React.createClass({
                 {{Circles}}
                 <XAxis height={this.state.height} x={scales.x} sorted={this.state.sorted}/>
                 <YAxis width={this.state.width} y={scales.y} sorted={this.state.sorted}/>
-                <g class="legend">
+                <g className="legend">
                   {{LegendItems}}
                 </g>
               </g>
@@ -138,7 +141,11 @@ var BubbleChart = React.createClass({
           </div>
         );
     } else {
-      return (<div></div>);
+      return (
+         <Loader  length={0} width={5} loaded={this.state.loaded}>
+         <div></div>
+         </Loader>
+         );
     }
   },
   _onChange: function(){

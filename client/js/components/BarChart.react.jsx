@@ -8,6 +8,7 @@ var XAxis = require('./XAxis.react');
 var YAxis = require('./YAxis.react');
 var D3ServerAction = require('../actions/D3ServerAction');
 var Moment = require('moment');
+var Loader = require('react-loader');
 
 
 var BarChart = React.createClass({
@@ -17,7 +18,8 @@ var BarChart = React.createClass({
       width: this.props.width,
       height: this.props.height,
       start_date: this.props.start_date,
-      end_date: this.props.end_date
+      end_date: this.props.end_date,
+      loaded: false
     };
   },
   getDefaultProps: function(){
@@ -57,7 +59,7 @@ var BarChart = React.createClass({
     window.addEventListener("resize", this.updateDimensions);
     // need this to re-render after we change the width
     this.setupChart();
-    this._onChange();
+    this._onChange(true);
   },
   componentWillUnmount: function(){
     BarChartStore.removeChangeListener(this._onChange);
@@ -85,7 +87,7 @@ var BarChart = React.createClass({
       width: this.state.width,
       height: this.state.height,
     };
-    if(this.state.bars){
+    if(this.state.bars && this.state.loaded){
 
         var domains = D3Utils.calculatePosition(this.state.width, this.state.height, this.state.bars, "doc_count", "key");
         var scales = this.setup_scales(domains);
@@ -96,22 +98,36 @@ var BarChart = React.createClass({
         }, this);
 
         return (
-          <svg style={svgStyle}>
-            <g className="graph">
-            {{Bars}}
-            <XAxis height={this.state.height} x={scales.x}/>
-            <YAxis width={this.state.width} y={scales.y} />
-            </g>
-          </svg>
+           <Loader length={0} width={5} loaded={this.state.loaded}>
+            <div>
+              <svg style={svgStyle}>
+                <g className="graph">
+                {{Bars}}
+                <XAxis height={this.state.height} x={scales.x}/>
+                <YAxis width={this.state.width} y={scales.y} />
+                </g>
+              </svg>
+            </div>
+            </Loader>
+        
+
         );
     } else {
-      return (<div></div>);
+      return (
+        <Loader length={0} width={5} loaded={this.state.loaded}>
+        <div></div>
+        </Loader>
+        );
     }
   },
-  _onChange: function(){
-    this.setState({
-       bars: BarChartStore.getAll(this.props.id)
-     });
+  _onChange: function(s){
+    console.log("s is ", s);
+    if(s !== true){
+      this.setState({
+         loaded: true,
+         bars: BarChartStore.getAll(this.props.id)
+       });
+    }
   }
 });
 

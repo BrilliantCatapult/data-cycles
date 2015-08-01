@@ -38,6 +38,7 @@
     "queue-async": "^1.0.7",
     "react": "^0.13.3",
     "react-classset": "0.0.2",
+    "react-loader": "^1.4.0",
     "react-router": "^0.13.3",
     "redis": "^0.12.1"
   },

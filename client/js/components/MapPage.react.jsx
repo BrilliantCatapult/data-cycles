@@ -3,14 +3,17 @@ var MapLogic = require('../map.js');
 var Layout = require('./Layout.react.jsx');
 var Moment = require('moment');
 var Router = require('react-router');
+var Loader = require('react-loader');
+
 // var CalendarLogic = require('../calendar.js');
-formatDate = function(date){
-  var day = Moment(date);
+var formatDate = function(date){
+  console.log("DATE ISSSSS ", date);
+  var day = Moment(date, "YYYY/MM/DD HH:mm");
   return day.format("YYYY-MM-DD");
 };
 
-formatTime = function(date){
-  var day = Moment(date);
+var formatTime = function(date){
+  var day = Moment(date, "YYYY/MM/DD HH:mm");
   return day.format("HH:mm");
 };
 
@@ -37,12 +40,14 @@ var MapPage = React.createClass({
 
     return{
       start_date: dates.start_date,
-      end_date: dates.end_date
+      end_date: dates.end_date,
+      //loaded: false
     }
   }, 
   componentDidMount: function(){
     MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
+    
   },
   componentWillUpdate: function(newProps){
 
@@ -54,11 +59,23 @@ var MapPage = React.createClass({
         end_date: dates.end_date
       });
     }
-    return false
+    //this.state.loaded = false;
+    console.log("ADDING UPDATEEE");
+    this.state.loaded = true;
+    return false;
+  },
+  componentWillMount: function(){
+    console.log("ABC");
+    //this.state.loaded = true;
   },
   componentDidUpdate: function(){
+    //this.state.loaded = true;
     //MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
+    // if(this.state.loaded){
+    //  // MapLogic(this.state.start_date, this.state.end_date, this, this.state.loaded);
+    //   updateWindow();
+    // }
   },
   componentWillUnmount: function(){
     play = false; // do i need this??
@@ -67,7 +84,7 @@ var MapPage = React.createClass({
   // can we divide each of those into its own view??
   render: function () {
     return (
-    <div>
+    <div>      
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
 
       <div className="container">
@@ -87,6 +104,8 @@ var MapPage = React.createClass({
           </div>
         </div>
         <div id="map">
+       <Loader length={0} width={5} loaded={this.state.loaded} >
+        </Loader>
           <span id="date" className="xl bg"></span><br />
           <span id="time" className="xl bg"></span>
           <span className="map-tooltip hide">Tooltip</span>

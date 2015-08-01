@@ -78,8 +78,12 @@ var mapModule = function(start_date, end_date, view){
       drawRoutes(bikesJson);
       drawDocks(docksHash);
       renderZoom();
+      view.setState({
+        loaded: true
+      });
       loaded();
     };
+
 
     queue()
       .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
@@ -101,6 +105,9 @@ var mapModule = function(start_date, end_date, view){
         view.context.router.transitionTo('map_datetime', {date: start_date, time: formatMilliseconds(realtime)});
         var day = Moment(start_date + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
         start_date = day.format("YYYY/MM/DD HH:mm");
+        view.setState({
+          loaded: false
+        });
         fetchNewDate();
       }
     }
@@ -117,6 +124,9 @@ var mapModule = function(start_date, end_date, view){
       var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
       start_date = day.format("YYYY/MM/DD HH:mm")
       view.context.router.transitionTo('map_datetime', {date: mid, time: formatMilliseconds(realtime)});
+      view.setState({
+        loaded: true
+      });
     }
     timeHandlePositionSet(realtime);
   };
