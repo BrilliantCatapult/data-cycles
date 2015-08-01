@@ -67,6 +67,6 @@
     "karma-webpack": "^1.6.0",
     "minami": "^1.1.0",
     "node-libs-browser": "^0.5.2",
-    "phantomjs": "^1.9.17",
+    "phantomjs": "^1.9.17"
   }
 }
