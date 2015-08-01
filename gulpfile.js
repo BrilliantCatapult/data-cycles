@@ -114,7 +114,7 @@
 
   gulp.task('dev', ['webpack', 'monitor-client', 'nodemon']);
 
-  gulp.task('dev-styles', ['webpack', 'monitor-client', 'monitor-styles']);
+  gulp.task('dev-styles', ['webpack', 'monitor-client', 'monitor-styles', 'nodemon']);
 
   gulp.task('deploy', ['webpack']);
 
