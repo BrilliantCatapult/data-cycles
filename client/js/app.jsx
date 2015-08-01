@@ -23,6 +23,7 @@ var App = React.createClass({
     return (
       <div> 
         <RouteHandler/>
+        <footer className="container margin-top"><hr />2015</footer>
       </div>
     )
   } 

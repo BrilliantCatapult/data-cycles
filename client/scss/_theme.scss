@@ -58,7 +58,11 @@ b, strong, .strong {
   padding-bottom: 1.25em;
 }
 
-
+.absolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 .height-full {
 	min-height: 100%;
 }

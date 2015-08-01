@@ -49,7 +49,9 @@ var Chart = React.createClass({
       <div>
         <Layout start_date={formatDate(this.state.start_date)} time={this.state.time}/>
         <div className="container">
-        {formatDate(this.state.start_date)}
+          <h2>Daily activity overview</h2>
+          <hr />
+          <span id="date" className="xl bg">{formatDate(this.state.start_date)}</span>
           <div className="grid">
             <div className="bloc bloc-s-1">
               <h3>Most used bikes</h3>

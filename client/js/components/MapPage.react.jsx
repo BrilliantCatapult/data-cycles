@@ -104,10 +104,12 @@ var MapPage = React.createClass({
           </div>
         </div>
         <div id="map">
-       <Loader length={0} width={5} loaded={this.state.loaded} >
-        </Loader>
-          <span id="date" className="xl bg"></span><br />
-          <span id="time" className="xl bg"></span>
+          <Loader length={0} width={5} loaded={this.state.loaded} >
+          </Loader>
+          <div className="absolute">
+            <span id="date" className="xl bg"></span><br />
+            <span id="time" className="xl bg"></span>
+          </div>
           <span className="map-tooltip hide">Tooltip</span>
           <div id="routes-info"></div>
           <div id="tileslayer"></div>
