@@ -13,7 +13,6 @@ var YAxis = React.createClass({
                .duration(2000)
                .style("opacity", this.props.sorted);
 
-
     this.d3Node
        .call(yAxis);
 

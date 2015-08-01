@@ -3,14 +3,17 @@ var MapLogic = require('../map.js');
 var Layout = require('./Layout.react.jsx');
 var Moment = require('moment');
 var Router = require('react-router');
+var Loader = require('react-loader');
+
 // var CalendarLogic = require('../calendar.js');
-formatDate = function(date){
-  var day = Moment(date);
+var formatDate = function(date){
+  console.log("DATE ISSSSS ", date);
+  var day = Moment(date, "YYYY/MM/DD HH:mm");
   return day.format("YYYY-MM-DD");
 };
 
-formatTime = function(date){
-  var day = Moment(date);
+var formatTime = function(date){
+  var day = Moment(date, "YYYY/MM/DD HH:mm");
   return day.format("HH:mm");
 };
 
@@ -37,7 +40,8 @@ var MapPage = React.createClass({
 
     return{
       start_date: dates.start_date,
-      end_date: dates.end_date
+      end_date: dates.end_date,
+      //loaded: false
     }
   }, 
   componentDidMount: function(){
@@ -54,11 +58,16 @@ var MapPage = React.createClass({
         end_date: dates.end_date
       });
     }
-    return false
+
+    return false;
   },
   componentDidUpdate: function(){
     //MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
+    // if(this.state.loaded){
+    //  // MapLogic(this.state.start_date, this.state.end_date, this, this.state.loaded);
+    //   updateWindow();
+    // }
   },
   componentWillUnmount: function(){
     play = false; // do i need this??
@@ -68,6 +77,8 @@ var MapPage = React.createClass({
   render: function () {
     return (
     <div>
+      <Loader loaded={this.state.loaded} >
+      </Loader>
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
 
       <div className="container">

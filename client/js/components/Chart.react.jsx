@@ -18,6 +18,14 @@ setupDate = function(params){
   return dates;
 };
 
+
+var formatDate = function(date){
+  console.log("DATE ISSSSS in bubble", date);
+  var day = Moment(date, "MM/DD/YYYY HH:mm");
+  return day.format("YYYY-MM-DD");
+};
+
+
 var Chart = React.createClass({
 
   getInitialState: function(){

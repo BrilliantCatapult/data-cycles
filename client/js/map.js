@@ -79,6 +79,9 @@ var mapModule = function(start_date, end_date, view){
       drawDocks(docksHash);
       renderZoom();
       loaded();
+      view.setState({
+        loaded: true
+      });
     };
 
     queue()
