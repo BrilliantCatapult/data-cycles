@@ -80,9 +80,15 @@ var BubbleChart = React.createClass({
 
     var y = d3.scale.linear()
       .range([20, this.state.height - 40])
-      .domain(domains.domains.x);
+      .domain([domains.domains.x[1], 0]);
 
     return {x: x,y: y};
+  },
+  colorRange: function(range) {
+    var avg = (range[0] + range[1]) / 2;
+    var rangeArr = [range[0], avg, range[1]];
+
+    return rangeArr;
   },
   componentDidUpdate: function(){
     if(this.state.bars){
@@ -103,7 +109,8 @@ var BubbleChart = React.createClass({
     if(this.state.bars && this.state.bars.length > 0){
 
         var setup = D3Utils.calculatePosition(this.state.width, this.state.height, this.state.bars, "doc_count", "key");
-        var colors = D3Utils.calculateColor([0, 500, 1000], ["red", "yellow", "green"]);
+        var colorRange = this.colorRange(setup.domains.x);
+        var colors = D3Utils.calculateColor(colorRange, ["red", "yellow", "green"]);
         // setup.domains.x[1] is the maximum x;
         var radius = D3Utils.calculateRadius([0, setup.domains.x[1]], [1, 20]);
         var scales = this.setup_scales(setup);

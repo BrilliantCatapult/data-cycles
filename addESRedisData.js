@@ -181,7 +181,6 @@ var buildBikeData = function(startDate, endDate) {
         buildBikeData(startDate, endDate.format("M/D/YYYY"));
 
       }, function (err) {
-        res.json({"message": "oh no"})
         console.trace(err.message);
       });
 };

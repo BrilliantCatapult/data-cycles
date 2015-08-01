@@ -86,7 +86,7 @@ var LineChart = React.createClass({
             0,
             d3.max(this.state.activity, function(c) { 
               if(c.visible)
-                return d3.max(c.values, function(v) { return v.activity; }); 
+                return d3.max(c.values, function(v) { return v.activity; }) + 1; 
               else
                 return 0;
             })
