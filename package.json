@@ -41,6 +41,7 @@
     "gulp": "^3.9.0",
     "gulp-watch": "^4.3.3",
     "jsdoc": "^3.3.2",
+    "jsx-loader": "^0.13.2",
     "keymirror": "^0.1.1",
     "moment": "^2.10.3",
     "object-assign": "^3.0.0",
@@ -56,7 +57,6 @@
   "devDependencies": {
     "gulp-jsdoc": "^0.1.4",
     "jasmine-core": "^2.3.4",
-    "jsx-loader": "^0.13.2",
     "karma": "^0.12.36",
     "karma-chrome-launcher": "^0.2.0",
     "karma-cli": "^0.1.0",
