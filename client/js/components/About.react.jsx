@@ -29,22 +29,26 @@ var About = React.createClass({
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><div></div></div>
               <h3 className="margin-top">Bahia Sharkawy</h3>
-              <p>Donec ullamcorper nulla non metus auctor fringilla. Donec sed odio dui.</p>
+              <p>Master of her own domain and knows more about your domain than you do.</p>
+              <div><a href="https://github.com/bahiafayez"><img src="../../images/github.png" height="50" width="50" /></a></div>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><div></div></div>
               <h3 className="margin-top">Francois Romain</h3>
-              <p>Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
+              <p>If you are what you eat, he would be an organic carrot. <br/>Nickname: Swaa.</p>
+              <div><a href="https://github.com/francoisromain"><img src="../../images/github.png" height="50" width="50" /></a></div>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><div></div></div>
               <h3 className="margin-top">Jack McDevitt</h3>
-              <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec ullamcorper nulla non metus auctor fringilla.</p>
+              <p>Born in a city, raised in a city. Still lives in a city, but once did not.</p>
+              <div><a href="https://github.com/jackmcd4"><img src="../../images/github.png" height="50" width="50" /></a></div>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><div></div></div>
               <h3 className="margin-top">Shanan Sussman</h3>
-              <p>Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+              <p>Some say his beard holds the power to control minds, some people don&#8217;t remember much anymore.</p>
+              <div><a href="https://github.com/myfancypants"><img src="../../images/github.png" height="50" width="50" /></a></div>
             </div>
           </div>
           <h2 className="margin-top">Project Synopsis</h2>

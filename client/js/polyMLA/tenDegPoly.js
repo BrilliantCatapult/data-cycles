@@ -67,6 +67,7 @@ obj.getRegs = function() {
   }
 };
 
+//Adds data to table for each dock
 var addRow = function(rowNum, arr) {
   // Get a reference to the table
   var tableRef = document.getElementById('results');
@@ -91,6 +92,7 @@ var SE = [];
 var SD = [];
 var dockCount = 0;
 
+//calculates the lowest and highest (predicted) number of bikes of ALL docks for specified date
 obj.calcMinMax = function(coef) {
   var result = [];
   var count = 0;
@@ -115,6 +117,8 @@ obj.calcMinMax = function(coef) {
   }
 };
 
+/* calculates min, max, time for min & max, and equations for table 
+  - sends info along with standard error & standard deviation to addRow function */
 obj.calcHours = function(coef) {
   if (dockCount === 35) {
     min = 100;
@@ -186,7 +190,9 @@ obj.calcHours = function(coef) {
 };
 
 var linePoints = [];
-
+/* calculates points along line through created equation
+  to plot equation in d3 since d3 doesn't have a function plotter
+  and calls d3 graph function with data */
 obj.calcLineData = function(coef) {
   var data = [];
   var count = 0;
@@ -210,7 +216,9 @@ obj.calcLineData = function(coef) {
 };
 
 var regPoints = [];
-
+/* calculates points along line through created equation
+  to plot equation in d3 since d3 doesn't have a function plotter
+  and calls d3 graph function with data */
 var calcRegData = function(coef, docks) {
   var data = [];
   var count = 0;
@@ -237,7 +245,9 @@ var calcRegData = function(coef, docks) {
   }
 };
 
-
+/* Machine learning functions bundled here. Takes in dock data and creates either
+  35 (number of docks) polynomial regression functions or 10 regression functions
+  for a specific dock ranging from degree 1-10 */
 obj.init = function(docks, truthy) {
   var x = [];
   var y = [];
@@ -250,6 +260,7 @@ obj.init = function(docks, truthy) {
     count++;
   }
 
+//calculates averages for standard deviation
   var calcAvg = function() {
     var total = 0;
     for (var i = 0; i < y.length; i++) {
@@ -258,6 +269,7 @@ obj.init = function(docks, truthy) {
     return total / y.length;
   };
 
+//calculates standard deviation and error for table
   var calcSD = function() {
     if (SD.length === 35) {
       SD = [];
@@ -273,10 +285,12 @@ obj.init = function(docks, truthy) {
     SE.push(sd / (Math.sqrt(y.length)));
   };
 
+  //checks for ALL dock graph
   if(!truthy) {
     calcSD();
   }
 
+  //specifically for linear regressions
   var calcError = function() {
     var result = 0;
     var double;
@@ -287,6 +301,7 @@ obj.init = function(docks, truthy) {
     return Math.sqrt(result / x.length);
   };
 
+  //calculates squares for matrices
   var calcSquares = function(n) {
     if (n === 0) {
       return x.length;
@@ -298,6 +313,7 @@ obj.init = function(docks, truthy) {
     return result;
   };
 
+  //calculates values for augmented side of matrix
   var calcAugVal = function(n) {
     var result = 0;
     for (var j = 0; j < x.length; j++) {
@@ -306,6 +322,7 @@ obj.init = function(docks, truthy) {
     return result;
   };
 
+  //uses calcSquares and calcAugVal to create square matrix
   var calcMatrix = function(power) {
     var mx = [];
     for (var j = 0; j <= power; j++) {
@@ -318,8 +335,10 @@ obj.init = function(docks, truthy) {
     return mx;
   };
 
+  //specifically for ALL dock graph
   var fourDegMatrix = calcMatrix(10);
 
+  //Gauss-Jordan calculation on matrix to calculate equation from reduced row echelon form 
   var gauss = function(matrix) {
     var n = matrix.length;
     for (var i = 0; i < n; i++) {
@@ -364,11 +383,12 @@ obj.init = function(docks, truthy) {
     return x;
   };
 
+  //calculates equations for 10-degree regression range graph
   var calcRegs = function() {
     for (var i = 1; i <= 10; i++) {
       var matrices = calcMatrix(i);
-        calcRegData(gauss(matrices), docks);
-      }
+      calcRegData(gauss(matrices), docks);
+    }
   };
 
   var eq = gauss(fourDegMatrix);
@@ -381,6 +401,7 @@ obj.init = function(docks, truthy) {
     }
 };
 
+//calculates colors for d3
 obj.genColor = function() {
   var x = Math.round(0xffffff * Math.random()).toString(16);
   var y = (6 - x.length);
@@ -389,6 +410,7 @@ obj.genColor = function() {
   return "#" + z1 + x;
 };
 
+//generates d3 graphs of 10th degree polynomial regression or 1-10 degree range based upon parameters
 obj.graph = function(data, truthy, docks) {
 
   var parseDate = d3.time.format("%H:%M").parse;
