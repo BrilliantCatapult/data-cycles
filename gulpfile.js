@@ -6,6 +6,7 @@
   var jshint = require('gulp-jshint');
   var concat = require('gulp-concat');
   var rename = require('gulp-rename');
+  var nodemon = require('gulp-nodemon');
   var shell = require('gulp-shell'); 
   var jasmine = require('gulp-jasmine');
   var webpack = require('webpack');
@@ -100,13 +101,21 @@
       });
   });
 
+  gulp.task("nodemon", function(){
+    nodemon({
+      script: 'index.js'
+    })
+  })
+
 
   // Default Task
   gulp.task('default', ['test', 'scripts']);
 
 
-  gulp.task('dev', ['webpack', 'monitor-client']);
+  gulp.task('dev', ['webpack', 'monitor-client', 'nodemon']);
 
   gulp.task('dev-styles', ['webpack', 'monitor-client', 'monitor-styles']);
+
+  gulp.task('deploy', ['webpack']);
 
 
