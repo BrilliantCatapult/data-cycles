@@ -47,6 +47,7 @@ var MapPage = React.createClass({
   componentDidMount: function(){
     MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
+    
   },
   componentWillUpdate: function(newProps){
 
@@ -58,10 +59,17 @@ var MapPage = React.createClass({
         end_date: dates.end_date
       });
     }
-
+    //this.state.loaded = false;
+    console.log("ADDING UPDATEEE");
+    this.state.loaded = true;
     return false;
   },
+  componentWillMount: function(){
+    console.log("ABC");
+    //this.state.loaded = true;
+  },
   componentDidUpdate: function(){
+    //this.state.loaded = true;
     //MapLogic(this.state.start_date, this.state.end_date, this);
     // CalendarLogic();
     // if(this.state.loaded){
