@@ -20,7 +20,7 @@ var Predictions = React.createClass({
           <hr />
           <div className="grid">
             <div className="bloc bloc-s-1">
-              <p>Select a date in the future and a terminal number to get an estimate of the number of bike avilable.</p>
+              <p>Select a date in the future and a terminal number to get an estimate of the number of bikes available.</p>
             </div>
             <div className="bloc bloc-s-1">
               <h3>Future date</h3>
@@ -71,12 +71,13 @@ var Predictions = React.createClass({
             </div>
           </div>
         </div>
-        <div className="container hide" id="res">
-          <h3>Every dock activity prediction</h3>
-          <div id="graph" className="aGraph" style={divStyle}></div>
+        <div className="container hide" id="res-single">
           <h3>Single dock activity prediction</h3>
           <div id="regs" className="aGraph"></div>
-
+        </div>
+        <div className="container hide" id="res-every">
+          <h3>Every dock activity prediction</h3>
+          <div id="graph" className="aGraph" style={divStyle}></div>
           <div>Find the best time to pick up a bike on <span id="date"></span> below!</div>
           <table id="results">
             <tr><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td>

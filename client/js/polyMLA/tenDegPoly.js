@@ -120,16 +120,12 @@ obj.calcMinMax = function(coef) {
 /* calculates min, max, time for min & max, and equations for table 
   - sends info along with standard error & standard deviation to addRow function */
 obj.calcHours = function(coef) {
+  document.getElementById("res-every").className = "container"; 
+  document.getElementById('date').innerHTML = document.getElementById('inp').value;
   if (dockCount === 35) {
     min = 100;
     max = 0;
-  }
-
-  if (dockCount === 35) {
     dockCount = 0;
-    console.log("res");
-    document.getElementById("res").className = "container"; 
-    document.getElementById('date').innerHTML = document.getElementById('inp').value;
   }
 
   var result = [];
@@ -220,6 +216,8 @@ var regPoints = [];
   to plot equation in d3 since d3 doesn't have a function plotter
   and calls d3 graph function with data */
 var calcRegData = function(coef, docks) {
+  console.log("CALCLALACLA")
+  document.getElementById("res-single").className = "container"; 
   var data = [];
   var count = 0;
   for (var j = 0; j <= 23; j += 0.25) {
