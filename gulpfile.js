@@ -1,17 +1,13 @@
-  // I believe you only minify the client code!
-  // Since you don't send over the server code.. so you don't need to!
 
   // Include gulp
   var gulp = require('gulp');
 
   // Include Our Plugins
   var jshint = require('gulp-jshint');
-  //var sass = require('gulp-sass');
   var concat = require('gulp-concat');
   var rename = require('gulp-rename');
   var shell = require('gulp-shell'); 
   var jasmine = require('gulp-jasmine');
-  var gulp = require('gulp');
   var webpack = require('webpack');
   var WebpackDevServer = require('webpack-dev-server');
   var watch = require('gulp-watch');
@@ -52,14 +48,9 @@
           .pipe(gulp.dest('dist'));
   });
 
-  // gulp.task('test', function(done){
-  //   //start jasmine 
-  // });
 
   gulp.task('docs', shell.task([ 
    'node_modules/jsdoc/jsdoc.js '+ 
-     //'-c docs/templates/jaguar/conf.json '+   // config file
-     //'-t docs/templates/jaguar '+    // template file
      '-c docs/templates/minami/conf.json '+   // config file
      '-t docs/templates/minami '+    // template file
      '-d docs/dist '+                             // output directory
@@ -105,9 +96,6 @@
           }
       }, function(err, stats) {
           if(err) throw new gutil.PluginError("webpack", err);
-          // gutil.log("[webpack]", stats.toString({
-          //     // output options
-          // }));
           callback();
       });
   });

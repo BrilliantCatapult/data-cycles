@@ -1,17 +1,12 @@
 require('dotenv').load();
-// var redisClient = require('./server/config/redis');
 var elasticClient = require('./server/config/elasticsearch');
 var time = require('moment');
 var redis = require('redis');
 var url = require('url');
 
-// var redisURL = process.env.REDIS_URL ? url.parse(process.env.REDIS_URL) : url.parse(process.env.redis);
 var redisgreen = process.env.REDISGREEN_URL ? url.parse(process.env.REDISGREEN_URL) : url.parse(process.env.redisgreen);
 var redisClient = redis.createClient(redisgreen.port, redisgreen.hostname);
  redisClient.auth(redisgreen.auth.split(":")[1]);
-// var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
-// var redisClient = redis.createClient();
-// redisClient.auth(redisURL.auth.split(":")[1]);
 
 redisClient.on('connect', function(){
   console.log('connected to redis! :D -- local Edition')
@@ -23,7 +18,6 @@ var startDate = "2013/08/29";
 var endDate = "2013/08/30";
 var startBikeDate = "8/29/2013";
 var endBikeDate = "8/30/2013";
-// console.log(elasticClient);
 
 var buildDockData = function(startDate, endDate) {
   if (endDate === "2014/09/01") {
@@ -33,7 +27,6 @@ var buildDockData = function(startDate, endDate) {
   }
   startDate = time(startDate, "YYYY/MM/DD");
   endDate = time(endDate, "YYYY/MM/DD");
-  // console.log(startDate, endDate);
   elasticClient.search({
         index: 'bikeshare',
         type: 'rebalancing',
@@ -111,9 +104,7 @@ var buildDockData = function(startDate, endDate) {
 
         buildDockData(startDate, endDate.format("YYYY/MM/DD"));
 
-        // res.json(resp);
       }, function (err) {
-        // res.json({"message": "oh no"})
         console.trace(err.message);
       });
 };
@@ -126,8 +117,6 @@ var buildBikeData = function(startDate, endDate) {
   }
   startDate = time(startDate, "M/D/YYYY");
   endDate = time(endDate, "M/D/YYYY");
-  // console.log(startDate, endDate)
-  // console.log(startDate, endDate);
   elasticClient.search({
         index: 'bikeshare',
       type: 'trip',
@@ -191,20 +180,15 @@ var buildBikeData = function(startDate, endDate) {
 
         buildBikeData(startDate, endDate.format("M/D/YYYY"));
 
-        // res.json(resp);
       }, function (err) {
         res.json({"message": "oh no"})
         console.trace(err.message);
       });
 };
 
-// redisClient.on('connect', function() {
-//   console.log("inside buildRedis");
-  buildDockData(startDate, endDate);
-// })
-
-
 var killConnection = function(){ 
   redisClient.quit();
   elasticClient.close();
 };
+
+buildDockData(startDate, endDate);

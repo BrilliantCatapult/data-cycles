@@ -9,26 +9,23 @@ module.exports = {
     var multi = redisGreen.multi();
     console.log(startDate);
     for (var i = 0; i < stations.length; i++){
-      multi.hgetall(stations[i] + ":" + startDate)
+      multi.hgetall(stations[i] + ":" + startDate);
     };
 
     multi.exec(function(err, replies) {
       if (err) {
-        console.log(err)
+        console.log(err);
       }
       else {
         res.json(replies);
       }
-    })
-
-  }, 
+    });
+  },
 
   trips: function (req, res, next) {
     var startDate = req.query.start_date || "12/18/2013";
     var multi = redisGreen.multi();
-    var trips;
-    console.log(startDate);
-    
+    var trips;    
 
     redisGreen.hget("tripTotals", startDate, function(err, total) {
       trips = total;
@@ -40,13 +37,13 @@ module.exports = {
 
       multi.exec(function(err, replies) {
         if (err) {
-          console.log(err)
+          console.log(err);
         }
         else {
           console.log(replies);
           res.json(replies);
         }
-    })
-    })
+      });
+    });
   }
 };
