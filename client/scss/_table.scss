@@ -10,3 +10,6 @@ tr {
 td {
   vertical-align: top;
 }
+
+table { table-layout: fixed; }
+th, td { width: some_value; }

@@ -42,9 +42,9 @@
 .tile .water, .tile .ocean { fill: $color-neutral; stroke: $color-neutral; }
 .tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: $color-neutral; stroke-width: 1.5px;}
 .tile .riverbank { fill: $color-neutral; }
-.tile .major_road { stroke: #fb7b7a; stroke-width: 1px; }
+.tile .major_road { stroke: silver; stroke-width: 1px; }
 .tile .minor_road { stroke: #999; stroke-width: 0.5px; }
-.tile .highway { stroke: #FA4A48; stroke-width: 1.5px; }
+.tile .highway { stroke: grey; stroke-width: 1.5px; }
 .tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
 .tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #88D18A;}
 .tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
