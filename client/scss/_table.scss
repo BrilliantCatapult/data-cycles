@@ -3,10 +3,16 @@ table {
 }
 th {
   text-align: left;
+  font-weight: 700;
 }
 tr {
   border-bottom: 1px dotted silver;
 }
 td {
   vertical-align: top;
+  word-wrap:break-word;
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
+
+table { table-layout: fixed; }
