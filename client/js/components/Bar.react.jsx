@@ -1,6 +1,8 @@
+/*
+
+*/
 var React = require('react');
 var BarVisualization = require('../visualizations/BarVisualization');
-//var ViewActionCreators = require('../actions/ViewActionCreators');
 var d3 = require('d3');
 
 var Bar = React.createClass({

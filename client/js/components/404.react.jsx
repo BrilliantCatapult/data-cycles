@@ -1,3 +1,6 @@
+/*
+404 Client Side Page
+*/
 var React = require('react');
 var Layout = require('./Layout.react.jsx');
 
