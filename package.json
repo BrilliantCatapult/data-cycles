@@ -17,7 +17,8 @@
     "node": "0.10.x"
   },
   "scripts": {
-    "test": "gulp && karma start --single-run --browsers PhantomJS"
+    "test": "gulp && karma start --single-run --browsers PhantomJS",
+    "postinstall": "gulp deploy"
   },
   "dependencies": {
     "body-parser": "^1.13.2",
