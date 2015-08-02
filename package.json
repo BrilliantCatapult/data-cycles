@@ -22,9 +22,18 @@
   },
   "dependencies": {
     "body-parser": "^1.13.2",
+    "dotenv": "^1.2.0",
     "d3": "^3.5.6",
     "d3-time": "0.0.5",
     "d3.geo.tile": "0.0.0",
+    "gulp-compass": "^2.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-jasmine": "^2.0.1",
+    "gulp-jshint": "^1.11.2",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-nodemon": "^2.0.3",
+    "gulp-rename": "^1.2.2",
+    "gulp-shell": "^0.4.2",
     "elasticsearch": "^5.0.0",
     "events": "^1.0.2",
     "express": "^4.13.1",
@@ -32,6 +41,7 @@
     "gulp": "^3.9.0",
     "gulp-watch": "^4.3.3",
     "jsdoc": "^3.3.2",
+    "jsx-loader": "^0.13.2",
     "keymirror": "^0.1.1",
     "moment": "^2.10.3",
     "object-assign": "^3.0.0",
@@ -40,22 +50,13 @@
     "react-classset": "0.0.2",
     "react-loader": "^1.4.0",
     "react-router": "^0.13.3",
-    "redis": "^0.12.1"
+    "redis": "^0.12.1",
+    "webpack": "^1.10.1",
+    "webpack-dev-server": "^1.10.1"
   },
   "devDependencies": {
-    "dotenv": "^1.2.0",
-    "gulp-compass": "^2.1.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-jasmine": "^2.0.1",
     "gulp-jsdoc": "^0.1.4",
-    "gulp-jshint": "^1.11.2",
-    "gulp-minify-css": "^1.2.0",
-    "gulp-nodemon": "^2.0.3",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.0.3",
-    "gulp-shell": "^0.4.2",
     "jasmine-core": "^2.3.4",
-    "jsx-loader": "^0.13.2",
     "karma": "^0.12.36",
     "karma-chrome-launcher": "^0.2.0",
     "karma-cli": "^0.1.0",
@@ -66,8 +67,6 @@
     "karma-webpack": "^1.6.0",
     "minami": "^1.1.0",
     "node-libs-browser": "^0.5.2",
-    "phantomjs": "^1.9.17",
-    "webpack": "^1.10.1",
-    "webpack-dev-server": "^1.10.1"
+    "phantomjs": "^1.9.17"
   }
 }
