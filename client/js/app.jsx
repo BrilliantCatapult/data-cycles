@@ -21,9 +21,12 @@ var FileNotFound = require('./components/404.react');
 var App = React.createClass({
   render () {
     return (
-      <div> 
-        <RouteHandler/>
-        <footer className="container margin-top"><hr />2015</footer>
+      <div>
+        <div className="page"> 
+          <RouteHandler/>
+          <div className="push-footer"></div>
+        </div>
+        <footer className="footer container margin-top"><hr />2015</footer>
       </div>
     )
   } 
