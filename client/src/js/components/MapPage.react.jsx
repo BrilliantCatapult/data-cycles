@@ -5,9 +5,7 @@ var Moment = require('moment');
 var Router = require('react-router');
 var Loader = require('react-loader');
 
-// var CalendarLogic = require('../calendar.js');
 var formatDate = function(date){
-  console.log("DATE ISSSSS ", date);
   var day = Moment(date, "YYYY/MM/DD HH:mm");
   return day.format("YYYY-MM-DD");
 };
@@ -41,13 +39,10 @@ var MapPage = React.createClass({
     return{
       start_date: dates.start_date,
       end_date: dates.end_date,
-      //loaded: false
     }
   }, 
   componentDidMount: function(){
     MapLogic(this.state.start_date, this.state.end_date, this);
-    // CalendarLogic();
-    
   },
   componentWillUpdate: function(newProps){
 
@@ -59,23 +54,12 @@ var MapPage = React.createClass({
         end_date: dates.end_date
       });
     }
-    //this.state.loaded = false;
-    console.log("ADDING UPDATEEE");
     this.state.loaded = true;
     return false;
   },
   componentWillMount: function(){
-    console.log("ABC");
-    //this.state.loaded = true;
   },
   componentDidUpdate: function(){
-    //this.state.loaded = true;
-    //MapLogic(this.state.start_date, this.state.end_date, this);
-    // CalendarLogic();
-    // if(this.state.loaded){
-    //  // MapLogic(this.state.start_date, this.state.end_date, this, this.state.loaded);
-    //   updateWindow();
-    // }
   },
   componentWillUnmount: function(){
     play = false; // do i need this??

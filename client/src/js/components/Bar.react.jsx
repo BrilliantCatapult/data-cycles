@@ -1,5 +1,5 @@
 /*
-
+  Bars view for each bar in the bar chart
 */
 var React = require('react');
 var BarVisualization = require('../visualizations/BarVisualization');

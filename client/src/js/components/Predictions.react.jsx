@@ -2,10 +2,16 @@ var React = require('react');
 var Layout = require('./Layout.react.jsx');
 var Moment = require('moment');
 var PredictionLogic = require('../polyMLA/tenDegPoly');
+var Loader = require('react-loader');
 
 var Predictions = React.createClass({
 
-  
+   getInitialState: function(){
+    return {
+      loadedfirst: true,
+      loadedsecond: true
+    }
+  },
   render: function () {
 
     var divStyle = {
@@ -73,11 +79,15 @@ var Predictions = React.createClass({
         </div>
         <div className="container hide" id="res-single">
           <h3>Single dock activity prediction</h3>
+          <Loader loaded={this.state.loadedsecond} >
           <div id="regs" className="aGraph"></div>
+          </Loader>
         </div>
         <div className="container hide" id="res-every">
           <h3>Every dock activity prediction</h3>
+          <Loader loaded={this.state.loadedfirst}>
           <div id="graph" className="aGraph" style={divStyle}></div>
+          </Loader>
           <div>Find the best time to pick up a bike on <span id="date"></span> below!</div>
           <table id="results">
             <tr><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td>

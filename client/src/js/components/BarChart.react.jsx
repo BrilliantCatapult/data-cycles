@@ -121,7 +121,6 @@ var BarChart = React.createClass({
     }
   },
   _onChange: function(s){
-    console.log("s is ", s);
     if(s !== true){
       this.setState({
          loaded: true,
