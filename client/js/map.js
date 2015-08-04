@@ -41,15 +41,6 @@ var timeToMilliSeconds = function (string) {
   return result;
 };
 
-var formatMsToDate = function(ms) {
-  return new Date(ms);
-}
-var formatHourMinutes = d3.time.format("%H:%M");
-
-var formatTimeToMs = function(time) {
-  return formatMilliseconds(formatHourMinutes.parse(time));
-}
-
 var formatMoment = function(date, format){
   return Moment(date).format(format)
 };
@@ -83,7 +74,6 @@ var mapModule = function(start_date, end_date, view){
       });
       loaded();
     };
-
 
     queue()
       .defer(d3.json, "/api/redis/trips?start_date=" + tripStartDate)
@@ -122,7 +112,7 @@ var mapModule = function(start_date, end_date, view){
       renderFrame(0);
       var mid = Moment(start_date).format("YYYY-MM-DD");
       var day = Moment(mid + " " + formatMilliseconds(realtime), "YYYY-MM-DD HH:mm");
-      start_date = day.format("YYYY/MM/DD HH:mm")
+      start_date = day.format("YYYY/MM/DD HH:mm");
       view.context.router.transitionTo('map_datetime', {date: mid, time: formatMilliseconds(realtime)});
       view.setState({
         loaded: true
@@ -283,7 +273,7 @@ var drawRoutes = function (data) {
       class: "hide bike",
       id: function(d) { return "bike-" + d.properties.id }
     })
-    .on("mouseover", function(d) { showBikeRoute(d, this); })
+    .on("mouseover", function(d) { showBikeRoutes(d, this); })
     .on("mouseout", function(){ hideBikesRoute(); });
     // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
 };
@@ -303,125 +293,99 @@ var hideBikesRoute = function() {
   routesInfolines.html("");
 }
 
-var showBikeRoute = function (d, bike) {
-  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
-  var position = bike.getBoundingClientRect(); 
-  var left = position.left - svgAnimationsPosition.left - 76;
-  var top = position.top - svgAnimationsPosition.top - 80;
-  var trips = [];
+var showBikeRoutes = function (d, bike) {
   var id = d.properties.bikeID;
   var bikeSpeed = 1;
   var delay = 0;
   var delays = [delay];
+  var routeIdsArray = [];
+  var startRingIdsArray = [];
+  var endRingIdsArray = [];
+  var bikeSpeed = 1;
+  var stepNumbers = [];
+  var positions = {};
+
   for (var i = 0; i < bikesJson.features.length; i++) {
-    if (bikesJson.features[i].properties.bikeID == id) {
-      delay += bikesJson.features[i].properties.duration/bikeSpeed;
-      bikesJson.features[i].properties.delay = delay;
-      trips.push(bikesJson.features[i].properties);
+    var trip = bikesJson.features[i].properties;
+    if (trip.bikeID == id) {
+      delay += trip.duration/bikeSpeed;
+      trip.delay = delay;
+      routeIdsArray.push("#route-" + trip.id); 
+      startRingIdsArray.push("#ring-" + trip.startTerminal);
+      endRingIdsArray.push("#ring-" + trip.endTerminal);
+      delay += trip.duration/bikeSpeed;
+      delays.push(delay);
+
+      var routeInfoBloc = routesinfo.append("div")
+        .attr({
+          class: function() {
+            return "route-info-bloc";
+          }
+        })
+        .html("<p>" + (i * 2 + 1) + ". " + trip.startTime + ": " + trip.startStation + "</p><p>" + (i * 2 + 2) + ". " + trip.endTime + ": " + trip.endStation + "<p>");
+      
+      // positions[trip.startTerminal] = positions[trip.startTerminal] ? positions[trip.startTerminal]++ || 1;
+      // positions[trip.endTerminal] = positions[trip.endTerminal] ? positions[trip.endTerminal]++ || 1;
+
+      // stepNumbers.push(
+      //   {
+      //     id: trip.startTerminal, 
+      //     position: positions[trip.startTerminal], 
+
+      //   }, 
+
+      //   )
     }
   }
 
-  animateBikeRoute(trips);
+
+  // var stepNumber = routesStepNumber.append("g")
+  //   .attr({"class": "step-number"});
+
+  // stepNumber.append("circle")
+  //   .attr({
+  //     r: 5,
+  //     fill: "black",
+  //     cx: function (d) { console.log(d); return projection(d.geometry.coordinates)[0]; }, 
+  //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+  //   });
+
+  // stepNumber.append("text")
+  //   .attr("dx", function(d){return -10})
+  //   .text(i * 2 + 1);
+
+  d3.selectAll(routeIdsArray.toString()).attr({
+    "stroke-width": 2, 
+    "stroke-linejoin": "round",
+    "stroke": "blue", 
+    "stroke-opacity": 1, 
+    "stroke-linecap": "round"
+  })
+  .attr("stroke-dasharray", function(d, i) {
+    var totalLength = d3.select(this).node().getTotalLength();
+    return totalLength + " " + totalLength; 
+  })
+  .attr("stroke-dashoffset", function() { 
+    var totalLength = d3.select(this).node().getTotalLength();
+    return totalLength; 
+  })
+  .transition()
+  .delay(function(d, i) { return delays[i]; })
+  .duration(function(d, i) { 
+    drawRing(startRingIdsArray[i], "orange");
+    drawRing(endRingIdsArray[i], "blue");
+    return d.properties.duration/bikeSpeed; })
+  .ease("linear")
+  .attr("stroke-dashoffset", 0);
+
   // tooltip.attr({
   //     style: "left:" + left + "px;top:" + top + "px;"
   //   })
   //   .classed("hide", false)
   //   .html(id);
 
-}
-
-var animateBikeRoute = function(trips) {
-  var routeIdsArray = [];
-  var startRingIdsArray = [];
-  var endRingIdsArray = [];
-  var bikeSpeed = 1;
-  var delay = 0;
-  var delays = [delay];
-  var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
-
-  for (var i = 0; i < trips.length; i++) {
-    routeIdsArray.push("#route-" + trips[i].id); 
-    startRingIdsArray.push("#ring-" + trips[i].startTerminal);
-    endRingIdsArray.push("#ring-" + trips[i].endTerminal);
-    delay += trips[i].duration/bikeSpeed;
-    delays.push(delay);
-
-    var routeInfoBlocPosition;
-
-    var routeInfoBloc = routesinfo.append("div")
-      .attr({
-        class: function() {
-          return "route-info-bloc";
-        }
-      })
-      .html("<p>" + (i * 2 + 1) + ". " + trips[i].startTime + ": " + trips[i].startStation + "</p><p>" + (i * 2 + 2) + ". " + trips[i].endTime + ": " + trips[i].endStation + "<p>");
-
-    var dock = d3.select("#dock-" + trips[i].endTerminal);
-    var infoBlocPosition = routeInfoBloc.node().getBoundingClientRect();
-    var startDockPosition = dock.node().getBoundingClientRect();
-    var endDockPosition = dock.node().getBoundingClientRect();
-    // array of coordinates of the lines between the bloc and their relative docks
-
-    routesInfolines.append("line")          // attach a line
-    .style("stroke", "red")  // colour the line
-    .attr({
-      "x1": startDockPosition.right - svgAnimationsPosition.left,   
-      "y1": startDockPosition.top - svgAnimationsPosition.top,      
-      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,     
-      "y2": infoBlocPosition.top + 10 - svgAnimationsPosition.top
-    });
-
-    routesInfolines.append("line")          // attach a line
-    .style("stroke", "blue")  // colour the line
-    .attr({
-      "x1": endDockPosition.right - svgAnimationsPosition.left,   
-      "y1": endDockPosition.bottom - svgAnimationsPosition.top,   
-      "x2": infoBlocPosition.left - 10 - svgAnimationsPosition.left,   
-      "y2": infoBlocPosition.bottom - 10 - svgAnimationsPosition.top
-    });
-
-    var stepNumber = routesStepNumber.append("g")
-      .attr({"class": "step-number"});
-
-
-    // stepNumber.append("circle")
-    //   .attr({
-    //     r: 5,
-    //     fill: "black",
-    //     cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-    //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-    //   });
-
-    // stepNumber.append("text")
-    //     .attr("dx", function(d){return -10})
-    //     .text(i * 2 + 1);
-
-  }
-  
-  d3.selectAll(routeIdsArray.toString()).attr({
-      "stroke-width": 2, 
-      "stroke-linejoin": "round",
-      "stroke": "blue", 
-      "stroke-opacity": 1, 
-      "stroke-linecap": "round"
-    })
-    .attr("stroke-dasharray", function(d, i) {
-      var totalLength = d3.select(this).node().getTotalLength();
-      return totalLength + " " + totalLength; 
-    })
-    .attr("stroke-dashoffset", function() { 
-      var totalLength = d3.select(this).node().getTotalLength();
-      return totalLength; 
-    })
-    .transition()
-    .delay(function(d, i) { return delays[i]; })
-    .duration(function(d, i) { 
-      drawRing(startRingIdsArray[i], "orange");
-      drawRing(endRingIdsArray[i], "blue");
-      return d.properties.duration/bikeSpeed; })
-    .ease("linear")
-    .attr("stroke-dashoffset", 0);
 };
+
 
 var drawDocks = function (data) {
   // var c = d3.scale.linear()
@@ -706,6 +670,8 @@ var svgAnimations = map.append("svg:svg")
   .style("width", width + "px")
   .style("height", height - 50 + "px")
   .call(zoom);
+
+var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
 
 var routesInfolines = svgAnimations.append("g")
   .attr("id", 'routes-info-lines')
