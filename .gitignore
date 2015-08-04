@@ -1,9 +1,7 @@
 node_modules
 .DS_Store
 .log
-client/bower_components
 .env
-dist
 dump.rdb
 client/dist/js
 .sass-cache

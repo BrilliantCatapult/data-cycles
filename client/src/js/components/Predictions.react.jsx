@@ -2,10 +2,16 @@ var React = require('react');
 var Layout = require('./Layout.react.jsx');
 var Moment = require('moment');
 var PredictionLogic = require('../polyMLA/tenDegPoly');
+var Loader = require('react-loader');
 
 var Predictions = React.createClass({
 
-  
+   getInitialState: function(){
+    return {
+      loadedfirst: true,
+      loadedsecond: true
+    }
+  },
   render: function () {
 
     var divStyle = {
@@ -26,7 +32,7 @@ var Predictions = React.createClass({
               <h3>Future date</h3>
               <input type="text" name="inp" id="inp" className="input-alt" placeholder="MM/DD/YYYY" />
               <span id="errMessage"></span>
-              <input onClick={this._onClick} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
+              <input onClick={this._onClick.bind(this)} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
             </div>
             <div className="bloc bloc-s-1">
               <h3>Terminal</h3>
@@ -67,17 +73,21 @@ var Predictions = React.createClass({
                 <option>77</option>
                 <option>82</option>
               </select>
-              <input onClick={this._getRegs} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
+              <input onClick={this._getRegs.bind(this)} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
             </div>
           </div>
         </div>
         <div className="container hide" id="res-single">
           <h3>Single dock activity prediction</h3>
+          <Loader loaded={this.state.loadedsecond} >
           <div id="regs" className="aGraph"></div>
+          </Loader>
         </div>
         <div className="container hide" id="res-every">
           <h3>Every dock activity prediction</h3>
+          <Loader loaded={this.state.loadedfirst}>
           <div id="graph" className="aGraph" style={divStyle}></div>
+          </Loader>
           <div>Find the best time to pick up a bike on <span id="date"></span> below!</div>
           <table id="results">
             <tr><td>Dock</td><td>Max Bikes</td><td>Hour(Max)</td><td>Min Bikes</td><td>Hour(Min)</td><td>Standard Deviation</td><td>Standard Error</td><td>Equation (10th Degree)</td>
@@ -89,15 +99,15 @@ var Predictions = React.createClass({
   },
 
   _onClick: function(){
-    PredictionLogic.getData();
+    PredictionLogic.getData(this);
     console.log(document.getElementById("regs"));
     if(document.getElementById("regs").children.length > 0){
-      PredictionLogic.getRegs();
+      PredictionLogic.getRegs(this);
     }
   },
 
   _getRegs: function(){
-    PredictionLogic.getRegs();
+    PredictionLogic.getRegs(this);
   }
 
 });

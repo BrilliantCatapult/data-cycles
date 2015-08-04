@@ -35,12 +35,18 @@ obj.testDate = function() {
 };
 
 //Retrieve data for 10th-Degree Regression Graph
-obj.getData = function() {
+obj.getData = function(view) {
+    view.setState({
+        loadedfirst: false
+    });
   event.stopPropagation();
   event.preventDefault();
   if(obj.testDate()) {
     for (var i = 0; i < stations.length; i++) {
       d3.json("/api/ml/predictions?day=" + document.getElementById('inp').value + "&station=" + stations[i], function(error, docks) {
+        view.setState({
+            loadedfirst: true
+        });
         if (error) {
           console.log("error", error);
         } else {
@@ -52,12 +58,18 @@ obj.getData = function() {
 };
 
 //Retrieve data for 1 through 10th degree regression - specific dock 
-obj.getRegs = function() {
+obj.getRegs = function(view) {
+  view.setState({
+      loadedsecond: false
+  });
   event.stopPropagation();
   event.preventDefault();
   var input = document.getElementById('inp2').value;
   if(obj.testDate()){
     d3.json("/api/ml/predictions?day=" + document.getElementById('inp').value + "&station=" + input, function(error, docks) {
+      view.setState({
+          loadedsecond: true
+      });
       if (error) {
         console.log("error", error);
       } else {

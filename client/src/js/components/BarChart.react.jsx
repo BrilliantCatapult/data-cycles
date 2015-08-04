@@ -1,3 +1,7 @@
+/*
+Bar Chart view using D3
+*/
+
 var React = require('react');
 var Bar = require('./Bar.react');
 var BarChartStore = require('../stores/BarChartStore');
@@ -12,9 +16,13 @@ var Loader = require('react-loader');
 
 
 var BarChart = React.createClass({
+  // initially, there's no data [we get data asynchronously from the server]
+  // width and height can be passed in as props (Attributes)
+  // startdate and enddate are also passed in as attributes.
+  // loaded is set to false initially. this controls the loading bar.
   getInitialState: function(){
     return{
-      bars: [],//BarChartStore.getAll(this.props.id),
+      bars: [],
       width: this.props.width,
       height: this.props.height,
       start_date: this.props.start_date,
@@ -28,13 +36,13 @@ var BarChart = React.createClass({
       height: '200',
     };
   },
-  
+  // update dimensions when the window resizes
   updateDimensions: function(){
     var el = React.findDOMNode(this);
     var d3node = d3.select(el);
     this.setState({width: d3node.node().parentNode.offsetWidth});
   },
-
+  // setupchart creates the g element in the svg
   setupChart: function(){
     var el = React.findDOMNode(this);
     var d3node = d3.select(el);
@@ -42,9 +50,11 @@ var BarChart = React.createClass({
     d3node.select('g')
       .attr("transform", "translate(" + 20 + "," + 20 + ")");
   },
+  // when component is about to mount, call action to start receiving server data.
   componentWillMount: function(){
     D3ServerAction.readyToReceive(this.props.id, this.state.start_date, this.state.end_date);
   },
+  // after component mounts, attach all listeners
   componentDidMount: function(){
     BarChartStore.addChangeListener(this._onChange);
     /**
@@ -61,10 +71,12 @@ var BarChart = React.createClass({
     this.setupChart();
     this._onChange(true);
   },
+  // before component unmounds, remove all event listeners.
   componentWillUnmount: function(){
     BarChartStore.removeChangeListener(this._onChange);
     window.removeEventListener("resize",this.updateDimensions);
   },
+  // setup scales, x and y
   setup_scales: function(domains){
 
     var x = d3.scale.linear()
@@ -77,11 +89,13 @@ var BarChart = React.createClass({
 
     return {x: x,y: y};
   },
+  // when component updates, setup chart again, which sets up width.
   componentDidUpdate: function(){
     if(this.state.bars){
       this.setupChart();
     }
   },
+  // render the component
   render: function () {
     var svgStyle = {
       width: this.state.width,
@@ -89,10 +103,12 @@ var BarChart = React.createClass({
     };
     if(this.state.bars && this.state.loaded){
 
+        // get information related to x and y ranges
         var domains = D3Utils.calculatePosition(this.state.width, this.state.height, this.state.bars, "doc_count", "key");
+        // setup x and y scales
         var scales = this.setup_scales(domains);
         
-
+        // create the individual bars for the bar chart.
         var Bars = this.state.bars.map(function(bar) {
           return (<Bar key={bar.key} data={bar} domains={scales} />);
         }, this);
@@ -121,7 +137,7 @@ var BarChart = React.createClass({
     }
   },
   _onChange: function(s){
-    console.log("s is ", s);
+    // when store data changes, this will be called to reset the data and re-render the chart.
     if(s !== true){
       this.setState({
          loaded: true,
