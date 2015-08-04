@@ -113,7 +113,7 @@
       .pipe(gulp.dest('client/dist'))
   });
 
-  gulp.task('dist', function () {
+  gulp.task('img', function () {
     gulp.src('client/src/img/*.*')
       .pipe(changed('client/dist/img'))
       .pipe(gulp.dest('client/dist/img'))
@@ -130,6 +130,6 @@
 
   gulp.task('dev', ['webpack', 'dist', 'monitor-client', 'nodemon']);
 
-  gulp.task('dev-styles', ['webpack', 'dist', 'fonts', 'monitor-client', 'monitor-styles', 'nodemon']);
+  gulp.task('dev-styles', ['webpack', 'dist', 'fonts', 'img', 'monitor-client', 'monitor-styles', 'nodemon']);
 
   gulp.task('deploy', ['webpack']);
