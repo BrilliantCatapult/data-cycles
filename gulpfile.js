@@ -9,6 +9,7 @@
   var nodemon = require('gulp-nodemon');
   var shell = require('gulp-shell'); 
   var jasmine = require('gulp-jasmine');
+  var changed = require('gulp-changed');
   var webpack = require('webpack');
   var WebpackDevServer = require('webpack-dev-server');
   var watch = require('gulp-watch');
@@ -22,19 +23,19 @@
   });
 
   gulp.task('compass', function() {
-    gulp.src('client/scss/*.scss')
+    gulp.src('client/src/scss/*.scss')
       .pipe(compass({
-        css: 'client/css',
-        sass: 'client/scss',
+        css: 'client/dist/css',
+        sass: 'client/src/scss',
         sourcemap: true
       }))
       .pipe(minifyCSS())
-      .pipe(gulp.dest('./client/css'));
+      .pipe(gulp.dest('./client/dist/css'));
   });
 
   // Lint Task
   gulp.task('lint', function() {
-      return gulp.src('client/**/*.js')
+      return gulp.src('client/src/**/*.js')
           .pipe(jshint())
           .pipe(jshint.reporter('default'));
   }); 
@@ -42,11 +43,11 @@
 
   // Concatenate & Minify JS
   gulp.task('scripts', function() {
-      return gulp.src('client/**/*.js')
-          .pipe(concat('all.js'))
-          .pipe(gulp.dest('dist'))
-          .pipe(rename('all.min.js')) 
-          .pipe(gulp.dest('dist'));
+    return gulp.src('client/src/**/*.js')
+      .pipe(concat('all.js'))
+      .pipe(gulp.dest('dist'))
+      .pipe(rename('all.min.js')) 
+      .pipe(gulp.dest('dist'));
   });
 
 
@@ -61,61 +62,74 @@
 
   // Watch Files For Changes
   gulp.task('watch', function() {
-      gulp.watch(['client/**/*.js', 'client/*.js'], ['lint', 'scripts']);
+    gulp.watch(['client/src/**/*.js', 'client/src/*.js'], ['lint', 'scripts']);
   });
 
-
   gulp.task("monitor-client", function(callback) {
-      gulp.watch('client/js/**/*.js', ['webpack']);
-      gulp.watch('client/js/**/*.jsx', ['webpack']);
+    gulp.watch('client/src/js/**/*.js', ['webpack']);
+    gulp.watch('client/src/js/**/*.jsx', ['webpack']);
   });
 
   gulp.task("monitor-styles", function(callback) {
-      gulp.watch('client/scss/*.scss', ['compass']);
+    gulp.watch('client/src/scss/*.scss', ['compass']);
   });
 
   gulp.task("webpack", function(callback) {
     console.log("running.")
       // run webpack
       webpack({
-          entry: './client/js/app.jsx',
-          output: {
-            path: './client/build/',
-            filename: 'bundle.js'
-          },
-          devtool: 'source-map',
-          module: {
-            loaders: [
-              {
-                test: /\.jsx$/,
-                loader: 'jsx-loader?insertPragma=React.DOM&harmony'
-              }
-            ]
-          },
-          resolve: {
-            extensions: ['', '.js', '.jsx']
-          }
+        entry: './client/src/js/app.jsx',
+        output: {
+          path: '.client/dist/js/',
+          filename: 'bundle.js'
+        },
+        devtool: 'source-map',
+        module: {
+          loaders: [
+            {
+              test: /\.jsx$/,
+              loader: 'jsx-loader?insertPragma=React.DOM&harmony'
+            }
+          ]
+        },
+        resolve: {
+          extensions: ['', '.js', '.jsx']
+        }
       }, function(err, stats) {
-          if(err) throw new gutil.PluginError("webpack", err);
-          callback();
+        if(err) throw new gutil.PluginError("webpack", err);
+        callback();
       });
+  });
+
+  gulp.task('fonts', function () {
+    gulp.src('client/src/css/fonts/*.*')
+      .pipe(changed('client/dist/css/fonts'))
+      .pipe(gulp.dest('client/dist/css/fonts'))
+  });
+
+  gulp.task('dist', function () {
+    gulp.src('client/src/index.html')
+      .pipe(changed('client/dist', {extension: '.html'}))
+      .pipe(gulp.dest('client/dist'))
+  });
+
+  gulp.task('dist', function () {
+    gulp.src('client/src/img/*.*')
+      .pipe(changed('client/dist/img'))
+      .pipe(gulp.dest('client/dist/img'))
   });
 
   gulp.task("nodemon", function(){
     nodemon({
       script: 'index.js'
     })
-  })
-
+  });
 
   // Default Task
   gulp.task('default', ['test', 'scripts']);
 
+  gulp.task('dev', ['webpack', 'dist', 'monitor-client', 'nodemon']);
 
-  gulp.task('dev', ['webpack', 'monitor-client', 'nodemon']);
-
-  gulp.task('dev-styles', ['webpack', 'monitor-client', 'monitor-styles', 'nodemon']);
+  gulp.task('dev-styles', ['webpack', 'dist', 'fonts', 'monitor-client', 'monitor-styles', 'nodemon']);
 
   gulp.task('deploy', ['webpack']);
-
-
