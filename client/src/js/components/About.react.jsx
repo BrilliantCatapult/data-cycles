@@ -32,26 +32,27 @@ var About = React.createClass({
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-bahia.png" /></div>
               <h3 className="margin-top">Bahia Sharkawy</h3>
+              <div><a href="https://github.com/bahiafayez"><i className="icon icon-github"></i></a> <a href="http://www.calcium-c.com/"><i className="icon icon-globe"></i></a></div>
               <p>Master of her own domain and knows more about your domain than you do.</p>
-              <div><a href="https://github.com/bahiafayez"><img src="../../img/github.png" height="50" width="50" /></a></div>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-francois.png" /></div>
               <h3 className="margin-top">Francois Romain</h3>
+              <div><a href="https://github.com/francoisromain"><i className="icon icon-github"></i></a> <a href="https://twitter.com/d_sgnl"><i className="icon icon-twitter"></i></a></div>
               <p>If you are what you eat, he would be an organic carrot. <br/>Nickname: Swaa.</p>
-              <div><a href="https://github.com/francoisromain"><img src="../../img/github.png" height="50" width="50" /></a></div>
+              
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-jack.png" /></div>
               <h3 className="margin-top">Jack McDevitt</h3>
+              <div><a href="https://github.com/jackmcd4"><i className="icon icon-github"></i></a></div>
               <p>Born in a city, raised in a city. Still lives in a city, but once did not.</p>
-              <div><a href="https://github.com/jackmcd4"><img src="../../img/github.png" height="50" width="50" /></a></div>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-shanan.png" /></div>
               <h3 className="margin-top">Shanan Sussman</h3>
+              <div><a href="https://github.com/myfancypants"><i className="icon icon-github"></i></a></div>
               <p>Some say his beard holds the power to control minds, some people don&#8217;t remember much anymore.</p>
-              <div><a href="https://github.com/myfancypants"><img src="../../img/github.png" height="50" width="50" /></a></div>
             </div>
           </div>
           <h2 className="margin-top">Tech stack</h2>

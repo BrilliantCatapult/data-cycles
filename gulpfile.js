@@ -80,7 +80,7 @@
       webpack({
         entry: './client/src/js/app.jsx',
         output: {
-          path: '.client/dist/js/',
+          path: './client/dist/js/',
           filename: 'bundle.js'
         },
         devtool: 'source-map',
