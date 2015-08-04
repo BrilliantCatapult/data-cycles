@@ -5,5 +5,5 @@ client/bower_components
 .env
 dist
 dump.rdb
-dist/js
+client/dist/js
 .sass-cache
