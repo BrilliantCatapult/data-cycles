@@ -154,7 +154,7 @@ nav .btn.active, nav .btn.active:hover {
   overflow: hidden;
   width: 150px;
   height: 150px;
-  background: $color-neutral;
+  border: $color-clear 10px solid;
 }
 .circle div {
     display: block;
@@ -163,4 +163,8 @@ nav .btn.active, nav .btn.active:hover {
       width: 100%; */
 min-width: 100%;
 min-height: 100%;
+}
+
+.icon {
+  font-size: 1.5em;
 }

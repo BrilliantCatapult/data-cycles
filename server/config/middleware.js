@@ -10,7 +10,7 @@ module.exports = function (app, express) {
   var mlRouter = express.Router();
   var loaderioRouter = express.Router();
 
-  app.use(express.static('client/'));
+  app.use(express.static('client/dist/'));
 
   // bodyParser to get data from POST requests
   app.use(bodyParser.urlencoded({extended: true}));
