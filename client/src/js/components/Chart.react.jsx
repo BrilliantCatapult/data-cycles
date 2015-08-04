@@ -1,3 +1,6 @@
+/*
+  Statistics page
+*/
 var React = require('react');
 var BarChart = require('./BarChart.react');
 var BubbleChart = require('./BubbleChart.react');
