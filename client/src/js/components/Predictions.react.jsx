@@ -32,7 +32,7 @@ var Predictions = React.createClass({
               <h3>Future date</h3>
               <input type="text" name="inp" id="inp" className="input-alt" placeholder="MM/DD/YYYY" />
               <span id="errMessage"></span>
-              <input onClick={this._onClick} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
+              <input onClick={this._onClick.bind(this)} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
             </div>
             <div className="bloc bloc-s-1">
               <h3>Terminal</h3>
@@ -73,7 +73,7 @@ var Predictions = React.createClass({
                 <option>77</option>
                 <option>82</option>
               </select>
-              <input onClick={this._getRegs} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
+              <input onClick={this._getRegs.bind(this)} type="button" value="Submit" className="btn btn-full btn-alt btn-m margin-top"/>
             </div>
           </div>
         </div>
@@ -99,15 +99,15 @@ var Predictions = React.createClass({
   },
 
   _onClick: function(){
-    PredictionLogic.getData();
+    PredictionLogic.getData(this);
     console.log(document.getElementById("regs"));
     if(document.getElementById("regs").children.length > 0){
-      PredictionLogic.getRegs();
+      PredictionLogic.getRegs(this);
     }
   },
 
   _getRegs: function(){
-    PredictionLogic.getRegs();
+    PredictionLogic.getRegs(this);
   }
 
 });
