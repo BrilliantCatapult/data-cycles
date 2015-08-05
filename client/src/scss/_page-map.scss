@@ -111,9 +111,13 @@
   font-size: 0.75em;
 }
 .route-info-bloc {
+  background-color: white;
+  padding: 1px 5px;
+}
+
+.step {
   background-color: black;
-  padding: 1px 10px;
-  margin-bottom: 20px;
+  color: white;
 }
 
 .tick line {

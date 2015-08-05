@@ -280,20 +280,27 @@ var drawRoutes = function (data) {
 
 var hideBikesRoute = function() {
   tooltip.classed("hide", true);
+
   d3.selectAll(".route")
     .transition()
     .attr({
       "stroke-opacity": 0
     });
+
   d3.selectAll(".ring")
     .attr({
       class: "hide ring"
     });
+
   routesinfo.html("");
-  routesInfolines.html("");
+
+  d3.select("#routes-step-number").remove();
+
 }
 
 var showBikeRoutes = function (d, bike) {
+  var routesStepNumber = svgAnimations.append("g")
+    .attr("id", 'routes-step-number');
   var id = d.properties.bikeID;
   var bikeSpeed = 1;
   var delay = 0;
@@ -302,8 +309,9 @@ var showBikeRoutes = function (d, bike) {
   var startRingIdsArray = [];
   var endRingIdsArray = [];
   var bikeSpeed = 1;
-  var stepNumbers = [];
+  var steps = [];
   var positions = {};
+  var counter = 0;
 
   for (var i = 0; i < bikesJson.features.length; i++) {
     var trip = bikesJson.features[i].properties;
@@ -315,44 +323,72 @@ var showBikeRoutes = function (d, bike) {
       endRingIdsArray.push("#ring-" + trip.endTerminal);
       delay += trip.duration/bikeSpeed;
       delays.push(delay);
+      d3.select("#ring-" + trip.endTerminal);
 
-      var routeInfoBloc = routesinfo.append("div")
-        .attr({
-          class: function() {
-            return "route-info-bloc";
-          }
-        })
-        .html("<p>" + (i * 2 + 1) + ". " + trip.startTime + ": " + trip.startStation + "</p><p>" + (i * 2 + 2) + ". " + trip.endTime + ": " + trip.endStation + "<p>");
-      
-      // positions[trip.startTerminal] = positions[trip.startTerminal] ? positions[trip.startTerminal]++ || 1;
-      // positions[trip.endTerminal] = positions[trip.endTerminal] ? positions[trip.endTerminal]++ || 1;
+      var startTerminal = d3.select("#ring-" + trip.startTerminal);
+      var endTerminal = d3.select("#ring-" + trip.endTerminal);
 
-      // stepNumbers.push(
-      //   {
-      //     id: trip.startTerminal, 
-      //     position: positions[trip.startTerminal], 
+      positions[trip.startTerminal] = positions[trip.startTerminal] === undefined ? 1 : positions[trip.startTerminal] +1;
+      positions[trip.endTerminal] = positions[trip.endTerminal] === undefined ? 1 : positions[trip.endTerminal] +1;
 
-      //   }, 
-
-      //   )
+      steps.push(
+        {
+          "id": trip.startTerminal, 
+          "position": positions[trip.startTerminal],
+          "value": ++counter, 
+          "x": startTerminal.attr("cx"), 
+          "y": startTerminal.attr("cy"), 
+          "time": trip.startTime, 
+          "station": trip.startStation,
+          "type": "start"
+        },
+        {
+          "id": trip.endTerminal, 
+          "position": positions[trip.endTerminal],
+          "value": ++counter, 
+          "x": endTerminal.attr("cx"), 
+          "y": endTerminal.attr("cy"), 
+          "time": trip.endTime, 
+          "station": trip.endStation, 
+          "type": "end"
+        } 
+      );
     }
   }
 
+  routesinfo.selectAll("div")
+    .data(steps)
+    .enter()
+    .append("div")
+    .attr({
+      class: function(d) { return d.type === "start" ? "route-info-bloc" : "route-info-bloc margin-bottom-s"; }
+    })
+    .html( function(d) { return '<span class="step">' + d.value + '</span>' + d.time + ': ' + d.station ; } );
 
-  // var stepNumber = routesStepNumber.append("g")
-  //   .attr({"class": "step-number"});
+  var stepNumber = routesStepNumber.selectAll("g")
+    .data(steps)
+    .enter()
+    .append("g")
+    .attr({
+      "class": "step-number",
+      "transform": function (d) { var x = Number(d.x) + d.position * 24; return "translate(" + x + ", " + d.y + ")"; }
+    });
 
-  // stepNumber.append("circle")
-  //   .attr({
-  //     r: 5,
-  //     fill: "black",
-  //     cx: function (d) { console.log(d); return projection(d.geometry.coordinates)[0]; }, 
-  //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-  //   });
+  stepNumber.append("circle")
+    .attr("r", 10)
+    .attr({
+      fill: function(d) { return "black" }
+    });
 
-  // stepNumber.append("text")
-  //   .attr("dx", function(d){return -10})
-  //   .text(i * 2 + 1);
+  stepNumber.append("text")
+    .attr({ 
+      // "dx": function(d) {return -5 }, 
+      "dy": function(d) {return 3 },
+      "text-anchor": "middle", 
+      "fill": "white", 
+      "font-weight": 700
+    })
+    .text(function(d){ return d.value });
 
   d3.selectAll(routeIdsArray.toString()).attr({
     "stroke-width": 2, 
@@ -673,11 +709,7 @@ var svgAnimations = map.append("svg:svg")
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
 
-var routesInfolines = svgAnimations.append("g")
-  .attr("id", 'routes-info-lines')
-
-var routesStepNumber = svgAnimations.append("g")
-  .attr("id", 'routes-step-number')
+console.log("svgAnimations", svgAnimations);
 
 var info = map.append("div")
   .attr("class", "info");
