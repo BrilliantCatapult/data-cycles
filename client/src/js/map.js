@@ -42,7 +42,7 @@ var timeToMilliSeconds = function (string) {
 };
 
 var formatMoment = function(date, format){
-  return Moment(date).format(format)
+   return Moment(date, "YYYY/MM/DD HH:mm").format(format);
 };
 
 var formatMilliseconds = function (d) {

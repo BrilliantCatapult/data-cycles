@@ -11,7 +11,7 @@ var Calendar = require('./Calendar.react')
 var D3Utils = require('../utils/D3Utils');
 
 setupDate = function(params){
-  var dates = {}
+  var dates = {};
   if(params){
     var day = Moment(params, "YYYY-MM-DD");
     dates.start_date = day.startOf("day").format("MM/DD/YYYY HH:mm")

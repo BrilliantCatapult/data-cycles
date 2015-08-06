@@ -7,7 +7,7 @@ var Router = require('react-router');
 var D3ServerAction = require('../actions/D3ServerAction');
 
 var formatMoment = function(date, format){
-  return Moment(date).format(format)
+  return Moment(date, "MM/DD/YYYY HH:mm").format(format);
 };
 
 var Calendar = React.createClass({
