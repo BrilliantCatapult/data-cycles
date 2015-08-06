@@ -30,15 +30,16 @@ var XAxis = React.createClass({
                .duration(2000)
                .style("opacity", nextProps.sorted);
     
-    this.d3Node
-       .call(axis);
-
     if(nextProps.orient === 'bottom'){
       this.d3Node
         .transition()
         .duration(2000)
         .attr("transform", "translate(0," + nextProps['height']  + ")")
     }
+
+    this.d3Node
+       .call(axis);
+
 
     return true;
   },

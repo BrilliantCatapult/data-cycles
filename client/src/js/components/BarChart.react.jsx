@@ -36,6 +36,24 @@ var BarChart = React.createClass({
       height: '200',
     };
   },
+  componentWillReceiveProps: function(nextProps) {
+          // if (typeof nextProps.showAdvanced === 'boolean') {
+               this.setState({
+                  start_date: nextProps.start_date,
+                  end_date: nextProps.end_date
+               });
+          // }
+          D3ServerAction.readyToReceive(nextProps.id, nextProps.start_date, nextProps.end_date);
+          console.log("receiving new props", nextProps);
+    },
+  // componentWillUpdate: function(){
+
+  // }
+  // shouldComponentUpdate: function(){
+  //   console.log("updatinggggg");
+  //   //D3ServerAction.readyToReceive(this.props.id, this.state.start_date, this.state.end_date);
+  //   return true;
+  // },
   // update dimensions when the window resizes
   updateDimensions: function(){
     var el = React.findDOMNode(this);
@@ -138,6 +156,7 @@ var BarChart = React.createClass({
   },
   _onChange: function(s){
     // when store data changes, this will be called to reset the data and re-render the chart.
+    console.log("called!! data issss ", BarChartStore.getAll(this.props.id));
     if(s !== true){
       this.setState({
          loaded: true,

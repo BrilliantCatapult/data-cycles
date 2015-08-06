@@ -27,7 +27,8 @@ var LineChart = React.createClass({
       height: this.props.height,
       activity: [],//data.activity
       start_date: this.props.start_date,
-      end_date: this.props.end_date
+      end_date: this.props.end_date,
+      colors: this.props.colors
     };
   },
   getDefaultProps: function(){
@@ -42,6 +43,16 @@ var LineChart = React.createClass({
       var d3node = d3.select(el);
       this.setState({width: d3node.node().parentNode.offsetWidth});
     }.bind(this),500);  
+  },
+  componentWillReceiveProps: function(nextProps) {
+          // if (typeof nextProps.showAdvanced === 'boolean') {
+               this.setState({
+                  start_date: nextProps.start_date,
+                  end_date: nextProps.end_date
+               });
+          // }
+          D3ServerAction.readyToReceiveLine(nextProps.id, nextProps.start_date, nextProps.end_date);
+          console.log("receiving new props", nextProps);
   },
   setupChart: function(){
     var el = React.findDOMNode(this);
@@ -61,7 +72,7 @@ var LineChart = React.createClass({
   },
   componentDidMount: function(){
     this.setupChart();
-    this.state.colors = D3Utils.calculateColor([0, 100]);
+    //this.state.colors = D3Utils.calculateColor([0, 100]);
     
     D3ServerAction.readyToReceiveLine(this.props.id, this.state.start_date, this.state.end_date);
     LineChartStore.addChangeListener(this._onChange);
@@ -78,6 +89,9 @@ var LineChart = React.createClass({
     window.addEventListener("resize", this.updateDimensions);
     // need this to re-render after we change the width
   },
+  componentWillUpdate: function(){
+    return true;
+  },
   setup_scales: function(domains){
     var x = d3.time.scale()
        .range([0, this.state.width - 80])
@@ -87,7 +101,7 @@ var LineChart = React.createClass({
             0,
             d3.max(this.state.activity, function(c) { 
               if(c.visible)
-                return d3.max(c.values, function(v) { return v.activity; }) + 1; 
+                return d3.max(c.values, function(v) { return v.activity; }); 
               else
                 return 0;
             })
