@@ -20,35 +20,6 @@
   fill: $color-dark;
 }
 
-
-#tileslayer {
-  position: absolute;
-  z-index: -100;
-}
-
-.tile {
-  position: absolute;
-  width: 256px;
-  height: 256px;
-}
-
-.tile path {
-  fill: none;
-  stroke: silver;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.tile .water, .tile .ocean { fill: $color-neutral; stroke: $color-neutral; }
-.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: $color-neutral; stroke-width: 1.5px;}
-.tile .riverbank { fill: $color-neutral; }
-.tile .major_road { stroke: silver; stroke-width: 1px; }
-.tile .minor_road { stroke: #999; stroke-width: 0.5px; }
-.tile .highway { stroke: grey; stroke-width: 1.5px; }
-.tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
-.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #88D18A;}
-.tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
-
 .info {
   position: absolute;
   bottom: 10px;
@@ -105,20 +76,53 @@
 
 #routes-info {
   position: absolute;
-  width: 200px;
   right: 0;
   top: 0;
   font-size: 0.75em;
-}
-.route-info-bloc {
-  background-color: white;
-  padding: 1px 5px;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
 }
 
-.step {
-  background-color: black;
-  color: white;
+.route-info-bloc {
+  width: 13.5rem;
+  background-color: white;
+  padding: 1px 5px;
+  display: flex;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0.25rem;
 }
+
+.route-info-bloc.margin-bottom-xxs {
+  padding-bottom: 0.25rem;
+}
+
+.route-info-step {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 0;
+  text-align: center;
+  display: inline-block;
+  padding-top: 0.25em;
+}
+
+.route-info-time {
+  width: 1.8rem;
+  margin-right: 0.5rem;
+  font-weight: 700;
+}
+
+.route-info-name {
+  width: 8rem;
+  margin-right: 0.5rem;
+}
+
 
 .tick line {
   stroke: $color-neutral;

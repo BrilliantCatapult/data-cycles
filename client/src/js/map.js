@@ -1,6 +1,8 @@
 var d3geotile = require('d3.geo.tile')();
 var Moment = require('moment');
 var queue = require('queue-async');
+var textures = require('textures');
+console.log(textures);
 var helperFunctions = require('./processJson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
@@ -312,6 +314,7 @@ var showBikeRoutes = function (d, bike) {
   var steps = [];
   var positions = {};
   var counter = 0;
+  var prevId;
 
   for (var i = 0; i < bikesJson.features.length; i++) {
     var trip = bikesJson.features[i].properties;
@@ -321,21 +324,23 @@ var showBikeRoutes = function (d, bike) {
       routeIdsArray.push("#route-" + trip.id); 
       startRingIdsArray.push("#ring-" + trip.startTerminal);
       endRingIdsArray.push("#ring-" + trip.endTerminal);
+
       delay += trip.duration/bikeSpeed;
       delays.push(delay);
-      d3.select("#ring-" + trip.endTerminal);
+
+      console.log("trip: ", trip);
 
       var startTerminal = d3.select("#ring-" + trip.startTerminal);
       var endTerminal = d3.select("#ring-" + trip.endTerminal);
 
-      positions[trip.startTerminal] = positions[trip.startTerminal] === undefined ? 1 : positions[trip.startTerminal] +1;
+      positions[trip.startTerminal] = positions[trip.startTerminal] === undefined ? 1 : prevId === trip.startTerminal ? positions[trip.startTerminal] : positions[trip.startTerminal] +1;
       positions[trip.endTerminal] = positions[trip.endTerminal] === undefined ? 1 : positions[trip.endTerminal] +1;
 
       steps.push(
         {
           "id": trip.startTerminal, 
           "position": positions[trip.startTerminal],
-          "value": ++counter, 
+          "value": prevId === trip.startTerminal ? counter : ++counter, 
           "x": startTerminal.attr("cx"), 
           "y": startTerminal.attr("cy"), 
           "time": trip.startTime, 
@@ -353,6 +358,8 @@ var showBikeRoutes = function (d, bike) {
           "type": "end"
         } 
       );
+
+      prevId = trip.endTerminal;
     }
   }
 
@@ -361,9 +368,9 @@ var showBikeRoutes = function (d, bike) {
     .enter()
     .append("div")
     .attr({
-      class: function(d) { return d.type === "start" ? "route-info-bloc" : "route-info-bloc margin-bottom-s"; }
+      class: function(d) { return d.type === "start" ? "route-info-bloc" : "route-info-bloc margin-bottom-xxs"; }
     })
-    .html( function(d) { return '<span class="step">' + d.value + '</span>' + d.time + ': ' + d.station ; } );
+    .html( function(d) { return '<span class="route-info-step">' + d.value + '</span><span class="route-info-time">' + d.time + '</span> <span class="route-info-name">' + d.station + '</span>' ; } );
 
   var stepNumber = routesStepNumber.selectAll("g")
     .data(steps)
@@ -408,8 +415,8 @@ var showBikeRoutes = function (d, bike) {
   .transition()
   .delay(function(d, i) { return delays[i]; })
   .duration(function(d, i) { 
-    drawRing(startRingIdsArray[i], "orange");
-    drawRing(endRingIdsArray[i], "blue");
+    drawRing(startRingIdsArray[i], "black");
+    drawRing(endRingIdsArray[i], "black");
     return d.properties.duration/bikeSpeed; })
   .ease("linear")
   .attr("stroke-dashoffset", 0);
@@ -536,19 +543,19 @@ var renderZoom = function () {
   var tiles = tile.scale(zoom.scale())
     .translate(zoom.translate())();
 
-  var image = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
+  var tilesLayerTiles = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
     .selectAll(".tile")
     .data(tiles, function (d) {
       return d;
     });
 
-  image.exit()
+  tilesLayerTiles.exit()
     .each(function (d) {
       this._xhr.abort();
     })
-    .remove(); 
+    .remove();
 
-  image.enter()
+  tilesLayerTiles.enter()
     .append("svg")
     .attr("class", "tile")
     .style("left", function (d) {

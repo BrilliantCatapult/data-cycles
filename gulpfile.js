@@ -71,7 +71,7 @@
   });
 
   gulp.task("monitor-styles", function(callback) {
-    gulp.watch('client/src/scss/*.scss', ['compass']);
+    gulp.watch('client/src/scss/*.scss', ['compass', 'img']);
   });
 
   gulp.task("webpack", function(callback) {
