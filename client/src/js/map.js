@@ -1,8 +1,6 @@
 var d3geotile = require('d3.geo.tile')();
 var Moment = require('moment');
 var queue = require('queue-async');
-var textures = require('textures');
-console.log(textures);
 var helperFunctions = require('./processJson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
