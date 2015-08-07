@@ -10,9 +10,9 @@ a {
 @include sticky-footer($base-unit-xl * 1em, ".page", ".push-footer", ".footer");
 
 html {
-	background-color: $base-color-bg;
+	background-color: $color-base-bg;
   font-family: 'Roboto Condensed', sans-serif;
-  color: $base-color-text;
+  color: $color-base-text;
 }
 
 h1, .xxl {

@@ -142,6 +142,7 @@ var mapModule = function(start_date, end_date, view){
     setTimer(timermemo); 
     timeHandlePositionSet(realtime);
     speedHandlePositionSet(speed);
+    renderFrame(0);
     brushend();
   };
 
@@ -209,13 +210,8 @@ var mapModule = function(start_date, end_date, view){
     setTimer(timer); 
     timeHandlePositionSet(realtime); 
 
-    for (var i = 0; i < bikes[0].length; i++) {
-      d3.select(bikes[0][i])
-        .attr("transform", function (d) { return moveBike(d, this); });
-    }
-    for (var i = 0; i < docks[0].length; i++) {
-      setDockLevel(docks[0][i]);
-    }
+    moveBikes();
+    setDockLevel();
   };
 
 var animateRing = function (id, color) {
@@ -448,33 +444,30 @@ var drawDocks = function (data) {
 
   docks.append("circle")
     .attr({
+      class: "dock-dot",
       cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
       r: "3px"
     });
-    // .attr("fill", function (d) {
-    //   return colorscale(c(d.properties.places))
-    // });
 
   docks.append("rect")
     .attr({
-      class: "gauge-bg",
+      class: "dock-bg",
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
       width: "8px", 
-      transform: function (d) { return "translate(" + -4 + "," + -(d.properties.places + 6) + ")"; }, 
+      transform: function (d) { return "translate(" + -4 + "," + - (d.properties.places + 8) + ")"; }, 
       height: function (d) { return d.properties.places + 2 ; }
     });
 
   docks.append("rect")
     .attr({
-      class: "gauge-qty",
+      class: "dock-qty",
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
       width: "6px", 
-      transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
-      height: function (d) { return d.properties.places; }, 
-      fill: "orange"
+      transform: function (d) { return "translate(" + -3 + "," + - (d.properties.places + 7) + ")"; }, 
+      height: function (d) { return d.properties.places; }
     });
 
   var rings = svgAnimations.append("g")
@@ -494,45 +487,49 @@ var drawDocks = function (data) {
     });
 };
 
-  var setDockLevel = function (dock) {
-    var currentQty = 0;
-    
-    d3.select(dock).select(".gauge-qty")
+  var setDockLevel = function () {
+    d3.selectAll(".dock-qty")
+      .each(function(d) {
+        for (var i = 0; i < d.properties.activity.length; i++) {
+          var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+          if (changeTime < realtime) {
+            d.currentQty = d.properties.activity[i].bikes_available;
+          }
+        }
+      })
       .attr({
         transform: function (d) { 
-          for (var i = 0; i < d.properties.activity.length; i++) {
-            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
-            if (changeTime < realtime) {
-              currentQty = d.properties.activity[i].bikes_available;
-            }
-          }
-          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+          return "translate(" + -3 + "," + - (d.currentQty + 7) + ")";
         }, 
-        height: function (d) { return currentQty; }
+        height: function (d) { return d.currentQty; }
       });
   };
 
-var moveBike = function(d, el) {
-  var startTime = timeToMilliSeconds(d.properties.startTime);
-  var endTime = timeToMilliSeconds(d.properties.endTime);
-  if (realtime - startTime > 0 && endTime - realtime > 0) {
-    if (d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", false);
-      if (play) {
-        animateRing(d.properties.startTerminal, "red");
-      }
-    }
-    var path = d3.select("#route-" + d.properties.id).node();
-    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-    return "translate(" + [p.x, p.y] + ")";
-  } else {
-    if (!d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", true);
-      if (play) {
-        animateRing(d.properties.endTerminal, "green");
-      }
-    }
-  } 
+var moveBikes = function() {
+  bikes.attr("transform", function (d) { 
+      var startTime = timeToMilliSeconds(d.properties.startTime);
+      var endTime = timeToMilliSeconds(d.properties.endTime);
+      if (realtime - startTime > 0 && endTime - realtime > 0) {
+        if (d3.select(this).classed("hide")) {
+          d3.select(this).classed("hide", false);
+          if (play) {
+            animateRing(d.properties.startTerminal, "red");
+          }
+        }
+        var path = d3.select("#route-" + d.properties.id).node();
+        var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+        return "translate(" + [p.x, p.y] + ")";
+      } else {
+        if (!d3.select(this).classed("hide")) {
+          d3.select(this).classed("hide", true);
+          if (play) {
+            animateRing(d.properties.endTerminal, "green");
+          }
+        }
+      } 
+
+      return ; 
+    });
 };
 
 var renderZoom = function () {
@@ -587,19 +584,46 @@ var renderZoom = function () {
         });
     });
 
+  // var waterTexture = 
+  // d3.selectAll(".tile")
+  //   .each(function (d, i) {
+
+  //     var currentTile = d3.select(this);
+
+  //     currentTile.attr("id", function() { return "tile-" + i; })
+
+  //     currentTile.append("defs")
+  //      .append('pattern')
+  //      .attr('id', function() { return "pattern-" + i; })
+  //      .attr('patternUnits', 'userSpaceOnUse')
+  //      .attr('width', 16)
+  //      .attr('height', 16)
+  //      .append("image")
+  //      .attr("xlink:href", "img/texture-lines.png")
+  //      .attr('width', 16)
+  //      .attr('height', 16);
+
+  //   currentTile.selectAll(".water, .tile .ocean")
+  //     .attr("fill", "url(#pattern-" + i + ")");
+
+  //     console.log("tile", this, i, d);
+      
+
+  //   });
+
   svgAnimations.selectAll(".dock circle")
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; },
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".gauge-qty")
+  svgAnimations.selectAll(".dock-qty")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".gauge-bg")
+  svgAnimations.selectAll(".dock-bg")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
@@ -614,10 +638,7 @@ var renderZoom = function () {
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".bike")
-    .attr({
-      "transform": function(d) { return moveBike(d, this); }
-    });
+  moveBikes();
 };
 
 var mousemoved = function () {

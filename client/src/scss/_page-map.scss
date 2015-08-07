@@ -1,3 +1,5 @@
+$color-green: #B6EA00; 
+
 #map {
   position: relative;
   overflow: hidden;
@@ -145,6 +147,12 @@
   stroke: $color-neutral;
 }
 .bg {
-  background-color: $base-color-bg;
+  background-color: $color-base-bg;
   padding: 0.25em 0.5em 0.25em 0;
+}
+.dock-qty {
+  fill: $color-green;
+}
+.dock-bg, dock-dot {
+  fill: $color-dark;
 }

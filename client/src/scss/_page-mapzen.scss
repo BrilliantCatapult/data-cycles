@@ -7,6 +7,7 @@
   position: absolute;
   width: 256px;
   height: 256px;
+  background-color: $color-clear;
 }
 
 .tile path {
@@ -19,11 +20,11 @@
 .tile .water, .tile .ocean { fill: $color-neutral; stroke: $color-neutral; }
 .tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: $color-neutral; stroke-width: 1.5px;}
 .tile .riverbank { fill: $color-neutral; }
-.tile .major_road { stroke: silver; stroke-width: 1px; }
-.tile .minor_road { stroke: #999; stroke-width: 0.5px; }
-.tile .highway { stroke: grey; stroke-width: 1.5px; }
+.tile .major_road { stroke: $color-base-bg; stroke-width: 1px; }
+.tile .minor_road { stroke: $color-base-bg; stroke-width: 0.5px; }
+.tile .highway { stroke: $color-base-bg; stroke-width: 1.5px; }
 
-.tile .buildings { fill: $color-clear; }
+.tile .buildings { fill: darken($color-clear, 10%); }
 .tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
-.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #88D18A;}
+.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #D7E0D7;}
 .tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
