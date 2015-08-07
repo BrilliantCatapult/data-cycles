@@ -83,6 +83,10 @@
           path: './client/dist/js/',
           filename: 'bundle.js'
         },
+        plugins: [
+          new webpack.optimize.UglifyJsPlugin(), 
+          new webpack.IgnorePlugin(/^\.\/locale$/, [/moment$/])
+        ],
         devtool: 'source-map',
         module: {
           loaders: [

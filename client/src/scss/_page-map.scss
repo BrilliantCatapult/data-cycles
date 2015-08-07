@@ -117,11 +117,19 @@ $color-green: #B6EA00;
   background-color: $color-base-bg;
   padding: 0.25em 0.5em 0.25em 0;
 }
+.bg-neutral {
+  background-color: $color-clear;
+}
 .dock-qty {
   fill: $color-green;
 }
-.dock-bg, dock-dot {
+.dock-bg {
   fill: grey;
+} 
+
+.dock-dot {
+  fill: $color-dark;
+  stroke: $color-base-bg;
 }
 .bike {
   fill: $color-brand;
