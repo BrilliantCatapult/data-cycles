@@ -491,29 +491,29 @@ var drawSvg = function (dataDocks, dataBikes) {
 
 var moveBikes = function() {
   bikes.attr("transform", function (d) { 
-      var startTime = timeToMilliSeconds(d.properties.startTime);
-      var endTime = timeToMilliSeconds(d.properties.endTime);
-      if (realtime - startTime > 0 && endTime - realtime > 0) {
-        if (d3.select(this).classed("hide")) {
-          d3.select(this).classed("hide", false);
-          if (play) {
-            animateRing(d.properties.startTerminal, "#3d3d35");
-          }
+    var startTime = timeToMilliSeconds(d.properties.startTime);
+    var endTime = timeToMilliSeconds(d.properties.endTime);
+    if (realtime - startTime > 0 && endTime - realtime > 0) {
+      if (d3.select(this).classed("hide")) {
+        d3.select(this).classed("hide", false);
+        if (play) {
+          animateRing(d.properties.startTerminal, "#3d3d35");
         }
-        var path = d3.select("#route-" + d.properties.id).node();
-        var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-        return "translate(" + [p.x, p.y] + ")";
-      } else {
-        if (!d3.select(this).classed("hide")) {
-          d3.select(this).classed("hide", true);
-          if (play) {
-            animateRing(d.properties.endTerminal, "#EA5004");
-          }
+      }
+      var path = d3.select("#route-" + d.properties.id).node();
+      var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+      return "translate(" + [p.x, p.y] + ")";
+    } else {
+      if (!d3.select(this).classed("hide")) {
+        d3.select(this).classed("hide", true);
+        if (play) {
+          animateRing(d.properties.endTerminal, "#EA5004");
         }
-      } 
+      }
+    } 
 
-      return ; 
-    });
+    return ; 
+  });
 };
 
 var renderZoom = function () {
@@ -549,23 +549,23 @@ var renderZoom = function () {
       var layers = ['water', 'landuse', 'roads', 'buildings'];
 
       this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".json?api_key=vector-tiles-AVPulIE", function (error, json) {
-          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
-          
-          tilePath.projection()
-            .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-            .scale(k / 2 / Math.PI);
-          
-          layers.forEach(function(layer){
-            var data = json[layer];
-            if (data) {
-              svgTile.selectAll("path")
-                .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
-              .enter().append("path")
-                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
-                .attr("d", tilePath);
-            }
-          });
+        var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
+        
+        tilePath.projection()
+          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+          .scale(k / 2 / Math.PI);
+        
+        layers.forEach(function(layer){
+          var data = json[layer];
+          if (data) {
+            svgTile.selectAll("path")
+              .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+            .enter().append("path")
+              .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+              .attr("d", tilePath);
+          }
         });
+      });
     });
 
   // var waterTexture = 
