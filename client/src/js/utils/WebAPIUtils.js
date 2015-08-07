@@ -37,6 +37,13 @@ Utils.getStationData = function(){
     });
   
 };
+Utils.getInfoData = function(id, order, start_date, end_date){
+  var D3ServerAction = require('../actions/D3ServerAction');
+
+  d3.json("/api/bikes?size=1&order="+order+"&start_date="+start_date+"&end_date="+end_date, function(data) {
+    D3ServerAction.receiveInfo(id, data);
+  });
+},
 Utils.getLineData = function(id, start_date, end_date){
   var D3ServerAction = require('../actions/D3ServerAction');
   if(id === "5"){

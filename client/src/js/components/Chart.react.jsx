@@ -12,6 +12,7 @@ var Calendar = require('./Calendar.react');
 var D3Utils = require('../utils/D3Utils');
 var LineLegend = require('./LineLegend.react');
 var D3ServerAction = require('../actions/D3ServerAction');
+var Info = require('./Info.react')
 
 setupDate = function(params){
   var dates = {};
@@ -28,7 +29,6 @@ setupDate = function(params){
 
 
 var formatDate = function(date){
-  console.log("DATE ISSSSS in bubble", date);
   var day = Moment(date, "MM/DD/YYYY HH:mm");
   return day.format("YYYY-MM-DD");
 };
@@ -68,23 +68,19 @@ var Chart = React.createClass({
 
   }, 
   shouldComponentUpdate: function(){
-    console.log("will update");
     return true;
   },
   componentWillUnmount: function(){
-    console.log("unmounting");
   },
   componentDidMount: function(){
     D3ServerAction.readyToReceiveStation();
     ChartStore.addChangeListener(this._onChange);
   },
   _onChange: function(){
-    console.log("in on change!!");
 
     this.setState({
       stations: ChartStore.getAll()
     });
-    console.log("data issss ", ChartStore.getAll());
   },
   render: function () {
 
@@ -103,11 +99,11 @@ var Chart = React.createClass({
           <div className="grid">
             <div className="bloc bloc-s-1">
               <h3>Most used bikes</h3>
-              <BarChart stations={this.state.stations}  id='1' start_date={this.state.start_date} end_date={this.state.end_date}/>
+              <Info  order="desc" id="1" start_date={this.state.start_date} end_date={this.state.end_date}/>
             </div>
             <div className="bloc bloc-s-1">
               <h3>Least used bikes</h3>
-              <BarChart  id='2' start_date={this.state.start_date} end_date={this.state.end_date}/>
+              <Info  order="asc" id='2' start_date={this.state.start_date} end_date={this.state.end_date}/>
             </div>
             <div className="bloc bloc-s-1">
               <h3>Overall used bikes</h3>
@@ -125,7 +121,6 @@ var Chart = React.createClass({
               <h3>Number of bikes returned from terminal</h3>
               <LineChart  colors={this.state.colors} id='6'  start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
             </div>
-            <LineLegend colors={this.state.colors}/>
           </div>
         </div>
       </div>

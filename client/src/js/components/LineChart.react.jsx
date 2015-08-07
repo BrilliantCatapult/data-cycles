@@ -52,7 +52,6 @@ var LineChart = React.createClass({
                });
           // }
           D3ServerAction.readyToReceiveLine(nextProps.id, nextProps.start_date, nextProps.end_date);
-          console.log("receiving new props", nextProps);
   },
   setupChart: function(){
     var el = React.findDOMNode(this);

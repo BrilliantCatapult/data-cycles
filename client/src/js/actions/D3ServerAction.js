@@ -36,6 +36,14 @@ module.exports = {
       data: data,
     });
   },
+  // Return statistics on bike data
+  receiveInfo: function (id, data) {
+    D3Dispatcher.dispatch({
+      type: actions.RECEIVE_INFO_DATA,
+      data: data, 
+      data_for: id
+    });
+  },
   // View is loaded, and is ready to receive server bar data
   readyToReceive: function(data_for, start_date, end_date) {
     WebAPIUtils.getServerData(data_for, start_date, end_date);
@@ -51,5 +59,9 @@ module.exports = {
   // Get all station ids and names
   readyToReceiveStation: function() {
     WebAPIUtils.getStationData();
+  },
+  // Get max and min used bike
+  readyToReceiveInfo: function(id, order, start_date, end_date) {
+    WebAPIUtils.getInfoData(id, order, start_date, end_date);
   }
 };

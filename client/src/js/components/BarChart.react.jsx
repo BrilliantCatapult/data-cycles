@@ -45,7 +45,6 @@ var BarChart = React.createClass({
                });
           // }
           D3ServerAction.readyToReceive(nextProps.id, nextProps.start_date, nextProps.end_date);
-          console.log("receiving new props", nextProps);
     },
   // componentWillUpdate: function(){
 
@@ -158,7 +157,6 @@ var BarChart = React.createClass({
   },
   _onChange: function(s){
     // when store data changes, this will be called to reset the data and re-render the chart.
-    console.log("called!! data issss ", BarChartStore.getAll(this.props.id));
     if(s !== true){
       this.setState({
          loaded: true,
