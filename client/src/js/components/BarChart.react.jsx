@@ -40,7 +40,8 @@ var BarChart = React.createClass({
           // if (typeof nextProps.showAdvanced === 'boolean') {
                this.setState({
                   start_date: nextProps.start_date,
-                  end_date: nextProps.end_date
+                  end_date: nextProps.end_date,
+                  stations: nextProps.stations
                });
           // }
           D3ServerAction.readyToReceive(nextProps.id, nextProps.start_date, nextProps.end_date);
@@ -134,6 +135,7 @@ var BarChart = React.createClass({
         return (
            <Loader length={0} width={5} loaded={this.state.loaded}>
             <div>
+
               <svg style={svgStyle}>
                 <g className="graph">
                 {{Bars}}
@@ -167,3 +169,7 @@ var BarChart = React.createClass({
 });
 
 module.exports = BarChart;
+
+/*
+  Stations: {this.state.stations}
+*/

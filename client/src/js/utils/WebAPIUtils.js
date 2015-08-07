@@ -28,6 +28,15 @@ Utils.getBubbleData = function(id, start_date, end_date){
     });
   }
 };
+Utils.getStationData = function(){
+  var D3ServerAction = require('../actions/D3ServerAction');
+  
+    d3.json("/api/stations", function(data){
+      //data = data.fields;
+      D3ServerAction.receiveStation(data);
+    });
+  
+};
 Utils.getLineData = function(id, start_date, end_date){
   var D3ServerAction = require('../actions/D3ServerAction');
   if(id === "5"){

@@ -9,7 +9,6 @@ var actions = Constants.actions;
 var CHANGE_EVENT = "change";
 
 function _addMessages(data_for, msgs){
-  console.log("MESSAGES ", msgs);
   _messages[data_for] = msgs;
 }
 

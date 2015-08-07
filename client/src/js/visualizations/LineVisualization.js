@@ -165,7 +165,7 @@ LineVisualization.update = function (selection, options, scales, rScale, color, 
         .select("path")
          .style("opacity", 0)
          .attr("d", function(d){
-           return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+           return d.visible ? line(d.values) : null; //// If d.visible is true then draw line for this d selection
          })
          .transition()
          .duration(1000)
