@@ -22,7 +22,7 @@ var About = React.createClass({
     return (
       <div>
         <Layout />
-        <div className="container margin-top">
+        <div className="container">
           <div className="grid">
             <div className="bloc bloc-s-2">
               <p className="lead">

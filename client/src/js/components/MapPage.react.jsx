@@ -72,7 +72,7 @@ var MapPage = React.createClass({
       <Layout start_date={formatDate(this.state.start_date)} time={formatTime(this.state.start_date)}  />
 
       <div className="container">
-        <h2 className="margin-top">Daily bike activity</h2>
+        <h2>Daily bike activity</h2>
         <hr />
         <div className="grid">
           <div className="bloc bloc-s-1">
