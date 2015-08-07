@@ -22,10 +22,14 @@ var About = React.createClass({
     return (
       <div>
         <Layout />
-        <div className="container">
-          <p className="lead margin-top">
-            Data Cycles uses <a href="http://www.bayareabikeshare.com/datachallenge">a year's worth of Bay Area Bike Share data</a> to create a simulated real-time visualization, statistics and predictions. An interactive map displays a chosen day's worth of bike and dock activity. Further statistical analysis provides insight into that particular day with graphs of data. Future predictive bike activity can recommend an ideal location to rent a bike from.
-          </p>
+        <div className="container margin-top">
+          <div className="grid">
+            <div className="bloc bloc-s-2">
+              <p className="lead">
+                Data Cycles uses <a href="http://www.bayareabikeshare.com/datachallenge">a year’s worth of Bay Area Bike Share data</a> to create a simulated real-time visualization, statistics and predictions. </p>
+            </div>
+          </div>
+          
           <h2 className="margin-top">Team</h2>
           <hr />
           <div className="grid">

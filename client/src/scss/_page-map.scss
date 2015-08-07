@@ -1,3 +1,5 @@
+$color-green: #B6EA00; 
+
 #map {
   position: relative;
   overflow: hidden;
@@ -20,35 +22,6 @@
   fill: $color-dark;
 }
 
-
-#tileslayer {
-  position: absolute;
-  z-index: -100;
-}
-
-.tile {
-  position: absolute;
-  width: 256px;
-  height: 256px;
-}
-
-.tile path {
-  fill: none;
-  stroke: silver;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.tile .water, .tile .ocean { fill: $color-neutral; stroke: $color-neutral; }
-.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: $color-neutral; stroke-width: 1.5px;}
-.tile .riverbank { fill: $color-neutral; }
-.tile .major_road { stroke: silver; stroke-width: 1px; }
-.tile .minor_road { stroke: #999; stroke-width: 0.5px; }
-.tile .highway { stroke: grey; stroke-width: 1.5px; }
-.tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
-.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #88D18A;}
-.tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
-
 .info {
   position: absolute;
   bottom: 10px;
@@ -60,61 +33,61 @@
   height: 40px;
 }
 
-/*.tooltips {
-  position: relative;
-  display: inline;
-}*/
-
-.map-tooltip {
-  position: absolute;
-  width: 140px;
-  color: #FFFFFF;
-  background: #000000;
-  opacity: 0.8;
-  z-index: 999;
-  padding: 16px;
-  -webkit-transform: translateY(10px);
-     -moz-transform: translateY(10px);
-      -ms-transform: translateY(10px);
-       -o-transform: translateY(10px);
-          transform: translateY(10px);
-  -webkit-transition: all .25s ease-out;
-     -moz-transition: all .25s ease-out;
-      -ms-transition: all .25s ease-out;
-       -o-transition: all .25s ease-out;
-          transition: all .25s ease-out;
-  -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-     -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-      -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-       -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-          box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-}
-
-.map-tooltip:after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -8px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid #000000;
-  border-right: 8px solid transparent;
-  border-left: 8px solid transparent;
-}
-
 #routes-info {
   position: absolute;
-  width: 200px;
   right: 0;
   top: 0;
   font-size: 0.75em;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
 }
+
 .route-info-bloc {
-  background-color: black;
-  padding: 1px 10px;
-  margin-bottom: 20px;
+  width: 13.5rem;
+  background-color: white;
+  padding: 1px 5px;
+  display: flex;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0.25rem;
+  animation: fadein 1s;
 }
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.route-info-bloc.margin-bottom-xxs {
+  padding-bottom: 0.25rem;
+}
+
+.route-info-step {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 0;
+  text-align: center;
+  display: inline-block;
+  padding-top: 0.25em;
+}
+
+.route-info-time {
+  width: 1.8rem;
+  margin-right: 0.5rem;
+  font-weight: 700;
+}
+
+.route-info-name {
+  width: 8rem;
+  margin-right: 0.5rem;
+}
+
 
 .tick line {
   stroke: $color-neutral;
@@ -123,20 +96,38 @@
 .axis {
   shape-rendering: crispEdges;
 }
+
 .x.axis line {
   stroke: lightgrey;
 }
+
 .x.axis .minor {
   stroke-opacity: .5;
 }
+
 .x.axis path {
   display: none;
 }
+
 .y.axis line, .y.axis path {
   fill: none;
   stroke: $color-neutral;
 }
 .bg {
-  background-color: $base-color-bg;
+  background-color: $color-base-bg;
   padding: 0.25em 0.5em 0.25em 0;
+}
+.dock-qty {
+  fill: $color-green;
+}
+.dock-bg, dock-dot {
+  fill: grey;
+}
+.bike {
+  fill: $color-brand;
+  stroke: $color-base-bg;
+}
+.bike:hover {
+  fill: $color-base-bg;
+  stroke: $color-brand;
 }

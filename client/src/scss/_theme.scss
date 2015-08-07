@@ -10,9 +10,9 @@ a {
 @include sticky-footer($base-unit-xl * 1em, ".page", ".push-footer", ".footer");
 
 html {
-	background-color: $base-color-bg;
+	background-color: $color-base-bg;
   font-family: 'Roboto Condensed', sans-serif;
-  color: $base-color-text;
+  color: $color-base-text;
 }
 
 h1, .xxl {
@@ -152,8 +152,7 @@ nav .btn.active, nav .btn.active:hover {
 .circle {
   border-radius: 50%;
   overflow: hidden;
-  width: 150px;
-  height: 150px;
+  margin: 1.5em;
   border: $color-clear 10px solid;
 }
 .circle div {

@@ -15,7 +15,7 @@ input[type="text"], input[type="email"], input[type="search"], input[type="passw
 	height: $base-unit-l * 1em;
 	padding: $base-unit-s * 1em;
 	border: 0 none;
-	background-color: $base-color-bg; 
+	background-color: $color-base-bg; 
 	-webkit-appearance: none;
 	-moz-appearance: none; /* mobile firefox too! */
 }

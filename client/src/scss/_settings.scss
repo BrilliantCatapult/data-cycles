@@ -9,13 +9,13 @@ $rem-with-px-fallback:      true;
 
 // Colors
 
-$base-color-text:           #666;
-$base-color-bg:             white;
+$color-base-text:           #666;
+$color-base-bg:             white;
 $color-transparent:         rgba(248, 247, 243, 0);
 $color-dark:                #3d3d35; 
 $color-neutral:             #bdccd4; 
 $color-clear:               #efefef;
-$color-brand:               #bf3f00;
+$color-brand:               #EA5004;
 
 
 // Everything depends on these two variables
@@ -57,20 +57,20 @@ $btn-color-bg:              $color-transparent;
 $btn-active-color:          $color-clear;
 $btn-active-color-bg:       $color-brand;
 
-$btn-alt-color:             $base-color-bg;
+$btn-alt-color:             $color-base-bg;
 $btn-alt-color-bg:          $color-neutral;
 $btn-alt-active-color:      $color-clear;
 $btn-alt-active-color-bg:   $color-brand;
 
-$btn-flash-color:           $base-color-bg;
+$btn-flash-color:           $color-base-bg;
 $btn-flash-color-bg:        $color-brand;
 $btn-flash-active-color:    $color-clear;
 $btn-flash-active-color-bg: $color-dark;
 
 $btn-b-width:               $base-unit-xxs;
 $btn-b-style:               solid;
-$btn-b-color:               $base-color-text;
-$btn-b-color-bg:            $base-color-bg;
+$btn-b-color:               $color-base-text;
+$btn-b-color-bg:            $color-base-bg;
 $btn-b-color-border:        $color-clear;
 $btn-b-active-color:        $color-dark;
 $btn-b-active-color-bg:     $color-clear;

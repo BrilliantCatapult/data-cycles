@@ -1,6 +1,8 @@
 var d3geotile = require('d3.geo.tile')();
 var Moment = require('moment');
 var queue = require('queue-async');
+var textures = require('textures');
+console.log(textures);
 var helperFunctions = require('./processJson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
@@ -66,8 +68,7 @@ var mapModule = function(start_date, end_date, view){
       }
       bikesJson = helperFunctions.buildBikesJson(tripJson);
       var docksHash = helperFunctions.buildDocksHash(tripJson, docksJson); 
-      drawRoutes(bikesJson);
-      drawDocks(docksHash);
+      drawSvg(docksHash, bikesJson);
       renderZoom();
       view.setState({
         loaded: true
@@ -140,6 +141,7 @@ var mapModule = function(start_date, end_date, view){
     setTimer(timermemo); 
     timeHandlePositionSet(realtime);
     speedHandlePositionSet(speed);
+    renderFrame(0);
     brushend();
   };
 
@@ -207,13 +209,8 @@ var mapModule = function(start_date, end_date, view){
     setTimer(timer); 
     timeHandlePositionSet(realtime); 
 
-    for (var i = 0; i < bikes[0].length; i++) {
-      d3.select(bikes[0][i])
-        .attr("transform", function (d) { return moveBike(d, this); });
-    }
-    for (var i = 0; i < docks[0].length; i++) {
-      setDockLevel(docks[0][i]);
-    }
+    moveBikes();
+    setDockLevel();
   };
 
 var animateRing = function (id, color) {
@@ -247,11 +244,153 @@ var drawRing = function (id, color) {
     .attr("r", "20px");
 };
 
-var drawRoutes = function (data) {
+var hideBikesRoute = function() {
+  tooltip.classed("hide", true);
+
+  d3.selectAll(".route")
+    .transition()
+    .attr({
+      "stroke-opacity": 0
+    });
+
+  d3.selectAll(".ring")
+    .attr({
+      class: "hide ring"
+    });
+
+  routesinfo.html("");
+
+  d3.select("#routes-step-number").remove();
+
+}
+
+var showBikeRoutes = function (d, bike) {
+  var routesStepNumber = svgAnimations.append("g")
+    .attr("id", 'routes-step-number');
+  var id = d.properties.bikeID;
+  var bikeSpeed = 0.25;
+  var delay = 0;
+  var routeIdsArray = [];
+  var startRingIdsArray = [];
+  var endRingIdsArray = [];
+  var steps = [];
+  var positions = {};
+  var counter = 0;
+  var prevId;
+
+  for (var i = 0; i < bikesJson.features.length; i++) {
+    var trip = bikesJson.features[i].properties;
+    if (trip.bikeID == id) {
+      routeIdsArray.push("#route-" + trip.id); 
+      startRingIdsArray.push("#ring-" + trip.startTerminal);
+      endRingIdsArray.push("#ring-" + trip.endTerminal);
+
+      var startTerminal = d3.select("#ring-" + trip.startTerminal);
+      var endTerminal = d3.select("#ring-" + trip.endTerminal);
+
+      positions[trip.startTerminal] = positions[trip.startTerminal] === undefined ? 1 : prevId === trip.startTerminal ? positions[trip.startTerminal] : positions[trip.startTerminal] +1;
+      positions[trip.endTerminal] = positions[trip.endTerminal] === undefined ? 1 : positions[trip.endTerminal] +1;
+
+      steps.push({
+          "id": trip.startTerminal, 
+          "position": positions[trip.startTerminal],
+          "value": prevId === trip.startTerminal ? counter : ++counter, 
+          "x": startTerminal.attr("cx"), 
+          "y": startTerminal.attr("cy"), 
+          "time": trip.startTime, 
+          "station": trip.startStation,
+          "type": "start"
+        },
+        {
+          "id": trip.endTerminal, 
+          "position": positions[trip.endTerminal],
+          "value": ++counter, 
+          "x": endTerminal.attr("cx"), 
+          "y": endTerminal.attr("cy"), 
+          "time": trip.endTime, 
+          "station": trip.endStation, 
+          "type": "end"
+        } 
+      );
+
+      prevId = trip.endTerminal;
+    }
+  }
+
+  routesinfo.selectAll("div")
+    .data(steps)
+    .enter()
+    .append("div")
+    .attr({
+      class: function(d) { return d.type === "start" ? "route-info-bloc" : "route-info-bloc margin-bottom-xxs"; }
+    })
+    .html( function(d) { return '<span class="route-info-step">' + d.value + '</span><span class="route-info-time">' + d.time + '</span> <span class="route-info-name">' + d.station + '</span>' ; } );
+
+  var stepNumber = routesStepNumber.selectAll("g")
+    .data(steps)
+    .enter()
+    .append("g")
+    .attr({
+      "class": "step-number",
+      "transform": function (d) { var x = Number(d.x) + d.position * 24; return "translate(" + x + ", " + d.y + ")"; }
+    });
+
+  stepNumber.append("circle")
+    .attr("r", 10)
+    .attr({
+      fill: function(d) { return "black" }
+    });
+
+  stepNumber.append("text")
+    .attr({ 
+      // "dx": function(d) {return -5 }, 
+      "dy": function(d) {return 3 },
+      "text-anchor": "middle", 
+      "fill": "white", 
+      "font-weight": 700
+    })
+    .text(function(d){ return d.value });
+
+  d3.selectAll(routeIdsArray.toString())
+    .each(function(d) {
+      d.totalLength = d3.select(this).node().getTotalLength();
+      d.duration = d.totalLength/bikeSpeed;
+      d.delay = delay;
+      delay = d.delay + d.duration; 
+    })
+    .attr({
+      "stroke-width": 4, 
+      "stroke-linejoin": "round",
+      "stroke": "#EA5004", 
+      "stroke-opacity": 1, 
+      "stroke-linecap": "round"
+    })
+    .attr("stroke-dasharray", function(d, i) {
+      return d.totalLength + " " + d.totalLength; 
+    })
+    .attr("stroke-dashoffset", function(d, i) { 
+      return d.totalLength; 
+    })
+    .transition()
+    .delay(function(d, i) { return d.delay; })
+    .duration(function(d, i) {
+      return d.duration; })
+    .ease("linear")
+    .attr("stroke-dashoffset", 0)
+    .each(function(d, i) {
+      drawRing(startRingIdsArray[i], "black");
+      drawRing(endRingIdsArray[i], "black");
+    });
+
+};
+
+
+var drawSvg = function (dataDocks, dataBikes) {
+
   var routes = svgAnimations.append("svg:g")
     .classed("routes", true)
     .selectAll("path")
-    .data(data.features)
+    .data(dataBikes.features)
     .enter()
     .append("svg:path")
     .attr({
@@ -261,183 +400,10 @@ var drawRoutes = function (data) {
       "fill-opacity": 0
     });
 
-  bikes = svgAnimations.append("svg:g")
-    .classed("bikes", true)
-    .selectAll("circle")
-    .data(data.features)
-    .enter()
-    .append("circle")
-    .attr({
-      r: 8, 
-      fill: '#f33', 
-      class: "hide bike",
-      id: function(d) { return "bike-" + d.properties.id }
-    })
-    .on("mouseover", function(d) { showBikeRoutes(d, this); })
-    .on("mouseout", function(){ hideBikesRoute(); });
-    // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-};
-
-var hideBikesRoute = function() {
-  tooltip.classed("hide", true);
-  d3.selectAll(".route")
-    .transition()
-    .attr({
-      "stroke-opacity": 0
-    });
-  d3.selectAll(".ring")
-    .attr({
-      class: "hide ring"
-    });
-  routesinfo.html("");
-  routesInfolines.html("");
-}
-
-var showBikeRoutes = function (d, bike) {
-  var id = d.properties.bikeID;
-  var bikeSpeed = 1;
-  var delay = 0;
-  var delays = [delay];
-  var routeIdsArray = [];
-  var startRingIdsArray = [];
-  var endRingIdsArray = [];
-  var bikeSpeed = 1;
-  var stepNumbers = [];
-  var positions = {};
-
-  for (var i = 0; i < bikesJson.features.length; i++) {
-    var trip = bikesJson.features[i].properties;
-    if (trip.bikeID == id) {
-      delay += trip.duration/bikeSpeed;
-      trip.delay = delay;
-      routeIdsArray.push("#route-" + trip.id); 
-      startRingIdsArray.push("#ring-" + trip.startTerminal);
-      endRingIdsArray.push("#ring-" + trip.endTerminal);
-      delay += trip.duration/bikeSpeed;
-      delays.push(delay);
-
-      var routeInfoBloc = routesinfo.append("div")
-        .attr({
-          class: function() {
-            return "route-info-bloc";
-          }
-        })
-        .html("<p>" + (i * 2 + 1) + ". " + trip.startTime + ": " + trip.startStation + "</p><p>" + (i * 2 + 2) + ". " + trip.endTime + ": " + trip.endStation + "<p>");
-      
-      // positions[trip.startTerminal] = positions[trip.startTerminal] ? positions[trip.startTerminal]++ || 1;
-      // positions[trip.endTerminal] = positions[trip.endTerminal] ? positions[trip.endTerminal]++ || 1;
-
-      // stepNumbers.push(
-      //   {
-      //     id: trip.startTerminal, 
-      //     position: positions[trip.startTerminal], 
-
-      //   }, 
-
-      //   )
-    }
-  }
-
-
-  // var stepNumber = routesStepNumber.append("g")
-  //   .attr({"class": "step-number"});
-
-  // stepNumber.append("circle")
-  //   .attr({
-  //     r: 5,
-  //     fill: "black",
-  //     cx: function (d) { console.log(d); return projection(d.geometry.coordinates)[0]; }, 
-  //     cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-  //   });
-
-  // stepNumber.append("text")
-  //   .attr("dx", function(d){return -10})
-  //   .text(i * 2 + 1);
-
-  d3.selectAll(routeIdsArray.toString()).attr({
-    "stroke-width": 2, 
-    "stroke-linejoin": "round",
-    "stroke": "blue", 
-    "stroke-opacity": 1, 
-    "stroke-linecap": "round"
-  })
-  .attr("stroke-dasharray", function(d, i) {
-    var totalLength = d3.select(this).node().getTotalLength();
-    return totalLength + " " + totalLength; 
-  })
-  .attr("stroke-dashoffset", function() { 
-    var totalLength = d3.select(this).node().getTotalLength();
-    return totalLength; 
-  })
-  .transition()
-  .delay(function(d, i) { return delays[i]; })
-  .duration(function(d, i) { 
-    drawRing(startRingIdsArray[i], "orange");
-    drawRing(endRingIdsArray[i], "blue");
-    return d.properties.duration/bikeSpeed; })
-  .ease("linear")
-  .attr("stroke-dashoffset", 0);
-
-  // tooltip.attr({
-  //     style: "left:" + left + "px;top:" + top + "px;"
-  //   })
-  //   .classed("hide", false)
-  //   .html(id);
-
-};
-
-
-var drawDocks = function (data) {
-  // var c = d3.scale.linear()
-  //   .domain([0, 27])
-  //   .range([0, 1]);
-
-  docks = svgAnimations.append("g")
-    .classed("docks hide", true)
-    .selectAll("g")
-    .data(data.features)
-    .enter()
-    .append("g")
-    .attr({
-      id: function (d) { return "dock-" + d.properties.id }, 
-      class: "dock"
-    });
-
-  docks.append("circle")
-    .attr({
-      cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-      cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-      r: "3px"
-    });
-    // .attr("fill", function (d) {
-    //   return colorscale(c(d.properties.places))
-    // });
-
-  docks.append("rect")
-    .attr({
-      class: "gauge-bg",
-      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-      width: "8px", 
-      transform: function (d) { return "translate(" + -4 + "," + -(d.properties.places + 6) + ")"; }, 
-      height: function (d) { return d.properties.places + 2 ; }
-    });
-
-  docks.append("rect")
-    .attr({
-      class: "gauge-qty",
-      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-      width: "6px", 
-      transform: function (d) { return "translate(" + -3 + "," + -(d.properties.places + 5) + ")"; }, 
-      height: function (d) { return d.properties.places; }, 
-      fill: "orange"
-    });
-
   var rings = svgAnimations.append("g")
     .attr({class: "rings"})
     .selectAll("circle")
-    .data(data.features)
+    .data(dataDocks.features)
     .enter()
     .append("circle")
     .attr({
@@ -449,47 +415,106 @@ var drawDocks = function (data) {
       cx: function (d) { return projection(d.geometry.coordinates)[0] }, 
       cy: function (d) { return projection(d.geometry.coordinates)[1] }
     });
+
+  bikes = svgAnimations.append("svg:g")
+    .classed("bikes", true)
+    .selectAll("circle")
+    .data(dataBikes.features)
+    .enter()
+    .append("circle")
+    .attr({
+      r: 7,  
+      "stroke-width": "5",
+      class: "hide bike",
+      id: function(d) { return "bike-" + d.properties.id }
+    })
+    .on("mouseover", function(d) { brushstart(); showBikeRoutes(d, this); })
+    .on("mouseout", function(){ brushend(); hideBikesRoute(); });
+    // .on("mousemove", function(){ return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+
+  docks = svgAnimations.append("g")
+    .classed("docks hide", true)
+    .selectAll("g")
+    .data(dataDocks.features)
+    .enter()
+    .append("g")
+    .attr({
+      id: function (d) { return "dock-" + d.properties.id }, 
+      class: "dock"
+    });
+
+  docks.append("circle")
+    .attr({
+      class: "dock-dot",
+      cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      r: "3px"
+    });
+
+  docks.append("rect")
+    .attr({
+      class: "dock-bg",
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      width: "8px", 
+      transform: function (d) { return "translate(" + -4 + "," + - (d.properties.places + 8) + ")"; }, 
+      height: function (d) { return d.properties.places + 2 ; }
+    });
+
+  docks.append("rect")
+    .attr({
+      class: "dock-qty",
+      x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
+      y: function (d) { return projection(d.geometry.coordinates)[1]; }, 
+      width: "6px", 
+      transform: function (d) { return "translate(" + -3 + "," + - (d.properties.places + 7) + ")"; }, 
+      height: function (d) { return d.properties.places; }
+    });
 };
 
-  var setDockLevel = function (dock) {
-    var currentQty = 0;
-    
-    d3.select(dock).select(".gauge-qty")
+  var setDockLevel = function () {
+    d3.selectAll(".dock-qty")
+      .each(function(d) {
+        for (var i = 0; i < d.properties.activity.length; i++) {
+          var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
+          if (changeTime < realtime) {
+            d.currentQty = d.properties.activity[i].bikes_available;
+          }
+        }
+      })
       .attr({
         transform: function (d) { 
-          for (var i = 0; i < d.properties.activity.length; i++) {
-            var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
-            if (changeTime < realtime) {
-              currentQty = d.properties.activity[i].bikes_available;
-            }
-          }
-          return "translate(" + -3 + "," + -(currentQty + 5) + ")";
+          return "translate(" + -3 + "," + - (d.currentQty + 7) + ")";
         }, 
-        height: function (d) { return currentQty; }
+        height: function (d) { return d.currentQty; }
       });
   };
 
-var moveBike = function(d, el) {
-  var startTime = timeToMilliSeconds(d.properties.startTime);
-  var endTime = timeToMilliSeconds(d.properties.endTime);
-  if (realtime - startTime > 0 && endTime - realtime > 0) {
-    if (d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", false);
-      if (play) {
-        animateRing(d.properties.startTerminal, "red");
-      }
-    }
-    var path = d3.select("#route-" + d.properties.id).node();
-    var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-    return "translate(" + [p.x, p.y] + ")";
-  } else {
-    if (!d3.select(el).classed("hide")) {
-      d3.select(el).classed("hide", true);
-      if (play) {
-        animateRing(d.properties.endTerminal, "green");
-      }
-    }
-  } 
+var moveBikes = function() {
+  bikes.attr("transform", function (d) { 
+      var startTime = timeToMilliSeconds(d.properties.startTime);
+      var endTime = timeToMilliSeconds(d.properties.endTime);
+      if (realtime - startTime > 0 && endTime - realtime > 0) {
+        if (d3.select(this).classed("hide")) {
+          d3.select(this).classed("hide", false);
+          if (play) {
+            animateRing(d.properties.startTerminal, "#3d3d35");
+          }
+        }
+        var path = d3.select("#route-" + d.properties.id).node();
+        var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+        return "translate(" + [p.x, p.y] + ")";
+      } else {
+        if (!d3.select(this).classed("hide")) {
+          d3.select(this).classed("hide", true);
+          if (play) {
+            animateRing(d.properties.endTerminal, "#EA5004");
+          }
+        }
+      } 
+
+      return ; 
+    });
 };
 
 var renderZoom = function () {
@@ -500,19 +525,19 @@ var renderZoom = function () {
   var tiles = tile.scale(zoom.scale())
     .translate(zoom.translate())();
 
-  var image = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
+  var tilesLayerTiles = tilesLayer.style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
     .selectAll(".tile")
     .data(tiles, function (d) {
       return d;
     });
 
-  image.exit()
+  tilesLayerTiles.exit()
     .each(function (d) {
       this._xhr.abort();
     })
-    .remove(); 
+    .remove();
 
-  image.enter()
+  tilesLayerTiles.enter()
     .append("svg")
     .attr("class", "tile")
     .style("left", function (d) {
@@ -544,19 +569,46 @@ var renderZoom = function () {
         });
     });
 
+  // var waterTexture = 
+  // d3.selectAll(".tile")
+  //   .each(function (d, i) {
+
+  //     var currentTile = d3.select(this);
+
+  //     currentTile.attr("id", function() { return "tile-" + i; })
+
+  //     currentTile.append("defs")
+  //      .append('pattern')
+  //      .attr('id', function() { return "pattern-" + i; })
+  //      .attr('patternUnits', 'userSpaceOnUse')
+  //      .attr('width', 16)
+  //      .attr('height', 16)
+  //      .append("image")
+  //      .attr("xlink:href", "img/texture-lines.png")
+  //      .attr('width', 16)
+  //      .attr('height', 16);
+
+  //   currentTile.selectAll(".water, .tile .ocean")
+  //     .attr("fill", "url(#pattern-" + i + ")");
+
+  //     console.log("tile", this, i, d);
+      
+
+  //   });
+
   svgAnimations.selectAll(".dock circle")
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; },
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".gauge-qty")
+  svgAnimations.selectAll(".dock-qty")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".gauge-bg")
+  svgAnimations.selectAll(".dock-bg")
     .attr({
       x: function (d) { return projection(d.geometry.coordinates)[0]; }, 
       y: function (d) { return projection(d.geometry.coordinates)[1]; }
@@ -571,10 +623,7 @@ var renderZoom = function () {
       cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
-  svgAnimations.selectAll(".bike")
-    .attr({
-      "transform": function(d) { return moveBike(d, this); }
-    });
+  moveBikes();
 };
 
 var mousemoved = function () {
@@ -673,11 +722,7 @@ var svgAnimations = map.append("svg:svg")
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
 
-var routesInfolines = svgAnimations.append("g")
-  .attr("id", 'routes-info-lines')
-
-var routesStepNumber = svgAnimations.append("g")
-  .attr("id", 'routes-step-number')
+console.log("svgAnimations", svgAnimations);
 
 var info = map.append("div")
   .attr("class", "info");
@@ -727,7 +772,6 @@ var timeHandle = timeSlider.append("polygon")
   .attr("id", "handle")
   .classed("hide", true);
 
-// speed slider
 var speedSliderSize = "176";
 var speedScale = d3.scale.linear()
   .domain([speedMin, speedMax])
@@ -752,7 +796,7 @@ var speedSlider = speedSvg.append("g")
   .call(speedSliderBrush); 
 
 var speedHandle = speedSlider.append("polygon")
-  // .attr("points", "0,0 20,-15  20,15")
+  // vertical slider handle: .attr("points", "0,0 20,-15  20,15")
   .attr("points", "-15,20 0,0 15,20")
   .attr("id", "speedhandle");
 
@@ -787,6 +831,7 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
 
+// vertial slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
 //   .attr("x", -18)

@@ -40,10 +40,18 @@
   text-decoration: line-through;
 }
 
+.bold {
+  font-weight: 700;
+}
+
 .light {
   color: silver;
 }
 
 .text-right {
   text-align: right;
+}
+
+.inline-block {
+  display: inline-block;
 }
