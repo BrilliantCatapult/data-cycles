@@ -379,7 +379,6 @@ var showBikeRoutes = function (d, bike) {
       drawRing(startRingIdsArray[i], "black");
       drawRing(endRingIdsArray[i], "black");
     });
-
 };
 
 
@@ -828,7 +827,7 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
 
-// vertial slider
+// vertical slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
 //   .attr("x", -18)
