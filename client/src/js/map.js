@@ -498,7 +498,7 @@ var moveBikes = function() {
         if (d3.select(this).classed("hide")) {
           d3.select(this).classed("hide", false);
           if (play) {
-            animateRing(d.properties.startTerminal, "#B6EA00");
+            animateRing(d.properties.startTerminal, "#3d3d35");
           }
         }
         var path = d3.select("#route-" + d.properties.id).node();
