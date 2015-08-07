@@ -100,9 +100,16 @@ var MapPage = React.createClass({
         </div>
 
         <div className="grid">
-          <div className="bloc bloc-s-1 pad bg-neutral">
-            <div><svg><circle r="7" stroke-width="5" class="bike"></circle></svg> Bike</div>
-            <div><svg><circle class="dock-dot" r="5" stroke-width="3"></circle></svg>Terminal</div>
+          <div className="bloc bloc-s-1 pad bg-neutral"> 
+            <div><svg width="24" height="24" className="left"><circle r="7" strokeWidth="5" cx="12" cy="12" className="bike" ></circle></svg> Bike</div> 
+            <div><svg width="24" height="24" className="left"><circle r="5" strokeWidth="3" cx="12" cy="12" className="dock-dot" ></circle></svg>Terminal</div>
+            <div>
+              <svg width="24" height="24" className="left">
+                <rect x="7" y="0" width="8" height="20" className="dock-bg"></rect>
+                <rect x="8" y="7" width="6" height="12" className="dock-qty" ></rect>
+              </svg>
+              Bikes available 
+            </div>
           </div>
         </div>
 

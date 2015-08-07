@@ -472,7 +472,7 @@ var drawSvg = function (dataDocks, dataBikes) {
 };
 
   var setDockLevel = function () {
-    d3.selectAll(".dock-qty")
+    svgAnimations.selectAll(".dock-qty")
       .each(function(d) {
         for (var i = 0; i < d.properties.activity.length; i++) {
           var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
@@ -566,7 +566,7 @@ var renderZoom = function () {
             }
           });
         });
-    }); 
+    });
 
   // var waterTexture = 
   // d3.selectAll(".tile")
@@ -720,8 +720,6 @@ var svgAnimations = map.append("svg:svg")
   .call(zoom);
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
-
-console.log("svgAnimations", svgAnimations);
 
 var info = map.append("div")
   .attr("class", "info");
