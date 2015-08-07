@@ -446,9 +446,10 @@ var drawSvg = function (dataDocks, dataBikes) {
   docks.append("circle")
     .attr({
       class: "dock-dot",
+      r: 5,  
+      "stroke-width": "3",
       cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-      cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-      r: "3px"
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
   docks.append("rect")
