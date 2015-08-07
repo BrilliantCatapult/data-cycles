@@ -566,7 +566,7 @@ var renderZoom = function () {
             }
           });
         });
-    });
+    }); 
 
   // var waterTexture = 
   // d3.selectAll(".tile")

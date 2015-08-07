@@ -101,10 +101,8 @@ var MapPage = React.createClass({
 
         <div className="grid">
           <div className="bloc bloc-s-1 pad bg-neutral">
-            <ul>
-              <li>Bike</li>
-              <li>Terminal</li>
-            </ul>
+            <div><svg><circle r="7" stroke-width="5" class="bike"></circle></svg> Bike</div>
+            <div><svg><circle class="dock-dot" r="5" stroke-width="3"></circle></svg>Terminal</div>
           </div>
         </div>
 
