@@ -13,12 +13,21 @@ var Bar = React.createClass({
   },
   shouldComponentUpdate: function(nextProps) {
     this.d3Node = d3.select(this.getDOMNode());
-    this.d3Node.call(BarVisualization.update, nextProps.domains, 200);
+    this.d3Node.datum(nextProps.data)
+    .call(BarVisualization.update, nextProps.domains, 200);
     return true;
   },
-   componentDidUpate: function() {
-   },
- 
+ componentDidUpate: function() {
+ },
+ // shouldComponentUpdate: function(nextProps) {
+ //   if (nextProps.data.update) {
+ //     this.d3Node.datum(nextProps.data);
+ //   }
+ //   return true;
+ // },
+ componentDidUpate: function() {
+   this.d3Node.datum(this.props.data);
+ },
   render: function() {
     return (
       <g className="Bar" />

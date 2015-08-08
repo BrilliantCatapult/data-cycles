@@ -44,6 +44,9 @@ module.exports = {
     var start_date = req.body.start_date || "12/12/2013 00:00";
     var end_date = req.body.end_date || "12/13/2013 00:00";
     var field = req.body.field || "start_terminal";
+    var sort = {};
+    sort[field] = {"order":"desc"};
+    //sort[field] = "desc";
     elasticClient.search({
       index: 'bikeshare',
       type: 'trip',
@@ -55,28 +58,42 @@ module.exports = {
                 "start_date": {
                   "lte": end_date,
                   "gte": start_date
-                }
-              }
-            }
-          }
+                },
+                //sort: sort
+              }, 
+            },
+          },
+          
         },
+        //sort: sort, 
         "aggs": {
-          // "sort" : [
-          //     {"start_terminal" : {"order" : "asc"}}
-          // ],
+          //"sort" : sort,
           "activity_per_station": {
+            //sort: sort,
             "terms": {
               "field": field,
               "size": 700,
-               "order": {
-                 "_count": "desc"
-               }
+              // "sort": [
+              //   sort
+              //  ]
+               "order": {"_term": "asc"}
+               
             },
             "aggs" : {
-              "activity_per_hour" : { "date_histogram" : { "field" : "start_date", "interval" : "hour"} }
+              "activity_per_hour" : { 
+                "date_histogram" : { 
+                  "field" : "start_date", 
+                  "interval" : "hour",
+                  // "sort": [{"key": {"order": "asc"}}]
+
+                  // "order": {"_count": "asc"}
+                },
+                //"order": {"start_terminal": "asc"} 
+              }
             }
-          }
-        }
+          },
+        },
+          //sort: sort
       }
     }).then(function (resp) {
       var hits = resp.hits.hits;

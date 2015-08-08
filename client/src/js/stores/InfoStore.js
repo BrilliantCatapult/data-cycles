@@ -3,16 +3,19 @@ var EventEmitter = require('events').EventEmitter;
 var D3Dispatcher = require('../dispatcher/D3Dispatcher');
 // var ThreadStore = require('./ThreadStore');
 var Constants = require('../constants/D3Constants.js');
-
 var _messages = {};
 var actions = Constants.actions;
 var CHANGE_EVENT = "change";
 
-function _addMessages(data_for, msgs){
-  _messages[data_for] = msgs;
+// var parseDate = d3.time.format("%m/%d/%Y %H:%M").parse;
+
+function _addMessages(id, msgs){
+
+  _messages[id] = msgs;
+
 }
 
-var BarChartStore = assign({}, EventEmitter.prototype, {
+var InfoStore = assign({}, EventEmitter.prototype, {
   
   emitChange: function(id){
     this.emit(CHANGE_EVENT, id);
@@ -30,12 +33,12 @@ var BarChartStore = assign({}, EventEmitter.prototype, {
 });
 
 
-BarChartStore.dispatchToken = D3Dispatcher.register(function(action){
-  switch(action.type){
+InfoStore.dispatchToken = D3Dispatcher.register(function(action){
 
-    case actions.RECEIVE_DATA:
-      _addMessages(action.data_for, action.data);
-      BarChartStore.emitChange(action.data_for);
+  switch(action.type){
+    case actions.RECEIVE_INFO_DATA:
+      _addMessages(action.data_for,action.data);
+      InfoStore.emitChange(action.data_for);
       break;
 
     default:
@@ -43,4 +46,4 @@ BarChartStore.dispatchToken = D3Dispatcher.register(function(action){
   }
 });
 
-module.exports = BarChartStore;
+module.exports = InfoStore;

@@ -26,6 +26,7 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
 
    selection
    .append("rect")
+   .attr("class", "legendclass")
    .attr("width", 10)
    .attr("height", 10)                                    
    .attr("x", width - 80) 
@@ -98,7 +99,7 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
 
    selection.append("path")
        .attr("class", "line")
-       .style("stroke", function(d) { return color(Number(d.name)); })
+       .style("stroke", function(d) { return color(d.name); })
        .attr("id", function(d) {
          return "line-" + d.name; // Give line id of line-(insert issue name, with any spaces replaced with no spaces)
        })
@@ -165,7 +166,7 @@ LineVisualization.update = function (selection, options, scales, rScale, color, 
         .select("path")
          .style("opacity", 0)
          .attr("d", function(d){
-           return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+           return d.visible ? line(d.values) : null; //// If d.visible is true then draw line for this d selection
          })
          .transition()
          .duration(1000)
@@ -196,6 +197,7 @@ LineVisualization.update = function (selection, options, scales, rScale, color, 
      selection.select("path")
         .transition()
         .duration(1000)
+        .style("stroke", function(d) { return color(d.name); })
          .attr("d", function(d) { 
            return d.visible ? line(d.values) : null; // If array key "visible" = true then draw line, if not then don't 
          });

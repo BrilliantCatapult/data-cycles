@@ -11,7 +11,7 @@ var YAxis = React.createClass({
     this.d3Node
         .transition()
         .duration(1000)
-        .call(yAxis)
+        .call(yAxis);
 
     this.d3Node.append("text")
         .attr("transform", "rotate(-90)")
@@ -22,7 +22,7 @@ var YAxis = React.createClass({
         .text("Station Activity ["+ this.props.name + "]");
 
   },
-  shouldComponentUpdate: function(nextProps) {
+  shouldComponentUpdate: function(nextProps) { 
     var yAxis = d3.svg.axis().scale(nextProps.y).orient("left").tickSize(0);
     this.d3Node = d3.select(this.getDOMNode());
 

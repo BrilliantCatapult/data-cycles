@@ -36,6 +36,24 @@ var BarChart = React.createClass({
       height: '200',
     };
   },
+  componentWillReceiveProps: function(nextProps) {
+          // if (typeof nextProps.showAdvanced === 'boolean') {
+               this.setState({
+                  start_date: nextProps.start_date,
+                  end_date: nextProps.end_date,
+                  stations: nextProps.stations
+               });
+          // }
+          D3ServerAction.readyToReceive(nextProps.id, nextProps.start_date, nextProps.end_date);
+    },
+  // componentWillUpdate: function(){
+
+  // }
+  // shouldComponentUpdate: function(){
+  //   console.log("updatinggggg");
+  //   //D3ServerAction.readyToReceive(this.props.id, this.state.start_date, this.state.end_date);
+  //   return true;
+  // },
   // update dimensions when the window resizes
   updateDimensions: function(){
     var el = React.findDOMNode(this);
@@ -116,6 +134,7 @@ var BarChart = React.createClass({
         return (
            <Loader length={0} width={5} loaded={this.state.loaded}>
             <div>
+
               <svg style={svgStyle}>
                 <g className="graph">
                 {{Bars}}
@@ -148,3 +167,7 @@ var BarChart = React.createClass({
 });
 
 module.exports = BarChart;
+
+/*
+  Stations: {this.state.stations}
+*/

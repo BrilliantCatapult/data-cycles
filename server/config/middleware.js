@@ -9,6 +9,7 @@ module.exports = function (app, express) {
   var redisRouter = express.Router();
   var mlRouter = express.Router();
   var loaderioRouter = express.Router();
+  var stationRouter = express.Router();
 
   app.use(express.static('client/dist/'));
 
@@ -21,6 +22,7 @@ module.exports = function (app, express) {
   app.use('/api/timeline', timelineRouter);
   app.use('/api/redis', redisRouter);
   app.use('/api/ml', mlRouter);
+  app.use('/api/stations', stationRouter);
   app.use('/loaderio-a45c17137e179e372517a4677fbdb1e5', loaderioRouter);
 
   app.use(helpers.errorLogger);
@@ -36,5 +38,6 @@ module.exports = function (app, express) {
   require('../routes/redisRoute.js')(redisRouter);
   require('../routes/mlRoutes.js')(mlRouter);
   require('../routes/loaderioRoute.js') (loaderioRouter);
+  require('../routes/stationRoute.js')(stationRouter);
 
 };

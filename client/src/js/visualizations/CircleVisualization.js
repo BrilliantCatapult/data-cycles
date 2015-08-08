@@ -1,6 +1,6 @@
 var CircleVisualization = {};
 
-CircleVisualization.enter = function (selection, options, scales, rScale, color, tooltip) {
+CircleVisualization.enter = function (selection, options, scales, rScale, color, tooltip, sorted) {
 
    var x = scales.x;
    var y = scales.y;
@@ -8,10 +8,23 @@ CircleVisualization.enter = function (selection, options, scales, rScale, color,
     selection
       .attr("class", "dot")
       .attr("r", function(d) {
-       return rScale(d.doc_count); 
-     })
-      .attr("cx", function(d) { return x(Math.random()*options.domains.y[1]); })
-      .attr("cy", function(d) { return y(Math.random()*options.domains.x[1]); })
+        if(sorted)
+          return 3.5; 
+        else
+          return rScale(d.doc_count); 
+      })
+      .attr("cx", function(d) { 
+        if(sorted)
+          return x(d.key);
+        else
+          return x(Math.random()*options.domains.y[1]); 
+      })
+      .attr("cy", function(d) { 
+        if(sorted)
+          return y(d.doc_count) 
+        else
+          return y(Math.random()*options.domains.x[1]); 
+      })
       .style("fill", function(d) { return color(d.doc_count); })
       .on("mouseover", function(d) {
           tooltip.transition()

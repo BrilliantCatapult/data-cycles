@@ -29,6 +29,21 @@ module.exports = {
       data_for: data_for
     });
   },
+  // When station data received, notify store, using the dispatcher.
+  receiveStation: function (data) {
+    D3Dispatcher.dispatch({
+      type: actions.RECEIVE_STATION_DATA,
+      data: data,
+    });
+  },
+  // Return statistics on bike data
+  receiveInfo: function (id, data) {
+    D3Dispatcher.dispatch({
+      type: actions.RECEIVE_INFO_DATA,
+      data: data, 
+      data_for: id
+    });
+  },
   // View is loaded, and is ready to receive server bar data
   readyToReceive: function(data_for, start_date, end_date) {
     WebAPIUtils.getServerData(data_for, start_date, end_date);
@@ -40,5 +55,13 @@ module.exports = {
   // View is loaded, and is ready to receive server line data
   readyToReceiveLine: function(data_for, start_date, end_date) {
     WebAPIUtils.getLineData(data_for, start_date, end_date);
+  },
+  // Get all station ids and names
+  readyToReceiveStation: function() {
+    WebAPIUtils.getStationData();
+  },
+  // Get max and min used bike
+  readyToReceiveInfo: function(id, order, start_date, end_date) {
+    WebAPIUtils.getInfoData(id, order, start_date, end_date);
   }
 };
