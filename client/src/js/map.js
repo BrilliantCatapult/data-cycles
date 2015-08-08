@@ -1,8 +1,6 @@
 var d3geotile = require('d3.geo.tile')();
 var Moment = require('moment');
 var queue = require('queue-async');
-var textures = require('textures');
-console.log(textures);
 var helperFunctions = require('./processJson');
 var dateDocksFormat = d3.time.format("%Y/%m/%d");
 var dateMinValue = '2013-08-29';
@@ -381,7 +379,6 @@ var showBikeRoutes = function (d, bike) {
       drawRing(startRingIdsArray[i], "black");
       drawRing(endRingIdsArray[i], "black");
     });
-
 };
 
 
@@ -446,9 +443,10 @@ var drawSvg = function (dataDocks, dataBikes) {
   docks.append("circle")
     .attr({
       class: "dock-dot",
+      r: 5,  
+      "stroke-width": "3",
       cx: function (d) { return projection(d.geometry.coordinates)[0]; }, 
-      cy: function (d) { return projection(d.geometry.coordinates)[1]; }, 
-      r: "3px"
+      cy: function (d) { return projection(d.geometry.coordinates)[1]; }
     });
 
   docks.append("rect")
@@ -473,7 +471,7 @@ var drawSvg = function (dataDocks, dataBikes) {
 };
 
   var setDockLevel = function () {
-    d3.selectAll(".dock-qty")
+    svgAnimations.selectAll(".dock-qty")
       .each(function(d) {
         for (var i = 0; i < d.properties.activity.length; i++) {
           var changeTime = timeToMilliSeconds(d.properties.activity[i].time);
@@ -492,29 +490,29 @@ var drawSvg = function (dataDocks, dataBikes) {
 
 var moveBikes = function() {
   bikes.attr("transform", function (d) { 
-      var startTime = timeToMilliSeconds(d.properties.startTime);
-      var endTime = timeToMilliSeconds(d.properties.endTime);
-      if (realtime - startTime > 0 && endTime - realtime > 0) {
-        if (d3.select(this).classed("hide")) {
-          d3.select(this).classed("hide", false);
-          if (play) {
-            animateRing(d.properties.startTerminal, "#3d3d35");
-          }
+    var startTime = timeToMilliSeconds(d.properties.startTime);
+    var endTime = timeToMilliSeconds(d.properties.endTime);
+    if (realtime - startTime > 0 && endTime - realtime > 0) {
+      if (d3.select(this).classed("hide")) {
+        d3.select(this).classed("hide", false);
+        if (play) {
+          animateRing(d.properties.startTerminal, "#3d3d35");
         }
-        var path = d3.select("#route-" + d.properties.id).node();
-        var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
-        return "translate(" + [p.x, p.y] + ")";
-      } else {
-        if (!d3.select(this).classed("hide")) {
-          d3.select(this).classed("hide", true);
-          if (play) {
-            animateRing(d.properties.endTerminal, "#EA5004");
-          }
+      }
+      var path = d3.select("#route-" + d.properties.id).node();
+      var p = path.getPointAtLength(path.getTotalLength() * (realtime - startTime) / (endTime - startTime));
+      return "translate(" + [p.x, p.y] + ")";
+    } else {
+      if (!d3.select(this).classed("hide")) {
+        d3.select(this).classed("hide", true);
+        if (play) {
+          animateRing(d.properties.endTerminal, "#EA5004");
         }
-      } 
+      }
+    } 
 
-      return ; 
-    });
+    return ; 
+  });
 };
 
 var renderZoom = function () {
@@ -550,23 +548,23 @@ var renderZoom = function () {
       var layers = ['water', 'landuse', 'roads', 'buildings'];
 
       this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".json?api_key=vector-tiles-AVPulIE", function (error, json) {
-          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
-          
-          tilePath.projection()
-            .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-            .scale(k / 2 / Math.PI);
-          
-          layers.forEach(function(layer){
-            var data = json[layer];
-            if (data) {
-              svgTile.selectAll("path")
-                .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
-              .enter().append("path")
-                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
-                .attr("d", tilePath);
-            }
-          });
+        var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
+        
+        tilePath.projection()
+          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+          .scale(k / 2 / Math.PI);
+        
+        layers.forEach(function(layer){
+          var data = json[layer];
+          if (data) {
+            svgTile.selectAll("path")
+              .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+            .enter().append("path")
+              .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+              .attr("d", tilePath);
+          }
         });
+      });
     });
 
   // var waterTexture = 
@@ -722,8 +720,6 @@ var svgAnimations = map.append("svg:svg")
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
 
-console.log("svgAnimations", svgAnimations);
-
 var info = map.append("div")
   .attr("class", "info");
 
@@ -831,7 +827,7 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
 
-// vertial slider
+// vertical slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
 //   .attr("x", -18)

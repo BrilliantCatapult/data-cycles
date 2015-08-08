@@ -22,11 +22,12 @@ var About = React.createClass({
     return (
       <div>
         <Layout />
-        <div className="container margin-top">
+        <div className="container">
           <div className="grid">
             <div className="bloc bloc-s-2">
               <p className="lead">
                 Data Cycles uses <a href="http://www.bayareabikeshare.com/datachallenge">a year’s worth of Bay Area Bike Share data</a> to create a simulated real-time visualization, statistics and predictions. </p>
+              <p><a href="https://github.com/BrilliantCatapult/data-cycles"><i className="left icon icon-github"></i> Data Cycles on Github</a></p>
             </div>
           </div>
           
