@@ -27,8 +27,6 @@ var timer, timermemo;
 playmemo = false;
 var margins = 20;
 
-var colors = [];
-
 updateWindow = function(){
   width = document.getElementById("map").clientWidth;
   timelineWidth = document.getElementById("timeline").clientWidth;
@@ -651,10 +649,6 @@ var formatLocation = function (p, k) {
 updateWindow();
 
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
-
-var colorscale = d3.scale.linear()
-  .domain(d3.range(0, 1, 1.0 / (colors.length - 1)))
-  .range(colors);
 
 var timescale = d3.time.scale()
   .domain([new Date, new Date])
