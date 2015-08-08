@@ -26,6 +26,7 @@ LineVisualization.enter = function (selection, options, scales, rScale, color, t
 
    selection
    .append("rect")
+   .attr("class", "legendclass")
    .attr("width", 10)
    .attr("height", 10)                                    
    .attr("x", width - 80) 

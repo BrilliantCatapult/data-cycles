@@ -164,9 +164,11 @@ var LineChart = React.createClass({
         var Lines = this.state.activity.map(function(bar, i) {
             return (<Line key={bar.key} data={bar} domains={setup} scales={this.state.scales} color={this.state.colors} tooltip={this.state.tooltip} activity={this.state.activity} width={this.state.width} index={i} parent={d3node} view={this}/>);
         }, this);
-
+        console.log("GRAPH STATE ISSS ", this.state.graphstate);
   
         return (
+          <div>
+            <input type="button" value={this.state.graphstate || 'Remove All'} onClick={this._onClick.bind(this)} />
             <svg style={svgStyle}>            
               <g className="graph">
                 <rect className="mouse-tracker" width={this.state.width} height={this.state.height} x="0" y="0" className="mouse-tracker" style={{fill:'white'}}></rect>
@@ -175,6 +177,7 @@ var LineChart = React.createClass({
                 <YAxisLine name={this.props.name} width={this.state.width} y={this.state.scales.y}/>
               </g>
             </svg>
+          </div>
         );
     } else {
       return (
@@ -183,6 +186,79 @@ var LineChart = React.createClass({
         </Loader>
         );
     }
+  },
+  findMaxY: function(data){  // Define function "findMaxY"
+      var maxYValues = data.map(function(d) { 
+        if (d.visible){
+          return d3.max(d.values, function(value) { // Return max rating value
+            return value.activity; })
+        }
+      });
+      return d3.max(maxYValues);
+  },
+  _onClick: function(event){
+
+    console.log(event.target.value);
+
+    var x = this.state.scales.x;
+    var y = this.state.scales.y;
+    var colors = this.state.colors;
+
+    var maxY = this.findMaxY(this.state.activity); // Find max Y rating value categories data with "visible"; true
+    
+    y.domain([0,maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
+
+    var line = d3.svg.line()
+         .interpolate("cardinal")
+         .x(function(d) { return x(d.date); })
+         .y(function(d) { 
+           return y(d.activity); 
+         })
+
+    console.log("clicked");
+    this.d3Node = d3.select(this.getDOMNode());
+    console.log(this);
+    var newname = "Remove All";
+    var visible = true;
+    if(event.target.value === "Remove All")
+    {
+      visible = false;
+      newname = "Add All";
+    }
+      /// FINISH THIS
+    console.log("event value ", event.target.value);
+    console.log(newname);
+    event.target.value = newname
+    console.log("event value ", event.target.value);
+    this.state.activity.forEach(function(item, index){
+        item.visible = visible;
+    });
+
+   // this.setState({
+   //  activity: activity
+   // });
+    console.log(this.d3Node.selectAll("path"))
+    this.d3Node.selectAll("path")
+      .transition()
+      .duration(500)
+      .attr("d", function(d){
+        return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+      });
+
+    this.d3Node.selectAll("rect")
+      .transition()
+      .duration(500)
+      .attr("fill", function(d) {
+        if(d){
+          return d.visible ? colors(d.name) : "#F1F1F2";    
+        }
+    });
+
+    this.setState({
+      scales: {x: x,y: y},
+      graphstate: newname
+     })
+
   },
   _onChange: function(){
     var data = getDataFromServer(this.props.id);
