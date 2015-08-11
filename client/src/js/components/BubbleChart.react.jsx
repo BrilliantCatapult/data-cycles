@@ -165,7 +165,7 @@ var BubbleChart = React.createClass({
         }, this);
         return (
           <div style={{width:'100%'}}>
-            <button onClick={this._onClick}>SORT</button>
+            <button onClick={this._onClick} className="btn btn-alt btn-m margin-top" >SORT</button>
             <svg style={svgStyle}>            
               <g className="graph">
                 {{Circles}}

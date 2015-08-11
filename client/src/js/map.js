@@ -27,8 +27,6 @@ var timer, timermemo;
 playmemo = false;
 var margins = 20;
 
-var colors = [];
-
 updateWindow = function(){
   width = document.getElementById("map").clientWidth;
   timelineWidth = document.getElementById("timeline").clientWidth;
@@ -652,10 +650,6 @@ updateWindow();
 
 var prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
-var colorscale = d3.scale.linear()
-  .domain(d3.range(0, 1, 1.0 / (colors.length - 1)))
-  .range(colors);
-
 var timescale = d3.time.scale()
   .domain([new Date, new Date])
   .nice(d3.time.day)
@@ -709,7 +703,7 @@ var map = d3.select("#map")
   .on("mousemove", mousemoved);
 
 var routesinfo = d3.select("#routes-info");
-
+ 
 var tilesLayer = d3.select("#tileslayer");
 
 var svgAnimations = map.append("svg:svg")
@@ -826,7 +820,6 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
-
 // vertical slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
@@ -835,7 +828,6 @@ d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tic
 
 // d3.selectAll(".speed-axis .tick line")
 //     .attr("x2", "-18");
-
 calendarSlider.call(calendarBrush);
 
 var calendarHandle = calendarSlider.append("polygon")

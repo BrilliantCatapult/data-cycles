@@ -37,14 +37,21 @@ var About = React.createClass({
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-bahia.png" /></div>
               <h3 className="margin-top">Bahia Sharkawy</h3>
-              <div><a href="https://github.com/bahiafayez"><i className="icon icon-github"></i></a> <a href="http://www.calcium-c.com/"><i className="icon icon-globe"></i></a></div>
+              <div>
+                <a href="https://github.com/bahiafayez"><i className="icon icon-github"></i></a> 
+                <a href="http://www.calcium-c.com/"><i className="icon icon-globe"></i></a>
+              </div>
               <p>Master of her own domain and knows more about your domain than you do.</p>
             </div>
             <div className="bloc bloc-s-1">
               <div className="circle margin-top"><img src="../../img/profile-francois.png" /></div>
               <h3 className="margin-top">Francois Romain</h3>
-              <div><a href="https://github.com/francoisromain"><i className="icon icon-github"></i></a> <a href="https://twitter.com/d_sgnl"><i className="icon icon-twitter"></i></a></div>
-              <p>If you are what you eat, he would be an organic carrot. <br/>Nickname: Swaa.</p>
+              <div>
+                <a href="https://github.com/francoisromain"><i className="icon icon-github"></i></a> 
+                <a href="https://twitter.com/francoisromain"><i className="icon icon-twitter"></i></a>
+                <a href="http://francoisromain.com"><i className="icon icon-globe"></i></a>
+              </div>
+              <p>If you are what you eat, he would be an organic carrot. Nickname: Swaa.</p>
               
             </div>
             <div className="bloc bloc-s-1">

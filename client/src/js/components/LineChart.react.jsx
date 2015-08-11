@@ -164,11 +164,10 @@ var LineChart = React.createClass({
         var Lines = this.state.activity.map(function(bar, i) {
             return (<Line key={bar.key} data={bar} domains={setup} scales={this.state.scales} color={this.state.colors} tooltip={this.state.tooltip} activity={this.state.activity} width={this.state.width} index={i} parent={d3node} view={this}/>);
         }, this);
-        console.log("GRAPH STATE ISSS ", this.state.graphstate);
   
         return (
           <div>
-            <input type="button" value={this.state.graphstate || 'Remove All'} onClick={this._onClick.bind(this)} />
+            <input type="button" value={this.state.graphstate || 'Remove All'} onClick={this._onClick.bind(this)} className="btn btn-alt btn-m margin-top" />
             <svg style={svgStyle}>            
               <g className="graph">
                 <rect className="mouse-tracker" width={this.state.width} height={this.state.height} x="0" y="0" className="mouse-tracker" style={{fill:'white'}}></rect>

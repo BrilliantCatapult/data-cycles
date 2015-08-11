@@ -92,17 +92,23 @@ var Chart = React.createClass({
       <div>
         <Layout start_date={formatDate(this.state.start_date)} time={this.state.time} />
         <div className="container">
-          <Calendar start_date={this.state.start_date} time={this.state.time} style={divStyle} parent={this}/>
           <h2>Daily activity overview</h2>
           <hr />
-          <span id="date" className="xl bg">{formatDate(this.state.start_date)}</span>
           <div className="grid">
             <div className="bloc bloc-s-1">
-              <h3>Most used bikes</h3>
+              <span id="date" className="xl bg">{formatDate(this.state.start_date)}</span>
+            </div>
+            <div className="bloc bloc-s-6-1">
+              <Calendar start_date={this.state.start_date} time={this.state.time} style={divStyle} parent={this}/>
+            </div>
+          </div>
+          <div className="grid">
+            <div className="bloc bloc-s-1">
+              <h3>Most used bike</h3>
               <Info  order="desc" id="1" start_date={this.state.start_date} end_date={this.state.end_date}/>
             </div>
             <div className="bloc bloc-s-1">
-              <h3>Least used bikes</h3>
+              <h3>Least used bike</h3>
               <Info  order="asc" id='2' start_date={this.state.start_date} end_date={this.state.end_date}/>
             </div>
             <div className="bloc bloc-s-1">
@@ -111,15 +117,34 @@ var Chart = React.createClass({
             </div>
           </div>
           <h3>Bikes used</h3>
-          <BubbleChart  id='4' start_date={this.state.start_date} end_date={this.state.end_date}/>
+          <hr />
           <div className="grid">
-            <div className="bloc bloc-s-2">
-              <h3>Number of bikes taken from terminal</h3>
-              <LineChart  colors={this.state.colors} id='5'  start_date={this.state.start_date} end_date={this.state.end_date} name="Start Terminal"/>
+            <div className="bloc bloc-s-1">
             </div>
-            <div className="bloc bloc-s-2">
-              <h3>Number of bikes returned from terminal</h3>
-              <LineChart  colors={this.state.colors} id='6'  start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
+            <div className="bloc bloc-s-6-1">
+              <BubbleChart  id='4' start_date={this.state.start_date} end_date={this.state.end_date}/>
+            </div>
+          </div>
+
+          <h3>Number of bikes taken from terminal</h3>
+          <hr />
+          <div className="grid">
+            <div className="bloc bloc-s-1">
+              
+            </div>
+            <div className="bloc bloc-s-6-1">
+              <LineChart  colors={this.state.colors} id='5' start_date={this.state.start_date} end_date={this.state.end_date} name="Start Terminal"/>
+            </div>
+          </div>
+
+          <h3>Number of bikes returned to terminal</h3>
+          <hr />
+          <div className="grid">
+            <div className="bloc bloc-s-1">
+
+            </div>
+            <div className="bloc bloc-s-6-1">
+              <LineChart  colors={this.state.colors} id='6' start_date={this.state.start_date} end_date={this.state.end_date} name="End Terminal"/>
             </div>
           </div>
         </div>
