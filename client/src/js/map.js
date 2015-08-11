@@ -703,7 +703,7 @@ var map = d3.select("#map")
   .on("mousemove", mousemoved);
 
 var routesinfo = d3.select("#routes-info");
-
+ 
 var tilesLayer = d3.select("#tileslayer");
 
 var svgAnimations = map.append("svg:svg")
@@ -820,7 +820,6 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
-
 // vertical slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
@@ -829,7 +828,6 @@ d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tic
 
 // d3.selectAll(".speed-axis .tick line")
 //     .attr("x2", "-18");
-
 calendarSlider.call(calendarBrush);
 
 var calendarHandle = calendarSlider.append("polygon")
