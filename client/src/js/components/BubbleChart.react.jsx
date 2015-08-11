@@ -76,7 +76,6 @@ var BubbleChart = React.createClass({
                });
           // }
           D3ServerAction.readyToReceiveBubble(nextProps.id, nextProps.start_date, nextProps.end_date);
-          console.log("receiving new props", nextProps);
       },
   componentWillUpdate: function(){
     //D3ServerAction.readyToReceiveBubble(this.props.id, this.state.start_date, this.state.end_date);
@@ -145,7 +144,6 @@ var BubbleChart = React.createClass({
         //get information about the range of the chart
         var setup = D3Utils.calculatePosition(this.state.width, this.state.height, this.state.bars, "doc_count", "key");
         // setup colorRange to use with the chart
-        console.log("domain issss ", setup.domains.x[1]);
         var colorRange = this.colorRange(setup.domains.x);
         // setting up color scale
         var colors = D3Utils.calculateColor(colorRange, ["red", "yellow", "green"]);

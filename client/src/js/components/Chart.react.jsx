@@ -40,12 +40,6 @@ var Chart = React.createClass({
      router: React.PropTypes.func
   },
   componentWillReceiveProps: function(nextProps) {
-          // if (typeof nextProps.showAdvanced === 'boolean') {
-          //     this.setState({
-          //         showAdvanced: nextProps.showAdvanced
-          //     })
-          // }
-          console.log("receiving new props", nextProps);
           var dates = setupDate(nextProps.params.date);
           this.setState({
             start_date: dates.start_date,

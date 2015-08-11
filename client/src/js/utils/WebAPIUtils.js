@@ -70,7 +70,6 @@ Utils.getLineData = function(id, start_date, end_date){
   }
 };
 Utils.getServerData = function(id, start_date, end_date){
-  console.log("returning for id ", id);
   var D3ServerAction = require('../actions/D3ServerAction');
   if(id === "1"){
     d3.json("/api/bikes?size=10&order=desc&start_date="+start_date+"&end_date="+end_date, function(data){
