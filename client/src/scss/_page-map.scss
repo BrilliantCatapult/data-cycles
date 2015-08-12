@@ -22,7 +22,7 @@ $color-green: #B6EA00;
   fill: $color-dark;
 }
 
-.info {
+.coord {
   position: absolute;
   bottom: 10px;
   left: 10px;
@@ -33,7 +33,7 @@ $color-green: #B6EA00;
   height: 40px;
 }
 
-#routes-info {
+#info {
   position: absolute;
   right: 0;
   top: 0;
@@ -42,7 +42,7 @@ $color-green: #B6EA00;
   margin-right: 0.5rem;
 }
 
-.route-info-bloc {
+.info-bloc {
   width: 13.5rem;
   background-color: white;
   padding: 1px 5px;
@@ -58,7 +58,7 @@ $color-green: #B6EA00;
   to   { opacity: 1; }
 }
 
-.route-info-bloc.margin-bottom-xxs {
+.info-bloc.margin-bottom-xxs {
   padding-bottom: 0.25rem;
 }
 
@@ -80,6 +80,9 @@ $color-green: #B6EA00;
 .route-info-time {
   width: 1.8rem;
   margin-right: 0.5rem;
+  font-weight: 700;
+}
+.dock-name { 
   font-weight: 700;
 }
 
