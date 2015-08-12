@@ -49,7 +49,6 @@ ChartStore.dispatchToken = D3Dispatcher.register(function(action){
   switch(action.type){
 
     case actions.RECEIVE_STATION_DATA:
-      console.log("STATION DATA  ",action.data);
       _addMessages(action.data);
       ChartStore.emitChange();
       break;

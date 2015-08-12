@@ -197,8 +197,6 @@ var LineChart = React.createClass({
   },
   _onClick: function(event){
 
-    console.log(event.target.value);
-
     var x = this.state.scales.x;
     var y = this.state.scales.y;
     var colors = this.state.colors;
@@ -214,9 +212,7 @@ var LineChart = React.createClass({
            return y(d.activity); 
          })
 
-    console.log("clicked");
     this.d3Node = d3.select(this.getDOMNode());
-    console.log(this);
     var newname = "Remove All";
     var visible = true;
     if(event.target.value === "Remove All")
@@ -224,19 +220,11 @@ var LineChart = React.createClass({
       visible = false;
       newname = "Add All";
     }
-      /// FINISH THIS
-    console.log("event value ", event.target.value);
-    console.log(newname);
     event.target.value = newname
-    console.log("event value ", event.target.value);
     this.state.activity.forEach(function(item, index){
         item.visible = visible;
     });
-
-   // this.setState({
-   //  activity: activity
-   // });
-    console.log(this.d3Node.selectAll("path"))
+    
     this.d3Node.selectAll("path")
       .transition()
       .duration(500)
