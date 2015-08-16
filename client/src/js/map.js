@@ -30,7 +30,7 @@ var margins = 20;
 updateWindow = function(){
   width = document.getElementById("map").clientWidth;
   timelineWidth = document.getElementById("timeline").clientWidth;
-  height = Math.min(500, window.innerHeight);
+  height = Math.max(512, window.innerHeight-384);
 };
 
 var timeToMilliSeconds = function (string) {
@@ -735,7 +735,7 @@ var tilesLayer = d3.select("#tileslayer");
 var svgAnimations = map.append("svg:svg")
   .attr("id", 'animations')
   .style("width", width + "px")
-  .style("height", height - 50 + "px")
+  .style("height", height + "px")
   .call(zoom);
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
