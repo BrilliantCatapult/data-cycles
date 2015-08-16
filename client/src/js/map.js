@@ -30,7 +30,7 @@ var margins = 20;
 updateWindow = function(){
   width = document.getElementById("map").clientWidth;
   timelineWidth = document.getElementById("timeline").clientWidth;
-  height = Math.min(500, window.innerHeight);
+  height = Math.max(512, window.innerHeight-384);
 };
 
 var timeToMilliSeconds = function (string) {
@@ -241,7 +241,6 @@ var drawRing = function (id, color) {
 };
 
 var hideBikesRoute = function() {
-  tooltip.classed("hide", true);
 
   d3.selectAll(".route")
     .transition()
@@ -254,7 +253,7 @@ var hideBikesRoute = function() {
       class: "hide ring"
     });
 
-  routesinfo.html("");
+  info.html("");
 
   d3.select("#routes-step-number").remove();
 
@@ -313,12 +312,12 @@ var showBikeRoutes = function (d, bike) {
     }
   }
 
-  routesinfo.selectAll("div")
+  info.selectAll("div")
     .data(steps)
     .enter()
     .append("div")
     .attr({
-      class: function(d) { return d.type === "start" ? "route-info-bloc" : "route-info-bloc margin-bottom-xxs"; }
+      class: function(d) { return d.type === "start" ? "info-bloc" : "info-bloc margin-bottom-xxs"; }
     })
     .html( function(d) { return '<span class="route-info-step">' + d.value + '</span><span class="route-info-time">' + d.time + '</span> <span class="route-info-name">' + d.station + '</span>' ; } );
 
@@ -379,6 +378,59 @@ var showBikeRoutes = function (d, bike) {
     });
 };
 
+showDockInfo = function (d, dock) {
+
+  info.append("div")
+    .attr({
+      class: "info-bloc"
+    })
+    .html( function() { 
+    return '<p class="dock-name">' + d.properties.name + "</p>"; 
+  });
+
+  var infoDockSvg = info.append("div")
+    .attr({
+      class: "info-bloc"
+    })
+    .append("svg")
+    .attr("width", 240)
+    .attr("height", 200);
+
+  // infoDockSvg.append("g")
+  //   .attr("transform", "translate(20,24)")
+  //   .attr("class", "time-axis")
+  //   .call(dockInfoXAxis);
+  
+  var lineFunction = d3.svg.line()
+    .x(function(d) { return dockInfoXScale(timeToMilliSeconds(d.time)); })
+    .y(function(d) { return dockInfoYScale(d.bikes_available); })
+    .interpolate("step-after");
+  
+  var lineGraph = infoDockSvg.append("path")
+    .attr("d", lineFunction(d.properties.activity))
+    .attr("stroke", "#B6EA00")
+    .attr("stroke-width", 2)
+    .attr("fill", "none");
+
+};
+
+var dockInfoYScale = d3.scale.linear()
+  .domain([45,0])
+  .range([0,200]);
+
+var dockInfoXScale = d3.scale.linear()
+  .domain([0, day])
+  .range([0, 240]);
+
+// var dockInfoXAxis = d3.svg.axis()
+//   .scale(dockInfoXScale)
+//   .ticks(24)
+//   .tickFormat(d3.time.format("%H"))
+//   .orient("top");
+
+var hideDockInfo = function() {
+  info.html("");
+};
 
 var drawSvg = function (dataDocks, dataBikes) {
 
@@ -436,7 +488,9 @@ var drawSvg = function (dataDocks, dataBikes) {
     .attr({
       id: function (d) { return "dock-" + d.properties.id }, 
       class: "dock"
-    });
+    })
+    .on("mouseover", function(d) { brushstart(); showDockInfo(d, this); })
+    .on("mouseout", function(){ brushend(); hideDockInfo(); });;
 
   docks.append("circle")
     .attr({
@@ -565,33 +619,6 @@ var renderZoom = function () {
       });
     });
 
-  // var waterTexture = 
-  // d3.selectAll(".tile")
-  //   .each(function (d, i) {
-
-  //     var currentTile = d3.select(this);
-
-  //     currentTile.attr("id", function() { return "tile-" + i; })
-
-  //     currentTile.append("defs")
-  //      .append('pattern')
-  //      .attr('id', function() { return "pattern-" + i; })
-  //      .attr('patternUnits', 'userSpaceOnUse')
-  //      .attr('width', 16)
-  //      .attr('height', 16)
-  //      .append("image")
-  //      .attr("xlink:href", "img/texture-lines.png")
-  //      .attr('width', 16)
-  //      .attr('height', 16);
-
-  //   currentTile.selectAll(".water, .tile .ocean")
-  //     .attr("fill", "url(#pattern-" + i + ")");
-
-  //     console.log("tile", this, i, d);
-      
-
-  //   });
-
   svgAnimations.selectAll(".dock circle")
     .attr({
       cx: function (d) { return projection(d.geometry.coordinates)[0]; },
@@ -623,7 +650,7 @@ var renderZoom = function () {
 };
 
 var mousemoved = function () {
-  info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
+  coord.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
 };
 
 var matrix3d = function (scale, translate) {
@@ -702,20 +729,19 @@ var map = d3.select("#map")
   .call(zoom)
   .on("mousemove", mousemoved);
 
-var routesinfo = d3.select("#routes-info");
- 
+var info = d3.select("#info");
 var tilesLayer = d3.select("#tileslayer");
 
 var svgAnimations = map.append("svg:svg")
   .attr("id", 'animations')
   .style("width", width + "px")
-  .style("height", height - 50 + "px")
+  .style("height", height + "px")
   .call(zoom);
 
 var svgAnimationsPosition = svgAnimations.node().getBoundingClientRect();
 
-var info = map.append("div")
-  .attr("class", "info");
+var coord = map.append("div")
+  .attr("class", "coord");
 
 var timelineSvg = d3.select("#timeline")
   .append("svg")
@@ -725,7 +751,6 @@ var button = d3.select("#playbutton")
   .attr('disabled', true);
 
 var tooltip = d3.select(".map-tooltip");
-
 var timerdisplay = d3.select("#time");
 
 var dateDisplay = d3.select("#date");
@@ -820,6 +845,7 @@ d3.selectAll(".calendar-axis .tick text, .time-axis .tick text, .speed-axis .tic
 
 d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tick line")
   .attr("y2", "-18");
+
 // vertical slider
 // d3.selectAll(".speed-axis .tick text")
 //   .attr("y", -10)
@@ -828,6 +854,7 @@ d3.selectAll(".calendar-axis .tick line, .time-axis .tick line, .speed-axis .tic
 
 // d3.selectAll(".speed-axis .tick line")
 //     .attr("x2", "-18");
+
 calendarSlider.call(calendarBrush);
 
 var calendarHandle = calendarSlider.append("polygon")
